@@ -167,15 +167,6 @@ input:focus,select:focus{border-color:#185FA5}
       <button class="btn btn-sm btn-primary" onclick="saveSchedule()">Simpan Jadwal</button>
     </div>
   </div>
-  <div class="legend">
-    <span class="badge badge-tpt-p">TPT Pagi (kantor)</span>
-    <span class="badge badge-tpt-s">TPT Siang (kantor)</span>
-    <span class="badge badge-app">Aplikasi Internal</span>
-    <span class="badge badge-wa-p">WA Pagi</span>
-    <span class="badge badge-wa-s">WA Siang</span>
-    <span class="badge badge-wfh">WFH</span>
-    <span class="badge badge-cuti">Cuti</span>
-  </div>
   <div id="sched-notice" class="notice notice-success" style="display:none"></div>
   <div id="sched-container"><div style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada jadwal. Generate dari tab Pengaturan.</div></div>
 </div>
@@ -441,32 +432,142 @@ function generateSchedule(){
   setTimeout(()=>showPanel('schedule'),600);
 }
 
-// ── Render schedule ──────────────────────────────────────────────
+// ── Render schedule (semua hari dalam bulan) ─────────────────────
 function renderSchedule(){
   if(!schedule)return;
   const {month,year,workdays}=schedule;
   document.getElementById('sched-title').textContent=`Jadwal — ${MONTHS[month]} ${year}`;
-  const dayNames=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
-  let html='<div class="scroll-x"><table class="sched-table"><thead><tr>'
-    +'<th style="min-width:85px">Tanggal</th><th>TPT Pagi</th><th>TPT Siang</th>'
-    +'<th>Aplikasi Internal</th><th>WA Pagi</th><th>WA Siang</th>'
-    +'<th>WFH (Jumat)</th><th>Cuti</th></tr></thead><tbody>';
-  workdays.forEach(day=>{
-    const dt=new Date(day.date+'T00:00:00');
-    const dn=dayNames[dt.getDay()],dd=dt.getDate(),mm=dt.getMonth()+1,fr=day.isFriday;
-    html+=`<tr${fr?' class="day-fri"':''}>`;
-    html+=`<td style="white-space:nowrap;font-size:11px;color:#666;font-weight:500">${dn}, ${dd}/${mm}${fr?'<br><span class="badge badge-wfh" style="font-size:9px">Jumat</span>':''}</td>`;
-    html+=`<td>${day.assignments.tpt_p.map(e=>`<span class="badge badge-tpt-p">${e}</span>`).join(' ')}</td>`;
-    html+=`<td>${day.assignments.tpt_s.map(e=>`<span class="badge badge-tpt-s">${e}</span>`).join(' ')}</td>`;
-    html+=`<td>${day.assignments.app.map(e=>`<span class="badge badge-app">${e}${fr?' (WFH)':''}</span>`).join(' ')}</td>`;
-    html+=`<td>${day.assignments.wa_p.map(e=>`<span class="badge badge-wa-p">${e}${fr?' (WFH)':''}</span>`).join(' ')}</td>`;
-    html+=`<td>${day.assignments.wa_s.map(e=>`<span class="badge badge-wa-s">${e}${fr?' (WFH)':''}</span>`).join(' ')}</td>`;
-    html+=`<td>${fr&&day.wfhList.length?day.wfhList.map(e=>`<span class="badge badge-wfh">${e}</span>`).join(' '):'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
-    html+=`<td>${day.onLeave.length?day.onLeave.map(e=>`<span class="badge badge-cuti">${e}</span>`).join(' '):'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+  const dayNames=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const dayNamesShort=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+  // Buat map date -> workday entry untuk lookup cepat
+  const wdMap={};
+  workdays.forEach(w=>wdMap[w.date]=w);
+
+  // Iterasi semua hari dalam bulan
+  const allDays=[];
+  const cur=new Date(year,month,1);
+  while(cur.getMonth()===month){
+    allDays.push(new Date(cur));
+    cur.setDate(cur.getDate()+1);
+  }
+
+  // Warna baris berdasarkan tipe hari:
+  // weekend      : bg merah muda #fff5f5, border-left merah
+  // libur nasional: bg ungu muda #f5f0ff, border-left ungu
+  // cuti pegawai (semua cuti): bg oranye muda #fff8f0, border-left oranye
+  // jumat WFH    : bg hijau muda #f3fbf7, border-left hijau
+  // hari kerja biasa: putih
+
+  const getOnLeaveAll=(ds)=>employees.filter(e=>isOnLeave(e,ds));
+
+  let html=`<div class="scroll-x"><table class="sched-table">
+  <thead><tr>
+    <th style="min-width:110px">Tanggal</th>
+    <th style="min-width:60px">Keterangan</th>
+    <th>TPT Pagi</th>
+    <th>TPT Siang</th>
+    <th>Aplikasi Internal</th>
+    <th>WA Pagi</th>
+    <th>WA Siang</th>
+    <th>WFH (Jumat)</th>
+    <th>Cuti Pegawai</th>
+  </tr></thead><tbody>`;
+
+  allDays.forEach(dt=>{
+    const ds=dt.toISOString().slice(0,10);
+    const dow=dt.getDay();
+    const dd=dt.getDate();
+    const mm=dt.getMonth()+1;
+    const isWeekend=(dow===0||dow===6);
+    const isHol=isHoliday(ds);
+    const isFri=(dow===5);
+    const onLeaveToday=getOnLeaveAll(ds);
+    const hasAnyLeave=onLeaveToday.length>0;
+    const wd=wdMap[ds]; // null jika bukan workday (weekend/libur)
+
+    // Tentukan tipe baris (prioritas: weekend > libur > kerja)
+    let rowStyle='';
+    let rowLabel='';
+    let labelColor='';
+
+    if(isWeekend){
+      rowStyle='background:#fff5f5;';
+      rowLabel=dow===0?'Minggu':'Sabtu';
+      labelColor='color:#a32d2d;font-weight:500';
+    } else if(isHol){
+      const holName=holidays.find(h=>h.date===ds)?.name||'Libur';
+      rowStyle='background:#f5f0ff;';
+      rowLabel=holName;
+      labelColor='color:#3c3489;font-weight:500';
+    } else if(isFri){
+      rowStyle='background:#f3fbf7;';
+      rowLabel='WFH';
+      labelColor='color:#0f6e56;font-weight:500';
+    } else {
+      rowStyle='background:#fff;';
+      rowLabel='Kerja';
+      labelColor='color:#999';
+    }
+
+    // border-left warna sesuai tipe
+    const borderLeft=isWeekend
+      ?'border-left:3px solid #f09595'
+      :isHol
+        ?'border-left:3px solid #AFA9EC'
+        :isFri
+          ?'border-left:3px solid #5DCAA5'
+          :'border-left:3px solid #e8e8e4';
+
+    html+=`<tr style="${rowStyle}${borderLeft}">`;
+
+    // Kolom tanggal
+    const dayShort=dayNamesShort[dow];
+    const isToday=ds===(new Date().toISOString().slice(0,10));
+    html+=`<td style="white-space:nowrap;font-size:12px;font-weight:500;${isWeekend?'color:#a32d2d;':isHol?'color:#3c3489;':isFri?'color:#0f6e56;':'color:#333;'}">
+      ${dayShort}, ${dd}/${mm}
+      ${isToday?'<span style="background:#185FA5;color:#fff;font-size:9px;padding:1px 5px;border-radius:4px;margin-left:2px">Hari ini</span>':''}
+    </td>`;
+
+    // Kolom keterangan
+    html+=`<td style="font-size:11px;${labelColor}">${rowLabel}${hasAnyLeave&&!isWeekend&&!isHol?'<br><span style="color:#712b13;font-size:10px">Ada cuti</span>':''}</td>`;
+
+    if(isWeekend||isHol){
+      // Baris non-kerja: span semua kolom penugasan
+      const msg=isWeekend
+        ?(dow===0?'Hari Minggu':'Hari Sabtu')
+        :holidays.find(h=>h.date===ds)?.name||'Hari Libur';
+      html+=`<td colspan="7" style="color:${isWeekend?'#c0a0a0':isHol?'#9090c0':'#999'};font-size:12px;font-style:italic">${msg}</td>`;
+    } else if(!wd){
+      // Seharusnya tidak terjadi, tapi fallback
+      html+=`<td colspan="7" style="color:#ccc;font-size:11px">—</td>`;
+    } else {
+      // Hari kerja — tampilkan penugasan
+      const fr=wd.isFriday;
+      html+=`<td>${wd.assignments.tpt_p.map(e=>`<span class="badge badge-tpt-p">${e}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+      html+=`<td>${wd.assignments.tpt_s.map(e=>`<span class="badge badge-tpt-s">${e}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+      html+=`<td>${wd.assignments.app.map(e=>`<span class="badge badge-app">${e}${fr?' (WFH)':''}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+      html+=`<td>${wd.assignments.wa_p.map(e=>`<span class="badge badge-wa-p">${e}${fr?' (WFH)':''}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+      html+=`<td>${wd.assignments.wa_s.map(e=>`<span class="badge badge-wa-s">${e}${fr?' (WFH)':''}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+      html+=`<td>${fr&&wd.wfhList.length?wd.wfhList.map(e=>`<span class="badge badge-wfh">${e}</span>`).join(' '):'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+      html+=`<td>${wd.onLeave.length?wd.onLeave.map(e=>`<span class="badge badge-cuti">${e}</span>`).join(' '):'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+    }
+
     html+='</tr>';
   });
+
   html+='</tbody></table></div>';
-  document.getElementById('sched-container').innerHTML=html;
+
+  // Legend warna
+  const legend=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;font-size:12px">
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#fff5f5;border:1px solid #f09595;border-radius:2px;display:inline-block"></span>Weekend</span>
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#f5f0ff;border:1px solid #AFA9EC;border-radius:2px;display:inline-block"></span>Hari Libur Nasional</span>
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#f3fbf7;border:1px solid #5DCAA5;border-radius:2px;display:inline-block"></span>Jumat WFH</span>
+    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#fff;border:1px solid #e8e8e4;border-radius:2px;display:inline-block"></span>Hari Kerja</span>
+    <span class="badge badge-cuti" style="font-size:11px">Nama (cuti)</span>
+  </div>`;
+
+  document.getElementById('sched-container').innerHTML=legend+html;
 }
 
 // ── Render dashboard ─────────────────────────────────────────────
@@ -505,11 +606,24 @@ function exportCSV(){
   if(!schedule){alert('Generate jadwal dulu');return;}
   const {workdays,month,year}=schedule;
   const dayNames=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  let csv='Tanggal,Hari,TPT Pagi,TPT Siang,Aplikasi Internal,WA Pagi,WA Siang,WFH,Cuti\n';
-  workdays.forEach(day=>{
-    const dt=new Date(day.date+'T00:00:00');
-    csv+=`${day.date},${dayNames[dt.getDay()]},"${day.assignments.tpt_p.join(', ')}","${day.assignments.tpt_s.join(', ')}","${day.assignments.app.join(', ')}","${day.assignments.wa_p.join(', ')}","${day.assignments.wa_s.join(', ')}","${day.wfhList.join(', ')}","${day.onLeave.join(', ')}"\n`;
-  });
+  const wdMap={};workdays.forEach(w=>wdMap[w.date]=w);
+  let csv='Tanggal,Hari,Keterangan,TPT Pagi,TPT Siang,Aplikasi Internal,WA Pagi,WA Siang,WFH,Cuti\n';
+  const cur=new Date(year,month,1);
+  while(cur.getMonth()===month){
+    const ds=cur.toISOString().slice(0,10);
+    const dow=cur.getDay();
+    const dayName=dayNames[dow];
+    const isWeekend=(dow===0||dow===6);
+    const isHol=isHoliday(ds);
+    const wd=wdMap[ds];
+    let ket=isWeekend?(dow===0?'Minggu':'Sabtu'):isHol?(holidays.find(h=>h.date===ds)?.name||'Libur'):dow===5?'Jumat WFH':'Hari Kerja';
+    if(wd){
+      csv+=`${ds},${dayName},"${ket}","${wd.assignments.tpt_p.join(', ')}","${wd.assignments.tpt_s.join(', ')}","${wd.assignments.app.join(', ')}","${wd.assignments.wa_p.join(', ')}","${wd.assignments.wa_s.join(', ')}","${wd.wfhList.join(', ')}","${wd.onLeave.join(', ')}"\n`;
+    } else {
+      csv+=`${ds},${dayName},"${ket}","","","","","","",""\n`;
+    }
+    cur.setDate(cur.getDate()+1);
+  }
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download=`Jadwal_${MONTHS[month]}_${year}.csv`;a.click();URL.revokeObjectURL(url);
