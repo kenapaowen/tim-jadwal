@@ -9,13 +9,12 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;font-size:14px}
 .app{display:flex;flex-direction:column;min-height:100vh}
 .topbar{background:#fff;border-bottom:1px solid #e8e8e4;padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
-.logo{font-size:15px;font-weight:600;color:#1a1a18}
-.logo span{color:#185FA5}
-.nav{display:flex;gap:4px;margin-left:auto}
+.logo{font-size:15px;font-weight:600}.logo span{color:#185FA5}
+.nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 .nav-btn{padding:6px 14px;font-size:13px;border:1px solid transparent;border-radius:8px;cursor:pointer;background:transparent;color:#666;transition:all 0.15s}
 .nav-btn.active{background:#e6f1fb;color:#185FA5;border-color:#b5d4f4}
 .nav-btn:hover:not(.active){background:#f0f0ec}
-.content{flex:1;padding:20px;max-width:1200px;margin:0 auto;width:100%}
+.content{flex:1;padding:16px;max-width:1400px;margin:0 auto;width:100%}
 .panel{display:none}.panel.active{display:block}
 .card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:16px 20px;margin-bottom:16px}
 .card-title{font-size:13px;font-weight:500;margin-bottom:12px;color:#666}
@@ -23,15 +22,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 input,select{width:100%;font-size:13px;font-family:inherit;padding:7px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a18;outline:none;transition:border-color 0.15s}
 input:focus,select:focus{border-color:#185FA5}
-.row{display:flex;gap:10px;align-items:flex-end;margin-bottom:8px}
-.row>*{flex:1}
-.btn{padding:8px 16px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #ccc;background:#fff;color:#1a1a18;transition:all 0.15s;font-family:inherit}
+.row{display:flex;gap:10px;align-items:flex-end;margin-bottom:8px;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+.btn{padding:8px 16px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #ccc;background:#fff;color:#1a1a18;transition:all 0.15s;font-family:inherit;white-space:nowrap}
 .btn:hover{background:#f0f0ec}
 .btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
-.btn-primary:hover{background:#0C447C;border-color:#0C447C}
+.btn-primary:hover{background:#0C447C}
 .btn-danger{background:#fff0f0;color:#a32d2d;border-color:#f7c1c1}
 .btn-sm{padding:4px 10px;font-size:12px}
-.badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:500}
+.badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap}
 .badge-tpt-p{background:#e6f1fb;color:#185FA5}
 .badge-tpt-s{background:#b5d4f4;color:#0c447c}
 .badge-app{background:#eaf3de;color:#3b6d11}
@@ -43,36 +42,50 @@ input:focus,select:focus{border-color:#185FA5}
 .emp-tag button{background:none;border:none;cursor:pointer;color:#999;font-size:14px;line-height:1;padding:0}
 .emp-tag button:hover{color:#a32d2d}
 .tag-wrap{display:flex;flex-wrap:wrap;min-height:36px;padding:4px;border:1px solid #ddd;border-radius:8px;background:#fff}
-.sched-table{width:100%;border-collapse:collapse;font-size:12px}
-.sched-table th{padding:6px 8px;text-align:left;border-bottom:1px solid #e8e8e4;color:#666;font-weight:500;background:#f5f5f3;position:sticky;top:52px}
-.sched-table td{padding:5px 8px;border-bottom:1px solid #f0f0ec;vertical-align:middle}
-.sched-table tr:last-child td{border-bottom:none}
-.sched-table tr:hover td{background:#fafaf8}
+.holiday-list{max-height:200px;overflow-y:auto}
+.holiday-item{display:flex;align-items:center;padding:5px 8px;border-radius:8px;font-size:12px;gap:8px}
+.holiday-item:hover{background:#f5f5f3}
+.notice{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.notice-success{background:#eaf3de;color:#3b6d11}
+.notice-warn{background:#faeeda;color:#633806}
+.section-title{font-size:16px;font-weight:600;margin-bottom:16px}
+.flex-end{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap}
+.wfh-rule-box{background:#e1f5ee;border:1px solid #9fe1cb;border-radius:8px;padding:10px 14px;font-size:12px;color:#085041;margin-bottom:12px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
 .metric-card{background:#f5f5f3;border-radius:8px;padding:12px 16px}
 .metric-label{font-size:12px;color:#666;margin-bottom:4px}
 .metric-value{font-size:22px;font-weight:600}
 .emp-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0ec}
 .emp-row:last-child{border-bottom:none}
 .avatar{width:32px;height:32px;border-radius:50%;background:#e6f1fb;color:#185FA5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
-.emp-name{font-size:13px;font-weight:500;min-width:130px}
+.emp-name{font-size:13px;font-weight:500;min-width:120px}
 .bar-wrap{flex:1;display:flex;align-items:center;gap:8px}
 .bar-bg{flex:1;height:8px;background:#ebebeb;border-radius:4px;overflow:hidden}
 .bar-fill{height:100%;border-radius:4px}
 .bar-label{font-size:11px;color:#666;min-width:28px;text-align:right}
-.scroll-x{overflow-x:auto}
-.notice{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
-.notice-info{background:#e6f1fb;color:#185FA5}
-.notice-success{background:#eaf3de;color:#3b6d11}
-.notice-warn{background:#faeeda;color:#633806}
-.section-title{font-size:16px;font-weight:600;margin-bottom:16px}
-.flex-end{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-.holiday-list{max-height:180px;overflow-y:auto}
-.holiday-item{display:flex;align-items:center;padding:6px 8px;border-radius:8px;font-size:12px;gap:8px}
-.holiday-item:hover{background:#f5f5f3}
-.legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
-.wfh-rule-box{background:#e1f5ee;border:1px solid #9fe1cb;border-radius:8px;padding:10px 14px;font-size:12px;color:#085041;margin-bottom:12px}
-.day-fri{background:#f7fdfb}
+.sched-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #e8e8e4;border-radius:12px}
+.sched-table{width:100%;border-collapse:collapse;font-size:12px;min-width:680px}
+.sched-table th{padding:8px 10px;text-align:left;border-bottom:2px solid #e8e8e4;color:#555;font-weight:600;font-size:11px;background:#f5f5f3;white-space:nowrap;position:sticky;top:0;z-index:2}
+.sched-table th:first-child{position:sticky;left:0;z-index:3;background:#f5f5f3}
+.sched-table td{padding:6px 10px;border-bottom:1px solid #f0f0ec;vertical-align:middle;line-height:1.5}
+.sched-table td:first-child{position:sticky;left:0;z-index:1;background:inherit;border-right:1px solid #e8e8e4;min-width:100px}
+.sched-table tr:last-child td{border-bottom:none}
+.row-weekend td{background:#fff5f5 !important}.row-weekend td:first-child{border-left:3px solid #f09595}
+.row-holiday td{background:#f5f0ff !important}.row-holiday td:first-child{border-left:3px solid #AFA9EC}
+.row-friday td{background:#f3fbf7 !important}.row-friday td:first-child{border-left:3px solid #5DCAA5}
+.row-workday td{background:#fff}.row-workday td:first-child{border-left:3px solid #e0eefd}
+.sched-table tr:hover td{filter:brightness(0.975)}
+.cell-badges{display:flex;flex-wrap:wrap;gap:3px}
+.ket-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:500}
+.legend-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;align-items:center;font-size:12px;color:#555;padding:8px 12px;background:#fff;border:1px solid #e8e8e4;border-radius:8px}
+.legend-item{display:inline-flex;align-items:center;gap:5px}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;border:1px solid rgba(0,0,0,0.1)}
+.detail-table{width:100%;border-collapse:collapse;font-size:12px}
+.detail-table th{padding:7px 10px;text-align:center;border-bottom:1px solid #e8e8e4;color:#666;font-weight:500;background:#f5f5f3;white-space:nowrap}
+.detail-table th:first-child{text-align:left}
+.detail-table td{padding:6px 10px;border-bottom:1px solid #f0f0ec;text-align:center}
+.detail-table td:first-child{text-align:left;font-weight:500}
+.detail-table tr:last-child td{border-bottom:none}
 @media(max-width:640px){.grid-2{grid-template-columns:1fr}.row{flex-direction:column}}
 </style>
 </head>
@@ -86,15 +99,12 @@ input:focus,select:focus{border-color:#185FA5}
     <button class="nav-btn" onclick="showPanel('dashboard')">Dashboard</button>
   </div>
 </div>
-
 <div class="content">
 
 <!-- SETUP -->
 <div class="panel active" id="panel-setup">
   <div class="section-title">Pengaturan Tim &amp; Jadwal</div>
-  <div class="wfh-rule-box">
-    <strong>Aturan WFH (Jumat):</strong> Pegawai <strong>Aplikasi Internal</strong> dan <strong>WA Pagi/Siang</strong> = WFH. Pegawai <strong>TPT Pagi &amp; Siang</strong> tetap masuk kantor.
-  </div>
+  <div class="wfh-rule-box"><strong>Aturan WFH (Jumat):</strong> Pegawai <strong>Aplikasi Internal</strong> dan <strong>WA Pagi/Siang</strong> = WFH. Pegawai <strong>TPT Pagi &amp; Siang</strong> tetap masuk kantor.</div>
   <div class="grid-2">
     <div>
       <div class="card">
@@ -108,14 +118,14 @@ input:focus,select:focus{border-color:#185FA5}
               <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
             </select>
           </div>
-          <div><label>Tahun</label><input type="number" id="inp-year" value="2025" min="2020" max="2030"/></div>
+          <div><label>Tahun</label><input type="number" id="inp-year" value="2025" min="2020" max="2035"/></div>
         </div>
       </div>
       <div class="card">
         <div class="card-title">Daftar Pegawai (<span id="emp-count">0</span>)</div>
         <div class="row">
           <div><label>Nama Pegawai</label><input type="text" id="inp-emp" placeholder="Nama lengkap..." onkeydown="if(event.key==='Enter')addEmp()"/></div>
-          <div style="flex:0"><button class="btn btn-primary" style="white-space:nowrap" onclick="addEmp()">+ Tambah</button></div>
+          <div style="flex:0"><button class="btn btn-primary" onclick="addEmp()">+ Tambah</button></div>
         </div>
         <div class="tag-wrap" id="emp-tags"></div>
         <div class="flex-end" style="margin-top:8px">
@@ -126,11 +136,11 @@ input:focus,select:focus{border-color:#185FA5}
     </div>
     <div>
       <div class="card">
-        <div class="card-title">Hari Libur Nasional</div>
+        <div class="card-title">Hari Libur Nasional &amp; Cuti Bersama</div>
         <div class="row">
           <div><label>Tanggal</label><input type="date" id="inp-hol-date"/></div>
           <div><label>Keterangan</label><input type="text" id="inp-hol-name" placeholder="Nama hari libur..."/></div>
-          <div style="flex:0"><button class="btn btn-primary" style="white-space:nowrap" onclick="addHoliday()">+ Tambah</button></div>
+          <div style="flex:0"><button class="btn btn-primary" onclick="addHoliday()">+ Tambah</button></div>
         </div>
         <div class="holiday-list" id="holiday-list"><div style="font-size:12px;color:#999;padding:8px 0">Belum ada hari libur.</div></div>
       </div>
@@ -140,17 +150,17 @@ input:focus,select:focus{border-color:#185FA5}
           <div><label>Pegawai</label><select id="sel-leave-emp"><option value="">-- Pilih --</option></select></div>
           <div><label>Dari</label><input type="date" id="inp-leave-from"/></div>
           <div><label>Sampai</label><input type="date" id="inp-leave-to"/></div>
-          <div style="flex:0"><button class="btn btn-primary" style="white-space:nowrap" onclick="addLeave()">+ Tambah</button></div>
+          <div style="flex:0"><button class="btn btn-primary" onclick="addLeave()">+ Tambah</button></div>
         </div>
         <div class="holiday-list" id="leave-list"><div style="font-size:12px;color:#999;padding:8px 0">Belum ada cuti.</div></div>
       </div>
     </div>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px">
-    <div style="display:flex;gap:8px;align-items:center">
-      <span style="font-size:12px;color:#999">Backup pengaturan:</span>
-      <button class="btn btn-sm" onclick="exportSettings()" title="Simpan semua isian ke file JSON">&#8595; Export Pengaturan</button>
-      <label class="btn btn-sm" style="cursor:pointer;margin:0" title="Muat pengaturan dari file JSON">&#8593; Import Pengaturan<input type="file" accept=".json" id="inp-import" onchange="importSettings(event)" style="display:none"/></label>
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:4px">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:12px;color:#999">Backup:</span>
+      <button class="btn btn-sm" onclick="exportSettings()">&#8595; Export JSON</button>
+      <label class="btn btn-sm" style="cursor:pointer;margin:0">&#8593; Import JSON<input type="file" accept=".json" onchange="importSettings(event)" style="display:none"/></label>
     </div>
     <button class="btn btn-primary" onclick="generateSchedule()" style="padding:10px 24px;font-size:14px">&#9654; Generate Jadwal</button>
   </div>
@@ -163,7 +173,7 @@ input:focus,select:focus{border-color:#185FA5}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <div class="section-title" style="margin-bottom:0" id="sched-title">Jadwal Penugasan</div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-sm" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-sm" onclick="exportCSV()">&#8595; Export CSV</button>
       <button class="btn btn-sm btn-primary" onclick="saveSchedule()">Simpan Jadwal</button>
     </div>
   </div>
@@ -178,22 +188,14 @@ input:focus,select:focus{border-color:#185FA5}
   <div id="dash-content" style="display:none">
     <div class="stat-grid" id="dash-metrics"></div>
     <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Beban Kerja per Pegawai (Total Penugasan)</div>
-        <div id="dash-workload"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Jumlah WFH per Pegawai</div>
-        <div id="dash-wfh"></div>
-      </div>
+      <div class="card"><div class="card-title">Beban Kerja per Pegawai</div><div id="dash-workload"></div></div>
+      <div class="card"><div class="card-title">Jumlah WFH per Pegawai</div><div id="dash-wfh"></div></div>
     </div>
     <div class="card">
       <div class="card-title">Rincian Penugasan per Pegawai</div>
-      <div class="scroll-x">
-        <table class="sched-table">
-          <thead><tr>
-            <th>Pegawai</th><th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Total Tugas</th>
-          </tr></thead>
+      <div style="overflow-x:auto">
+        <table class="detail-table">
+          <thead><tr><th>Pegawai</th><th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Total</th></tr></thead>
           <tbody id="dash-detail-body"></tbody>
         </table>
       </div>
@@ -201,99 +203,80 @@ input:focus,select:focus{border-color:#185FA5}
   </div>
 </div>
 
-</div>
-</div>
-
+</div></div>
 <script>
 const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const DAY_SHORT=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const DAY_LONG=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const LS_SETTINGS='timjadwal_settings';
 const LS_SCHEDULE='timjadwal_schedule';
 let employees=[],holidays=[],leaves=[],schedule=null;
 let autoSaveTimer=null;
 
-// ── Auto-save & restore ──────────────────────────────────────────
+/* ── PERBAIKAN UTAMA: Format tanggal lokal, bebas timezone bug ── */
+function toLocalDateStr(dt){
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+}
+function fromDateStr(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function todayStr(){return toLocalDateStr(new Date());}
+
+/* ── Auto-save ── */
 function autoSave(){
   clearTimeout(autoSaveTimer);
   autoSaveTimer=setTimeout(()=>{
     try{
-      localStorage.setItem(LS_SETTINGS,JSON.stringify({
-        employees,holidays,leaves,
-        month:document.getElementById('sel-month').value,
-        year:document.getElementById('inp-year').value
-      }));
+      localStorage.setItem(LS_SETTINGS,JSON.stringify({employees,holidays,leaves,month:document.getElementById('sel-month').value,year:document.getElementById('inp-year').value}));
       const el=document.getElementById('autosave-notice');
-      const t=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-      el.textContent='Tersimpan otomatis pukul '+t;
+      el.textContent='Tersimpan otomatis '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
       setTimeout(()=>el.textContent='',4000);
     }catch(e){}
   },800);
 }
-
 function restoreSettings(){
   try{
-    const raw=localStorage.getItem(LS_SETTINGS);
-    if(!raw)return false;
+    const raw=localStorage.getItem(LS_SETTINGS);if(!raw)return false;
     const s=JSON.parse(raw);
-    employees=s.employees||[];
-    holidays=s.holidays||[];
-    leaves=s.leaves||[];
+    employees=s.employees||[];holidays=s.holidays||[];leaves=s.leaves||[];
     if(s.month!=null)document.getElementById('sel-month').value=s.month;
     if(s.year)document.getElementById('inp-year').value=s.year;
-    renderEmpTags();renderHolidays();renderLeaves();
-    return true;
+    renderEmpTags();renderHolidays();renderLeaves();return true;
   }catch(e){return false;}
 }
-
 function restoreSchedule(){
   try{
-    const raw=localStorage.getItem(LS_SCHEDULE);
-    if(!raw)return;
+    const raw=localStorage.getItem(LS_SCHEDULE);if(!raw)return;
     schedule=JSON.parse(raw);
+    if(!holidays.length&&schedule.holidays)holidays=schedule.holidays;
+    if(!leaves.length&&schedule.leaves)leaves=schedule.leaves;
     renderSchedule();renderDashboard();
   }catch(e){}
 }
 
-// ── Export / Import settings (JSON file) ────────────────────────
+/* ── Export / Import settings ── */
 function exportSettings(){
-  const data={
-    _version:1,
-    employees,holidays,leaves,
-    month:document.getElementById('sel-month').value,
-    year:document.getElementById('inp-year').value,
-    exportedAt:new Date().toISOString()
-  };
+  const data={_version:1,employees,holidays,leaves,month:document.getElementById('sel-month').value,year:document.getElementById('inp-year').value,exportedAt:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`TimJadwal_Pengaturan_${data.year}_${MONTHS[parseInt(data.month)]}.json`;
-  a.click();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=url;a.download='TimJadwal_Pengaturan_'+data.year+'_'+MONTHS[parseInt(data.month)]+'.json';a.click();URL.revokeObjectURL(url);
 }
-
 function importSettings(evt){
-  const file=evt.target.files[0];
-  if(!file)return;
+  const file=evt.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
     try{
-      const data=JSON.parse(e.target.result);
-      if(!data.employees){alert('File tidak valid.');return;}
-      employees=data.employees||[];
-      holidays=data.holidays||[];
-      leaves=data.leaves||[];
+      const data=JSON.parse(e.target.result);if(!data.employees){alert('File tidak valid.');return;}
+      employees=data.employees||[];holidays=data.holidays||[];leaves=data.leaves||[];
       if(data.month!=null)document.getElementById('sel-month').value=data.month;
       if(data.year)document.getElementById('inp-year').value=data.year;
-      renderEmpTags();renderHolidays();renderLeaves();
-      autoSave();
-      document.getElementById('gen-notice').innerHTML='<div class="notice notice-success">Pengaturan berhasil dimuat dari file!</div>';
+      renderEmpTags();renderHolidays();renderLeaves();autoSave();
+      document.getElementById('gen-notice').innerHTML='<div class="notice notice-success">Pengaturan berhasil dimuat!</div>';
       setTimeout(()=>document.getElementById('gen-notice').innerHTML='',3000);
-    }catch(err){alert('Gagal membaca file. Pastikan file JSON yang benar.');}
+    }catch(err){alert('Gagal membaca file.');}
   };
-  reader.readAsText(file);
-  evt.target.value='';
+  reader.readAsText(file);evt.target.value='';
 }
 
-// ── Panel nav ────────────────────────────────────────────────────
+/* ── Panel nav ── */
 function showPanel(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -302,275 +285,189 @@ function showPanel(name){
   document.querySelectorAll('.nav-btn').forEach(b=>{if(b.textContent.trim()===labels[name])b.classList.add('active');});
 }
 
-// ── Employees ────────────────────────────────────────────────────
+/* ── Employees ── */
 function renderEmpTags(){
-  const w=document.getElementById('emp-tags');
-  w.innerHTML='';
-  employees.forEach((e,i)=>{
-    const t=document.createElement('span');
-    t.className='emp-tag';
-    t.innerHTML=`${e}<button onclick="removeEmp(${i})">×</button>`;
-    w.appendChild(t);
-  });
+  const w=document.getElementById('emp-tags');w.innerHTML='';
+  employees.forEach((e,i)=>{const t=document.createElement('span');t.className='emp-tag';t.innerHTML=e+'<button onclick="removeEmp('+i+')">×</button>';w.appendChild(t);});
   document.getElementById('emp-count').textContent=employees.length;
-  const sel=document.getElementById('sel-leave-emp');
-  sel.innerHTML='<option value="">-- Pilih --</option>';
-  employees.forEach(e=>sel.innerHTML+=`<option value="${e}">${e}</option>`);
+  const sel=document.getElementById('sel-leave-emp');sel.innerHTML='<option value="">-- Pilih --</option>';
+  employees.forEach(e=>sel.innerHTML+='<option value="'+e+'">'+e+'</option>');
 }
 function addEmp(){
-  const v=document.getElementById('inp-emp').value.trim();
-  if(!v)return;
+  const v=document.getElementById('inp-emp').value.trim();if(!v)return;
   if(employees.length>=25){alert('Maksimal 25 pegawai');return;}
   if(employees.includes(v)){alert('Nama sudah ada');return;}
-  employees.push(v);
-  document.getElementById('inp-emp').value='';
-  renderEmpTags();autoSave();
+  employees.push(v);document.getElementById('inp-emp').value='';renderEmpTags();autoSave();
 }
 function removeEmp(i){employees.splice(i,1);renderEmpTags();autoSave();}
 function clearEmps(){if(confirm('Hapus semua pegawai?')){employees=[];renderEmpTags();autoSave();}}
 function loadDefaults(){
   employees=['Andi Saputra','Budi Santoso','Citra Dewi','Dian Pratiwi','Eka Rahayu','Fajar Nugroho','Gita Permata','Hendra Wijaya','Indah Kusuma','Joko Susilo','Kartika Sari','Luhut Manalu'];
-  document.getElementById('sel-month').value=6;
-  document.getElementById('inp-year').value=2025;
-  renderEmpTags();autoSave();
+  document.getElementById('sel-month').value=6;document.getElementById('inp-year').value=2025;renderEmpTags();autoSave();
 }
 
-// ── Holidays ─────────────────────────────────────────────────────
+/* ── Holidays ── */
 function addHoliday(){
-  const d=document.getElementById('inp-hol-date').value;
-  const n=document.getElementById('inp-hol-name').value.trim();
-  if(!d||!n)return;
-  if(holidays.find(h=>h.date===d)){alert('Tanggal sudah ada');return;}
-  holidays.push({date:d,name:n});
-  holidays.sort((a,b)=>a.date.localeCompare(b.date));
-  renderHolidays();
-  document.getElementById('inp-hol-date').value='';
-  document.getElementById('inp-hol-name').value='';
-  autoSave();
+  const d=document.getElementById('inp-hol-date').value;const n=document.getElementById('inp-hol-name').value.trim();
+  if(!d||!n)return;if(holidays.find(h=>h.date===d)){alert('Tanggal sudah ada');return;}
+  holidays.push({date:d,name:n});holidays.sort((a,b)=>a.date.localeCompare(b.date));renderHolidays();
+  document.getElementById('inp-hol-date').value='';document.getElementById('inp-hol-name').value='';autoSave();
 }
 function removeHoliday(i){holidays.splice(i,1);renderHolidays();autoSave();}
 function renderHolidays(){
   const el=document.getElementById('holiday-list');
   if(!holidays.length){el.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0">Belum ada hari libur.</div>';return;}
-  el.innerHTML=holidays.map((h,i)=>`<div class="holiday-item"><span style="color:#999;min-width:90px">${fmtDate(h.date)}</span><span style="flex:1">${h.name}</span><button class="btn btn-sm btn-danger" onclick="removeHoliday(${i})">×</button></div>`).join('');
+  el.innerHTML=holidays.map((h,i)=>'<div class="holiday-item"><span style="color:#999;min-width:88px;flex-shrink:0">'+fmtDate(h.date)+'</span><span style="flex:1">'+h.name+'</span><button class="btn btn-sm btn-danger" onclick="removeHoliday('+i+')">×</button></div>').join('');
 }
 
-// ── Leaves ───────────────────────────────────────────────────────
+/* ── Leaves ── */
 function addLeave(){
-  const emp=document.getElementById('sel-leave-emp').value;
-  const from=document.getElementById('inp-leave-from').value;
-  const to=document.getElementById('inp-leave-to').value;
-  if(!emp||!from||!to){alert('Lengkapi semua isian');return;}
-  if(from>to){alert('Tanggal awal harus sebelum tanggal akhir');return;}
-  leaves.push({emp,from,to});
-  renderLeaves();
-  document.getElementById('inp-leave-from').value='';
-  document.getElementById('inp-leave-to').value='';
-  autoSave();
+  const emp=document.getElementById('sel-leave-emp').value;const from=document.getElementById('inp-leave-from').value;const to=document.getElementById('inp-leave-to').value;
+  if(!emp||!from||!to){alert('Lengkapi semua isian');return;}if(from>to){alert('Tanggal awal harus sebelum tanggal akhir');return;}
+  leaves.push({emp,from,to});renderLeaves();
+  document.getElementById('inp-leave-from').value='';document.getElementById('inp-leave-to').value='';autoSave();
 }
 function removeLeave(i){leaves.splice(i,1);renderLeaves();autoSave();}
 function renderLeaves(){
   const el=document.getElementById('leave-list');
   if(!leaves.length){el.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0">Belum ada cuti.</div>';return;}
-  el.innerHTML=leaves.map((l,i)=>`<div class="holiday-item"><span class="badge badge-cuti" style="white-space:nowrap">${l.emp}</span><span style="flex:1;font-size:11px;color:#999">${fmtDate(l.from)} — ${fmtDate(l.to)}</span><button class="btn btn-sm btn-danger" onclick="removeLeave(${i})">×</button></div>`).join('');
+  el.innerHTML=leaves.map((l,i)=>'<div class="holiday-item"><span class="badge badge-cuti" style="flex-shrink:0">'+l.emp+'</span><span style="flex:1;font-size:11px;color:#999">'+fmtDate(l.from)+' — '+fmtDate(l.to)+'</span><button class="btn btn-sm btn-danger" onclick="removeLeave('+i+')">×</button></div>').join('');
 }
 
-// ── Helpers ──────────────────────────────────────────────────────
-function fmtDate(d){const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});}
+/* ── Helpers ── */
+function fmtDate(s){return fromDateStr(s).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});}
 function isOnLeave(emp,ds){return leaves.some(l=>l.emp===emp&&ds>=l.from&&ds<=l.to);}
-function isHoliday(ds){return holidays.some(h=>h.date===ds);}
-function getWorkdays(year,month){
-  const days=[];const d=new Date(year,month,1);
-  while(d.getMonth()===month){
-    const dow=d.getDay();
-    if(dow>=1&&dow<=5){const ds=d.toISOString().slice(0,10);if(!isHoliday(ds))days.push({date:ds,isFriday:dow===5});}
-    d.setDate(d.getDate()+1);
+function getHoliday(ds,hols){return (hols||holidays).find(h=>h.date===ds)||null;}
+function isHoliday(ds){return !!getHoliday(ds);}
+
+/* ── Iterasi semua hari dalam bulan (LOKAL, bebas timezone bug) ── */
+function allDaysInMonth(year,month){
+  const days=[];
+  for(let d=1;;d++){
+    const dt=new Date(year,month,d);
+    if(dt.getMonth()!==month)break;
+    days.push({dt,ds:toLocalDateStr(dt),dow:dt.getDay()});
   }
   return days;
 }
+function getWorkdays(year,month){
+  return allDaysInMonth(year,month)
+    .filter(({dow,ds})=>dow>=1&&dow<=5&&!isHoliday(ds))
+    .map(({ds,dow})=>({date:ds,isFriday:dow===5}));
+}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-// ── Generate ─────────────────────────────────────────────────────
+/* ── Generate ── */
 function generateSchedule(){
   if(employees.length<4){document.getElementById('gen-notice').innerHTML='<div class="notice notice-warn">Minimal 4 pegawai diperlukan.</div>';return;}
   const month=parseInt(document.getElementById('sel-month').value);
   const year=parseInt(document.getElementById('inp-year').value);
   const workdays=getWorkdays(year,month);
   if(!workdays.length){document.getElementById('gen-notice').innerHTML='<div class="notice notice-warn">Tidak ada hari kerja di periode ini.</div>';return;}
-  const counters={};
-  employees.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
+  const counters={};employees.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
   const result=[];
   workdays.forEach(day=>{
     const avail=employees.filter(e=>!isOnLeave(e,day.date));
     const onLeave=employees.filter(e=>isOnLeave(e,day.date));
-    const isFri=day.isFriday;
-    const assigned=new Set();
+    const isFri=day.isFriday;const assigned=new Set();
     const pick=(key,count)=>{
-      const candidates=shuffle(avail.filter(e=>!assigned.has(e))).sort((a,b)=>{
-        const d=counters[a][key]-counters[b][key];return d!==0?d:counters[a].total-counters[b].total;
-      });
+      const cands=shuffle(avail.filter(e=>!assigned.has(e))).sort((a,b)=>{const d=counters[a][key]-counters[b][key];return d!==0?d:counters[a].total-counters[b].total;});
       const res=[];
-      for(let i=0;i<Math.min(count,candidates.length);i++){
-        res.push(candidates[i]);assigned.add(candidates[i]);
-        counters[candidates[i]][key]++;counters[candidates[i]].total++;
-      }
+      for(let i=0;i<Math.min(count,cands.length);i++){res.push(cands[i]);assigned.add(cands[i]);counters[cands[i]][key]++;counters[cands[i]].total++;}
       return res;
     };
     const tpt_p=pick('tpt_p',2),tpt_s=pick('tpt_s',2),app=pick('app',1),wa_p=pick('wa_p',1),wa_s=pick('wa_s',1);
     let wfhList=[];
-    if(isFri){
-      const tptSet=new Set([...tpt_p,...tpt_s]);
-      wfhList=avail.filter(e=>!tptSet.has(e));
-      wfhList.forEach(e=>{counters[e].wfh++;});
-    }
+    if(isFri){const tptSet=new Set([...tpt_p,...tpt_s]);wfhList=avail.filter(e=>!tptSet.has(e));wfhList.forEach(e=>{counters[e].wfh++;});}
     result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave});
   });
-  schedule={month,year,workdays:result,counters,employees:[...employees]};
+  schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...holidays],leaves:[...leaves]};
   try{localStorage.setItem(LS_SCHEDULE,JSON.stringify(schedule));}catch(e){}
   renderSchedule();renderDashboard();
   document.getElementById('gen-notice').innerHTML='<div class="notice notice-success">Jadwal berhasil digenerate!</div>';
   setTimeout(()=>showPanel('schedule'),600);
 }
 
-// ── Render schedule (semua hari dalam bulan) ─────────────────────
+/* ── Render schedule (SEMUA hari, sticky kolom tanggal) ── */
 function renderSchedule(){
   if(!schedule)return;
   const {month,year,workdays}=schedule;
-  document.getElementById('sched-title').textContent=`Jadwal — ${MONTHS[month]} ${year}`;
-  const dayNames=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  const dayNamesShort=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const sHols=schedule.holidays||holidays;
+  const sLeaves=schedule.leaves||leaves;
+  const sEmps=schedule.employees||employees;
+  document.getElementById('sched-title').textContent='Jadwal \u2014 '+MONTHS[month]+' '+year;
+  const wdMap={};workdays.forEach(w=>{wdMap[w.date]=w;});
+  const getSchedLeave=(ds)=>sEmps.filter(e=>sLeaves.some(l=>l.emp===e&&ds>=l.from&&ds<=l.to));
+  const today=todayStr();
+  const legend='<div class="legend-bar">'
+    +'<div class="legend-item"><div class="legend-dot" style="background:#fff5f5;border-color:#f09595"></div>Weekend</div>'
+    +'<div class="legend-item"><div class="legend-dot" style="background:#f5f0ff;border-color:#AFA9EC"></div>Libur / Cuti Bersama</div>'
+    +'<div class="legend-item"><div class="legend-dot" style="background:#f3fbf7;border-color:#5DCAA5"></div>Jumat WFH</div>'
+    +'<div class="legend-item"><div class="legend-dot" style="background:#fff;border-color:#e0eefd"></div>Hari Kerja</div>'
+    +'<div class="legend-item"><span class="badge badge-tpt-p" style="font-size:10px">TPT Pagi</span></div>'
+    +'<div class="legend-item"><span class="badge badge-tpt-s" style="font-size:10px">TPT Siang</span></div>'
+    +'<div class="legend-item"><span class="badge badge-app" style="font-size:10px">Aplikasi &#9729;</span></div>'
+    +'<div class="legend-item"><span class="badge badge-wa-p" style="font-size:10px">WA Pagi &#9729;</span></div>'
+    +'<div class="legend-item"><span class="badge badge-wa-s" style="font-size:10px">WA Siang &#9729;</span></div>'
+    +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">WFH</span></div>'
+    +'<div class="legend-item"><span class="badge badge-cuti" style="font-size:10px">Cuti</span></div>'
+    +'<div style="font-size:10px;color:#666">&#9729; = WFH pada hari Jumat</div>'
+    +'</div>';
 
-  // Buat map date -> workday entry untuk lookup cepat
-  const wdMap={};
-  workdays.forEach(w=>wdMap[w.date]=w);
+  let tbl='<div class="sched-wrap"><table class="sched-table"><thead><tr>'
+    +'<th>Tanggal</th><th>Keterangan</th><th>TPT Pagi</th><th>TPT Siang</th>'
+    +'<th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Cuti</th>'
+    +'</tr></thead><tbody>';
 
-  // Iterasi semua hari dalam bulan
-  const allDays=[];
-  const cur=new Date(year,month,1);
-  while(cur.getMonth()===month){
-    allDays.push(new Date(cur));
-    cur.setDate(cur.getDate()+1);
-  }
-
-  // Warna baris berdasarkan tipe hari:
-  // weekend      : bg merah muda #fff5f5, border-left merah
-  // libur nasional: bg ungu muda #f5f0ff, border-left ungu
-  // cuti pegawai (semua cuti): bg oranye muda #fff8f0, border-left oranye
-  // jumat WFH    : bg hijau muda #f3fbf7, border-left hijau
-  // hari kerja biasa: putih
-
-  const getOnLeaveAll=(ds)=>employees.filter(e=>isOnLeave(e,ds));
-
-  let html=`<div class="scroll-x"><table class="sched-table">
-  <thead><tr>
-    <th style="min-width:110px">Tanggal</th>
-    <th style="min-width:60px">Keterangan</th>
-    <th>TPT Pagi</th>
-    <th>TPT Siang</th>
-    <th>Aplikasi Internal</th>
-    <th>WA Pagi</th>
-    <th>WA Siang</th>
-    <th>WFH (Jumat)</th>
-    <th>Cuti Pegawai</th>
-  </tr></thead><tbody>`;
-
-  allDays.forEach(dt=>{
-    const ds=dt.toISOString().slice(0,10);
-    const dow=dt.getDay();
-    const dd=dt.getDate();
-    const mm=dt.getMonth()+1;
-    const isWeekend=(dow===0||dow===6);
-    const isHol=isHoliday(ds);
+  allDaysInMonth(year,month).forEach(({dt,ds,dow})=>{
+    const isWknd=(dow===0||dow===6);
+    const hol=getHoliday(ds,sHols);
+    const isHol=!!hol;
     const isFri=(dow===5);
-    const onLeaveToday=getOnLeaveAll(ds);
-    const hasAnyLeave=onLeaveToday.length>0;
-    const wd=wdMap[ds]; // null jika bukan workday (weekend/libur)
+    const wd=wdMap[ds];
+    const isToday=(ds===today);
+    const onLeaveAll=getSchedLeave(ds);
+    const rowClass=isWknd?'row-weekend':isHol?'row-holiday':isFri?'row-friday':'row-workday';
+    const dateColor=isWknd?'color:#a32d2d':isHol?'color:#3c3289':isFri?'color:#0f6e56':'color:#1a1a18';
+    tbl+='<tr class="'+rowClass+'">';
+    /* sticky date cell */
+    tbl+='<td style="'+dateColor+'">'
+      +'<div style="display:flex;align-items:baseline;gap:4px">'
+      +'<span style="font-size:14px;font-weight:700">'+String(dt.getDate()).padStart(2,'0')+'</span>'
+      +'<span style="font-size:11px;opacity:0.7">'+DAY_SHORT[dow]+'</span>'
+      +(isToday?'<span style="background:#185FA5;color:#fff;font-size:9px;padding:1px 5px;border-radius:4px">Hari ini</span>':'')
+      +'</div></td>';
 
-    // Tentukan tipe baris (prioritas: weekend > libur > kerja)
-    let rowStyle='';
-    let rowLabel='';
-    let labelColor='';
-
-    if(isWeekend){
-      rowStyle='background:#fff5f5;';
-      rowLabel=dow===0?'Minggu':'Sabtu';
-      labelColor='color:#a32d2d;font-weight:500';
+    if(isWknd){
+      const lbl=dow===0?'Minggu':'Sabtu';
+      tbl+='<td><span class="ket-tag" style="background:#fff0f0;color:#a32d2d">'+lbl+'</span></td>';
+      tbl+='<td colspan="7" style="color:#c8a0a0;font-size:11px;font-style:italic">'+lbl+'</td>';
     } else if(isHol){
-      const holName=holidays.find(h=>h.date===ds)?.name||'Libur';
-      rowStyle='background:#f5f0ff;';
-      rowLabel=holName;
-      labelColor='color:#3c3489;font-weight:500';
-    } else if(isFri){
-      rowStyle='background:#f3fbf7;';
-      rowLabel='WFH';
-      labelColor='color:#0f6e56;font-weight:500';
-    } else {
-      rowStyle='background:#fff;';
-      rowLabel='Kerja';
-      labelColor='color:#999';
-    }
-
-    // border-left warna sesuai tipe
-    const borderLeft=isWeekend
-      ?'border-left:3px solid #f09595'
-      :isHol
-        ?'border-left:3px solid #AFA9EC'
-        :isFri
-          ?'border-left:3px solid #5DCAA5'
-          :'border-left:3px solid #e8e8e4';
-
-    html+=`<tr style="${rowStyle}${borderLeft}">`;
-
-    // Kolom tanggal
-    const dayShort=dayNamesShort[dow];
-    const isToday=ds===(new Date().toISOString().slice(0,10));
-    html+=`<td style="white-space:nowrap;font-size:12px;font-weight:500;${isWeekend?'color:#a32d2d;':isHol?'color:#3c3489;':isFri?'color:#0f6e56;':'color:#333;'}">
-      ${dayShort}, ${dd}/${mm}
-      ${isToday?'<span style="background:#185FA5;color:#fff;font-size:9px;padding:1px 5px;border-radius:4px;margin-left:2px">Hari ini</span>':''}
-    </td>`;
-
-    // Kolom keterangan
-    html+=`<td style="font-size:11px;${labelColor}">${rowLabel}${hasAnyLeave&&!isWeekend&&!isHol?'<br><span style="color:#712b13;font-size:10px">Ada cuti</span>':''}</td>`;
-
-    if(isWeekend||isHol){
-      // Baris non-kerja: span semua kolom penugasan
-      const msg=isWeekend
-        ?(dow===0?'Hari Minggu':'Hari Sabtu')
-        :holidays.find(h=>h.date===ds)?.name||'Hari Libur';
-      html+=`<td colspan="7" style="color:${isWeekend?'#c0a0a0':isHol?'#9090c0':'#999'};font-size:12px;font-style:italic">${msg}</td>`;
-    } else if(!wd){
-      // Seharusnya tidak terjadi, tapi fallback
-      html+=`<td colspan="7" style="color:#ccc;font-size:11px">—</td>`;
-    } else {
-      // Hari kerja — tampilkan penugasan
+      tbl+='<td><span class="ket-tag" style="background:#f5f0ff;color:#3c3489">Libur</span></td>';
+      tbl+='<td colspan="7" style="color:#9080c0;font-size:11px;font-style:italic">'+hol.name+'</td>';
+    } else if(wd){
       const fr=wd.isFriday;
-      html+=`<td>${wd.assignments.tpt_p.map(e=>`<span class="badge badge-tpt-p">${e}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
-      html+=`<td>${wd.assignments.tpt_s.map(e=>`<span class="badge badge-tpt-s">${e}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
-      html+=`<td>${wd.assignments.app.map(e=>`<span class="badge badge-app">${e}${fr?' (WFH)':''}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
-      html+=`<td>${wd.assignments.wa_p.map(e=>`<span class="badge badge-wa-p">${e}${fr?' (WFH)':''}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
-      html+=`<td>${wd.assignments.wa_s.map(e=>`<span class="badge badge-wa-s">${e}${fr?' (WFH)':''}</span>`).join(' ')||'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
-      html+=`<td>${fr&&wd.wfhList.length?wd.wfhList.map(e=>`<span class="badge badge-wfh">${e}</span>`).join(' '):'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
-      html+=`<td>${wd.onLeave.length?wd.onLeave.map(e=>`<span class="badge badge-cuti">${e}</span>`).join(' '):'<span style="color:#ccc;font-size:11px">—</span>'}</td>`;
+      const ketLbl=fr?'<span class="ket-tag" style="background:#e1f5ee;color:#0f6e56">Jumat WFH</span>':'<span class="ket-tag" style="background:#e8f4ff;color:#185FA5">Kerja</span>';
+      tbl+='<td>'+ketLbl+(onLeaveAll.length?'<br><span style="font-size:10px;color:#712b13">'+onLeaveAll.length+' cuti</span>':'')+'</td>';
+      const bgs=(arr,cls,sfx)=>arr.length?'<div class="cell-badges">'+arr.map(e=>'<span class="badge '+cls+'">'+e+(sfx?' &#9729;':'')+'</span>').join('')+'</div>':'<span style="color:#ccc;font-size:11px">\u2014</span>';
+      tbl+='<td>'+bgs(wd.assignments.tpt_p,'badge-tpt-p',false)+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.tpt_s,'badge-tpt-s',false)+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.app,'badge-app',fr)+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.wa_p,'badge-wa-p',fr)+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.wa_s,'badge-wa-s',fr)+'</td>';
+      tbl+='<td>'+(fr&&wd.wfhList.length?'<div class="cell-badges">'+wd.wfhList.map(e=>'<span class="badge badge-wfh">'+e+'</span>').join('')+'</div>':'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
+      tbl+='<td>'+(wd.onLeave.length?'<div class="cell-badges">'+wd.onLeave.map(e=>'<span class="badge badge-cuti">'+e+'</span>').join('')+'</div>':'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
+    } else {
+      tbl+='<td><span class="ket-tag" style="background:#f5f5f3;color:#999">?</span></td>';
+      tbl+='<td colspan="7" style="color:#ccc;font-size:11px">\u2014</td>';
     }
-
-    html+='</tr>';
+    tbl+='</tr>';
   });
-
-  html+='</tbody></table></div>';
-
-  // Legend warna
-  const legend=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;font-size:12px">
-    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#fff5f5;border:1px solid #f09595;border-radius:2px;display:inline-block"></span>Weekend</span>
-    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#f5f0ff;border:1px solid #AFA9EC;border-radius:2px;display:inline-block"></span>Hari Libur Nasional</span>
-    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#f3fbf7;border:1px solid #5DCAA5;border-radius:2px;display:inline-block"></span>Jumat WFH</span>
-    <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#fff;border:1px solid #e8e8e4;border-radius:2px;display:inline-block"></span>Hari Kerja</span>
-    <span class="badge badge-cuti" style="font-size:11px">Nama (cuti)</span>
-  </div>`;
-
-  document.getElementById('sched-container').innerHTML=legend+html;
+  tbl+='</tbody></table></div>';
+  document.getElementById('sched-container').innerHTML=legend+tbl;
 }
 
-// ── Render dashboard ─────────────────────────────────────────────
+/* ── Render dashboard ── */
 function renderDashboard(){
   if(!schedule)return;
   document.getElementById('dash-empty').style.display='none';
@@ -579,77 +476,62 @@ function renderDashboard(){
   const totalDays=workdays.length,friDays=workdays.filter(d=>d.isFriday).length;
   const avgLoad=(emps.reduce((s,e)=>s+counters[e].total,0)/emps.length).toFixed(1);
   const avgWfh=(emps.reduce((s,e)=>s+counters[e].wfh,0)/emps.length).toFixed(1);
-  document.getElementById('dash-metrics').innerHTML=`
-    <div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">${totalDays}</div></div>
-    <div class="metric-card"><div class="metric-label">Hari Jumat (WFH)</div><div class="metric-value">${friDays}</div></div>
-    <div class="metric-card"><div class="metric-label">Rata-rata Beban</div><div class="metric-value">${avgLoad}</div></div>
-    <div class="metric-card"><div class="metric-label">Rata-rata WFH</div><div class="metric-value">${avgWfh}</div></div>
-    <div class="metric-card"><div class="metric-label">Jumlah Pegawai</div><div class="metric-value">${emps.length}</div></div>`;
+  document.getElementById('dash-metrics').innerHTML=
+    '<div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">'+totalDays+'</div></div>'
+    +'<div class="metric-card"><div class="metric-label">Hari Jumat WFH</div><div class="metric-value">'+friDays+'</div></div>'
+    +'<div class="metric-card"><div class="metric-label">Rata-rata Beban</div><div class="metric-value">'+avgLoad+'</div></div>'
+    +'<div class="metric-card"><div class="metric-label">Rata-rata WFH</div><div class="metric-value">'+avgWfh+'</div></div>'
+    +'<div class="metric-card"><div class="metric-label">Jumlah Pegawai</div><div class="metric-value">'+emps.length+'</div></div>';
   const maxTotal=Math.max(...emps.map(e=>counters[e].total),1);
   const maxWfh=Math.max(...emps.map(e=>counters[e].wfh),1);
   document.getElementById('dash-workload').innerHTML=[...emps].sort((a,b)=>counters[b].total-counters[a].total).map(e=>{
     const init=e.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    return `<div class="emp-row"><div class="avatar">${init}</div><div class="emp-name">${e}</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(counters[e].total/maxTotal*100)}%;background:#185FA5"></div></div><div class="bar-label">${counters[e].total}</div></div></div>`;
+    return '<div class="emp-row"><div class="avatar">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(counters[e].total/maxTotal*100)+'%;background:#185FA5"></div></div><div class="bar-label">'+counters[e].total+'</div></div></div>';
   }).join('');
   document.getElementById('dash-wfh').innerHTML=[...emps].sort((a,b)=>counters[b].wfh-counters[a].wfh).map(e=>{
     const init=e.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    return `<div class="emp-row"><div class="avatar" style="background:#e1f5ee;color:#0f6e56">${init}</div><div class="emp-name">${e}</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(counters[e].wfh/maxWfh*100)}%;background:#0f6e56"></div></div><div class="bar-label">${counters[e].wfh}</div></div></div>`;
+    return '<div class="emp-row"><div class="avatar" style="background:#e1f5ee;color:#0f6e56">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(counters[e].wfh/maxWfh*100)+'%;background:#0f6e56"></div></div><div class="bar-label">'+counters[e].wfh+'</div></div></div>';
   }).join('');
   document.getElementById('dash-detail-body').innerHTML=emps.map(e=>{
     const c=counters[e];
-    return `<tr><td><strong>${e}</strong></td><td>${c.tpt_p}</td><td>${c.tpt_s}</td><td>${c.app}</td><td>${c.wa_p}</td><td>${c.wa_s}</td><td><span class="badge badge-wfh">${c.wfh}</span></td><td><strong>${c.total}</strong></td></tr>`;
+    return '<tr><td>'+e+'</td><td>'+c.tpt_p+'</td><td>'+c.tpt_s+'</td><td>'+c.app+'</td><td>'+c.wa_p+'</td><td>'+c.wa_s+'</td><td><span class="badge badge-wfh">'+c.wfh+'</span></td><td><strong>'+c.total+'</strong></td></tr>';
   }).join('');
 }
 
-// ── Export CSV ───────────────────────────────────────────────────
+/* ── Export CSV ── */
 function exportCSV(){
   if(!schedule){alert('Generate jadwal dulu');return;}
   const {workdays,month,year}=schedule;
-  const dayNames=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  const wdMap={};workdays.forEach(w=>wdMap[w.date]=w);
-  let csv='Tanggal,Hari,Keterangan,TPT Pagi,TPT Siang,Aplikasi Internal,WA Pagi,WA Siang,WFH,Cuti\n';
-  const cur=new Date(year,month,1);
-  while(cur.getMonth()===month){
-    const ds=cur.toISOString().slice(0,10);
-    const dow=cur.getDay();
-    const dayName=dayNames[dow];
-    const isWeekend=(dow===0||dow===6);
-    const isHol=isHoliday(ds);
+  const sHols=schedule.holidays||holidays;
+  const wdMap={};workdays.forEach(w=>{wdMap[w.date]=w;});
+  let csv='\uFEFFTanggal,Hari,Keterangan,TPT Pagi,TPT Siang,Aplikasi Internal,WA Pagi,WA Siang,WFH,Cuti\n';
+  allDaysInMonth(year,month).forEach(({dt,ds,dow})=>{
+    const isWknd=(dow===0||dow===6);
+    const hol=getHoliday(ds,sHols);
     const wd=wdMap[ds];
-    let ket=isWeekend?(dow===0?'Minggu':'Sabtu'):isHol?(holidays.find(h=>h.date===ds)?.name||'Libur'):dow===5?'Jumat WFH':'Hari Kerja';
-    if(wd){
-      csv+=`${ds},${dayName},"${ket}","${wd.assignments.tpt_p.join(', ')}","${wd.assignments.tpt_s.join(', ')}","${wd.assignments.app.join(', ')}","${wd.assignments.wa_p.join(', ')}","${wd.assignments.wa_s.join(', ')}","${wd.wfhList.join(', ')}","${wd.onLeave.join(', ')}"\n`;
-    } else {
-      csv+=`${ds},${dayName},"${ket}","","","","","","",""\n`;
-    }
-    cur.setDate(cur.getDate()+1);
-  }
+    const ket=isWknd?(dow===0?'Minggu':'Sabtu'):(hol?hol.name:(dow===5?'Jumat WFH':'Hari Kerja'));
+    if(wd){csv+=ds+','+DAY_LONG[dow]+',"'+ket+'","'+wd.assignments.tpt_p.join('; ')+'","'+wd.assignments.tpt_s.join('; ')+'","'+wd.assignments.app.join('; ')+'","'+wd.assignments.wa_p.join('; ')+'","'+wd.assignments.wa_s.join('; ')+'","'+wd.wfhList.join('; ')+'","'+wd.onLeave.join('; ')+'"\n';}
+    else{csv+=ds+','+DAY_LONG[dow]+',"'+ket+'","","","","","","",""\n';}
+  });
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`Jadwal_${MONTHS[month]}_${year}.csv`;a.click();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=url;a.download='Jadwal_'+MONTHS[month]+'_'+year+'.csv';a.click();URL.revokeObjectURL(url);
 }
 
-// ── Save schedule (localStorage + toast) ────────────────────────
+/* ── Save jadwal ── */
 function saveSchedule(){
   if(!schedule){alert('Generate jadwal dulu');return;}
   try{localStorage.setItem(LS_SCHEDULE,JSON.stringify(schedule));}catch(e){}
-  const n=document.getElementById('sched-notice');
-  n.style.display='block';
-  n.textContent=`Jadwal ${MONTHS[schedule.month]} ${schedule.year} berhasil disimpan.`;
+  const n=document.getElementById('sched-notice');n.style.display='block';
+  n.textContent='Jadwal '+MONTHS[schedule.month]+' '+schedule.year+' berhasil disimpan.';
   setTimeout(()=>n.style.display='none',3000);
 }
 
-// ── Auto-save on period change ───────────────────────────────────
 document.getElementById('sel-month').addEventListener('change',autoSave);
 document.getElementById('inp-year').addEventListener('change',autoSave);
 
-// ── Init: restore or set defaults ───────────────────────────────
 const restored=restoreSettings();
-if(!restored){
-  const now=new Date();
-  document.getElementById('sel-month').value=now.getMonth();
-  document.getElementById('inp-year').value=now.getFullYear();
-}
+if(!restored){const now=new Date();document.getElementById('sel-month').value=now.getMonth();document.getElementById('inp-year').value=now.getFullYear();}
 restoreSchedule();
 </script>
 </body>
