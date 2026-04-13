@@ -366,21 +366,68 @@ function generateSchedule(){
   if(!workdays.length){document.getElementById('gen-notice').innerHTML='<div class="notice notice-warn">Tidak ada hari kerja di periode ini.</div>';return;}
   const counters={};employees.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
   const result=[];
+
+  // Track siapa yang dapat TPT di hari Jumat,
+  // agar Senin berikutnya mereka tidak bisa dapat TPT lagi.
+  // Key: string tanggal Senin → Set nama pegawai yang harus di-skip dari TPT
+  const tptFriBlock={};
   workdays.forEach(day=>{
+    if(day.isFriday){
+      // Senin berikutnya = +3 hari dari Jumat
+      const fri=fromDateStr(day.date);
+      const mon=new Date(fri.getFullYear(),fri.getMonth(),fri.getDate()+3);
+      tptFriBlock[toLocalDateStr(mon)]=new Set(); // akan diisi saat Jumat diproses
+    }
+  });
+
+  workdays.forEach((day,idx)=>{
     const avail=employees.filter(e=>!isOnLeave(e,day.date));
     const onLeave=employees.filter(e=>isOnLeave(e,day.date));
-    const isFri=day.isFriday;const assigned=new Set();
-    const pick=(key,count)=>{
-      const cands=shuffle(avail.filter(e=>!assigned.has(e))).sort((a,b)=>{const d=counters[a][key]-counters[b][key];return d!==0?d:counters[a].total-counters[b].total;});
+    const isFri=day.isFriday;
+    const assigned=new Set();
+
+    // Cek apakah hari ini Senin yang punya blokir dari Jumat sebelumnya
+    const tptBlocked=tptFriBlock[day.date]||new Set();
+
+    const pick=(key,count,extraBlock=new Set())=>{
+      const cands=shuffle(avail.filter(e=>!assigned.has(e)&&!extraBlock.has(e)))
+        .sort((a,b)=>{const d=counters[a][key]-counters[b][key];return d!==0?d:counters[a].total-counters[b].total;});
+      // Jika setelah filter tidak cukup kandidat, izinkan dari pool terblokir
+      // (fallback agar jadwal tetap penuh jika pegawai terbatas)
+      const fallback=avail.filter(e=>!assigned.has(e)&&extraBlock.has(e))
+        .sort((a,b)=>{const d=counters[a][key]-counters[b][key];return d!==0?d:counters[a].total-counters[b].total;});
+      const pool=cands.length>=count ? cands : [...cands,...fallback];
       const res=[];
-      for(let i=0;i<Math.min(count,cands.length);i++){res.push(cands[i]);assigned.add(cands[i]);counters[cands[i]][key]++;counters[cands[i]].total++;}
+      for(let i=0;i<Math.min(count,pool.length);i++){
+        res.push(pool[i]);assigned.add(pool[i]);
+        counters[pool[i]][key]++;counters[pool[i]].total++;
+      }
       return res;
     };
-    const tpt_p=pick('tpt_p',2),tpt_s=pick('tpt_s',2),app=pick('app',1),wa_p=pick('wa_p',1),wa_s=pick('wa_s',1);
+
+    // TPT pada Senin: blokir pegawai yang TPT Jumat lalu
+    const tpt_p=pick('tpt_p',2,tptBlocked);
+    const tpt_s=pick('tpt_s',2,tptBlocked);
+    const app=pick('app',1);
+    const wa_p=pick('wa_p',1);
+    const wa_s=pick('wa_s',1);
+
     let wfhList=[];
-    if(isFri){const tptSet=new Set([...tpt_p,...tpt_s]);wfhList=avail.filter(e=>!tptSet.has(e));wfhList.forEach(e=>{counters[e].wfh++;});}
-    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave});
+    if(isFri){
+      const tptSet=new Set([...tpt_p,...tpt_s]);
+      wfhList=avail.filter(e=>!tptSet.has(e));
+      wfhList.forEach(e=>{counters[e].wfh++;});
+      // Catat siapa yang TPT hari ini → blokir Senin depan
+      const monKey=toLocalDateStr(new Date(fromDateStr(day.date).getFullYear(),fromDateStr(day.date).getMonth(),fromDateStr(day.date).getDate()+3));
+      if(tptFriBlock[monKey]!==undefined){
+        [...tpt_p,...tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
+      }
+    }
+
+    const tptBlockedList=tptBlocked.size>0?[...tptBlocked]:[];
+    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList});
   });
+
   schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...holidays],leaves:[...leaves]};
   try{localStorage.setItem(LS_SCHEDULE,JSON.stringify(schedule));}catch(e){}
   renderSchedule();renderDashboard();
@@ -447,8 +494,11 @@ function renderSchedule(){
       tbl+='<td colspan="7" style="color:#9080c0;font-size:11px;font-style:italic">'+hol.name+'</td>';
     } else if(wd){
       const fr=wd.isFriday;
+      const isMon=(dow===1);
+      const blocked=wd.tptBlockedList||[];
       const ketLbl=fr?'<span class="ket-tag" style="background:#e1f5ee;color:#0f6e56">Jumat WFH</span>':'<span class="ket-tag" style="background:#e8f4ff;color:#185FA5">Kerja</span>';
-      tbl+='<td>'+ketLbl+(onLeaveAll.length?'<br><span style="font-size:10px;color:#712b13">'+onLeaveAll.length+' cuti</span>':'')+'</td>';
+      const blockedInfo=isMon&&blocked.length?'<br><span title="Pegawai ini tidak dapat TPT karena WFO Jumat kemarin" style="font-size:10px;color:#633806;cursor:help">&#9888; '+blocked.length+' skip TPT</span>':'';
+      tbl+='<td>'+ketLbl+(onLeaveAll.length?'<br><span style="font-size:10px;color:#712b13">'+onLeaveAll.length+' cuti</span>':'')+blockedInfo+'</td>';
       const bgs=(arr,cls,sfx)=>arr.length?'<div class="cell-badges">'+arr.map(e=>'<span class="badge '+cls+'">'+e+(sfx?' &#9729;':'')+'</span>').join('')+'</div>':'<span style="color:#ccc;font-size:11px">\u2014</span>';
       tbl+='<td>'+bgs(wd.assignments.tpt_p,'badge-tpt-p',false)+'</td>';
       tbl+='<td>'+bgs(wd.assignments.tpt_s,'badge-tpt-s',false)+'</td>';
