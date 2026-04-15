@@ -252,6 +252,7 @@ input:focus,select:focus{border-color:#185FA5}
           <thead><tr><th>Pegawai</th><th>SPMKP</th><th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Total</th></tr></thead>
           <tbody id="dash-detail-body"></tbody>
         </table>
+        <div id="dash-detail-note" style="margin-top:8px;padding:6px 0"></div>
       </div>
     </div>
   </div>
@@ -494,6 +495,9 @@ function generateSchedule(partialMode){
 
   /* Build tptFriBlock: pegawai TPT Jumat tidak boleh TPT Senin depan */
   const tptFriBlock={};
+  /* wfoFriCompensation: pegawai WFO Jumat dapat WFH di Senin berikutnya
+     key = string tanggal Senin, value = array nama pegawai */
+  const wfoFriCompensation={};
   workdays.forEach(day=>{
     if(day.isFriday){
       const monKey=addDays(day.date,3);
@@ -501,13 +505,20 @@ function generateSchedule(partialMode){
     }
   });
 
-  /* Jika partial: isi tptFriBlock dari locked rows juga */
+  /* Jika partial: isi tptFriBlock & wfoFriCompensation dari locked rows juga */
   if(partialMode&&schedule){
     schedule.workdays.forEach(w=>{
       if(lockedDates.has(w.date)&&w.isFriday){
         const monKey=addDays(w.date,3);
         if(!tptFriBlock[monKey])tptFriBlock[monKey]=new Set();
         [...w.assignments.tpt_p,...w.assignments.tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
+        /* seed WFO kompensasi dari locked Jumat */
+        const wfoSet=new Set([...w.assignments.tpt_p,...w.assignments.tpt_s,...w.assignments.app]);
+        wfoFriCompensation[monKey]=[...wfoSet];
+      }
+      /* seed counter WFH kompensasi dari locked Senin */
+      if(lockedDates.has(w.date)&&(w.wfhCompList||[]).length){
+        w.wfhCompList.forEach(e=>{if(counters[e])counters[e].wfh++;});
       }
     });
   }
@@ -587,15 +598,32 @@ function generateSchedule(partialMode){
       const wfoSet=new Set([...tpt_p,...tpt_s,...app]);
       wfhList=avail.filter(e=>!wfoSet.has(e));
       wfhList.forEach(e=>{counters[e].wfh++;});
-      /* Update tptFriBlock untuk Senin depan */
+      /* Catat WFO set untuk kompensasi WFH Senin */
       const monKey=addDays(day.date,3);
+      /* Simpan siapa yang WFO hari ini → akan dapat WFH di Senin depan
+         (jika Senin bukan libur/cuti bersama) */
+      wfoFriCompensation[monKey]=[...wfoSet].filter(e=>avail.includes(e));
+      /* Update tptFriBlock untuk Senin depan */
       if(tptFriBlock[monKey]!==undefined){
         [...tpt_p,...tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
       }
     }
 
+    /* WFH kompensasi Senin: jika hari ini adalah Senin dan ada WFO Jumat lalu */
+    const wfhCompList=[];
+    if(isMon&&wfoFriCompensation[day.date]){
+      /* Hanya pegawai yang tersedia (tidak cuti) dan Senin ini bukan libur
+         (sudah pasti workday jika kita sampai sini) */
+      wfoFriCompensation[day.date].forEach(e=>{
+        if(avail.includes(e)){
+          wfhCompList.push(e);
+          counters[e].wfh++; /* dihitung ke dashboard */
+        }
+      });
+    }
+
     const tptBlockedList=isMon&&tptBlocked.size?[...tptBlocked]:[];
-    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList});
+    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList,wfhCompList});
   });
 
   schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...curHolidays],leaves:[...curLeaves],spmkpList:[...curSpmkp]};
@@ -630,6 +658,7 @@ function renderSchedule(){
     +'<div class="legend-item"><div class="legend-dot" style="background:#fffbf0;border-color:#e9c87a"></div>&#128274; Terkunci</div>'
     +'<div class="legend-item"><span class="badge badge-app" style="font-size:10px">App &#128338; WFO Jumat</span></div>'
     +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">WA &#127968; WFH Jumat</span></div>'
+    +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">Nama &#8617; WFH kompensasi WFO</span></div>'
     +'<div class="legend-item"><span class="badge badge-spmkp" style="font-size:10px">&#127970; SPMKP</span></div>'
     +'</div>';
 
@@ -696,9 +725,17 @@ function renderSchedule(){
       /* WA: WFH Jumat */
       tbl+='<td>'+bgs(wd.assignments.wa_p,'badge-wa-p',fr)+'</td>';
       tbl+='<td>'+bgs(wd.assignments.wa_s,'badge-wa-s',fr)+'</td>';
-      tbl+='<td>'+(fr&&wd.wfhList.length
-        ?'<div class="cell-badges">'+wd.wfhList.map(e=>'<span class="badge badge-wfh">'+e+'</span>').join('')+'</div>'
-        :'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
+      /* WFH normal (Jumat) + WFH kompensasi (Senin) */
+      const wfhComp=wd.wfhCompList||[];
+      const hasWfh=(fr&&wd.wfhList.length)||wfhComp.length;
+      let wfhCell='';
+      if(fr&&wd.wfhList.length){
+        wfhCell+='<div class="cell-badges">'+wd.wfhList.map(e=>'<span class="badge badge-wfh">'+e+'</span>').join('')+'</div>';
+      }
+      if(wfhComp.length){
+        wfhCell+='<div class="cell-badges" style="margin-top:2px">'+wfhComp.map(e=>'<span class="badge badge-wfh" title="WFH kompensasi WFO Jumat">'+e+' &#8617;</span>').join('')+'</div>';
+      }
+      tbl+='<td>'+(hasWfh?wfhCell:'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
       tbl+='<td>'+(wd.onLeave.length
         ?'<div class="cell-badges">'+wd.onLeave.map(e=>'<span class="badge badge-cuti">'+e+'</span>').join('')+'</div>'
         :'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
@@ -726,7 +763,9 @@ function renderDashboard(){
   document.getElementById('dash-content').style.display='block';
   const {counters,employees:allEmps,workdays,spmkpList:sSpmkp}=schedule;
   const nonSpmkp=(allEmps||[]).filter(e=>!(sSpmkp||[]).includes(e));
-  const emps=nonSpmkp.length?nonSpmkp:allEmps;/* fallback jika semua spmkp */
+  /* Chart & rata-rata beban tetap non-SPMKP untuk perbandingan adil,
+     tapi SPMKP tetap tampil di tabel rincian dengan total lengkap */
+  const emps=nonSpmkp.length?nonSpmkp:allEmps;
 
   const totalDays=workdays.length,friDays=workdays.filter(d=>d.isFriday).length;
   const avgLoad=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].total:0),0)/emps.length).toFixed(1):'0';
@@ -762,9 +801,12 @@ function renderDashboard(){
       +'<td>'+c.tpt_p+'</td><td>'+c.tpt_s+'</td><td>'+c.app+'</td>'
       +'<td>'+c.wa_p+'</td><td>'+c.wa_s+'</td>'
       +'<td><span class="badge badge-wfh">'+c.wfh+'</span></td>'
-      +'<td>'+(isSp?'<span style="color:#999;font-size:11px">excl.</span>':'<strong>'+c.total+'</strong>')+'</td>'
+      +'<td><strong>'+c.total+'</strong>'+(isSp?' <span style="font-size:10px;color:#7a4f00" title="Termasuk penugasan SPMKP">*</span>':'')+'</td>'
       +'</tr>';
   }).join('');
+  /* Tambah catatan kaki */
+  const noteEl=document.getElementById('dash-detail-note');
+  if(noteEl)noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* Pegawai SPMKP: total penugasan dihitung penuh. Rata-rata beban di grafik menggunakan pegawai non-SPMKP.</span>';
 }
 
 /* ── Export CSV (semua atau terkunci saja) ── */
