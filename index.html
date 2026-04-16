@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TimJadwal — Sistem Penjadwalan Tim</title>
+<title>Jadwal Pelayanan 011</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;font-size:14px}
@@ -71,10 +71,11 @@ input:focus,select:focus{border-color:#185FA5}
 .bar-fill{height:100%;border-radius:4px}
 .bar-label{font-size:11px;color:#666;min-width:28px;text-align:right}
 /* Schedule table */
-.sched-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #e8e8e4;border-radius:12px}
+.sched-wrap{overflow-x:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #e8e8e4;border-radius:12px;max-height:72vh}
 .sched-table{width:100%;border-collapse:collapse;font-size:12px;min-width:720px}
-.sched-table th{padding:8px 10px;text-align:left;border-bottom:2px solid #e8e8e4;color:#555;font-weight:600;font-size:11px;background:#f5f5f3;white-space:nowrap;position:sticky;top:0;z-index:2}
-.sched-table th:first-child{position:sticky;left:0;z-index:3;background:#f5f5f3;min-width:100px}
+.sched-table thead{position:sticky;top:0;z-index:4}
+.sched-table th{padding:8px 10px;text-align:left;border-bottom:2px solid #e8e8e4;color:#555;font-weight:600;font-size:11px;background:#f0f0ec;white-space:nowrap}
+.sched-table th:first-child{position:sticky;left:0;z-index:5;background:#f0f0ec;min-width:100px}
 .sched-table th:nth-child(2){min-width:80px}
 .sched-table td{padding:6px 10px;border-bottom:1px solid #f0f0ec;vertical-align:middle;line-height:1.5}
 .sched-table td:first-child{position:sticky;left:0;z-index:1;background:inherit;border-right:1px solid #e8e8e4;min-width:100px}
@@ -84,6 +85,7 @@ input:focus,select:focus{border-color:#185FA5}
 .row-friday td{background:#f3fbf7!important}.row-friday td:first-child{border-left:3px solid #5DCAA5}
 .row-workday td{background:#fff}.row-workday td:first-child{border-left:3px solid #e0eefd}
 .row-locked td{background:#fffbf0!important}.row-locked td:first-child{border-left:3px solid #e9c87a!important}
+.row-today td{background:#eef6ff!important}.row-today td:first-child{border-left:3px solid #185FA5!important}
 .sched-table tr:hover td{filter:brightness(0.975)}
 .cell-badges{display:flex;flex-wrap:wrap;gap:3px}
 .ket-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:500}
@@ -108,7 +110,7 @@ input:focus,select:focus{border-color:#185FA5}
 <body>
 <div class="app">
 <div class="topbar">
-  <div class="logo">&#9632; Tim<span>Jadwal</span></div>
+  <div class="logo">&#9632; Jadwal <span>Pelayanan 011</span></div>
   <div class="nav">
     <button class="nav-btn active" onclick="showPanel('setup')">Pengaturan</button>
     <button class="nav-btn" onclick="showPanel('schedule')">Jadwal</button>
@@ -511,7 +513,7 @@ function generateSchedule(partialMode){
       if(lockedDates.has(w.date)&&w.isFriday){
         const monKey=addDays(w.date,3);
         if(!tptFriBlock[monKey])tptFriBlock[monKey]=new Set();
-        [...w.assignments.tpt_p,...w.assignments.tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
+        [...w.assignments.tpt_p,...w.assignments.tpt_s,...w.assignments.app].forEach(e=>tptFriBlock[monKey].add(e));
         /* seed WFO kompensasi dari locked Jumat */
         const wfoSet=new Set([...w.assignments.tpt_p,...w.assignments.tpt_s,...w.assignments.app]);
         wfoFriCompensation[monKey]=[...wfoSet];
@@ -603,9 +605,10 @@ function generateSchedule(partialMode){
       /* Simpan siapa yang WFO hari ini → akan dapat WFH di Senin depan
          (jika Senin bukan libur/cuti bersama) */
       wfoFriCompensation[monKey]=[...wfoSet].filter(e=>avail.includes(e));
-      /* Update tptFriBlock untuk Senin depan */
+      /* Update tptFriBlock untuk Senin depan:
+         TPT pagi, TPT siang, DAN Aplikasi tidak boleh TPT Senin depan */
       if(tptFriBlock[monKey]!==undefined){
-        [...tpt_p,...tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
+        [...tpt_p,...tpt_s,...app].forEach(e=>tptFriBlock[monKey].add(e));
       }
     }
 
@@ -656,6 +659,7 @@ function renderSchedule(){
     +'<div class="legend-item"><div class="legend-dot" style="background:#f3fbf7;border-color:#5DCAA5"></div>Jumat WFH</div>'
     +'<div class="legend-item"><div class="legend-dot" style="background:#fff;border-color:#e0eefd"></div>Hari Kerja</div>'
     +'<div class="legend-item"><div class="legend-dot" style="background:#fffbf0;border-color:#e9c87a"></div>&#128274; Terkunci</div>'
+    +'<div class="legend-item"><div class="legend-dot" style="background:#eef6ff;border-color:#185FA5"></div>Hari Ini</div>'
     +'<div class="legend-item"><span class="badge badge-app" style="font-size:10px">App &#128338; WFO Jumat</span></div>'
     +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">WA &#127968; WFH Jumat</span></div>'
     +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">Nama &#8617; WFH kompensasi WFO</span></div>'
@@ -679,6 +683,7 @@ function renderSchedule(){
 
     let rowClass=isWknd?'row-weekend':isHol?'row-holiday':isFri?'row-friday':'row-workday';
     if(isLocked&&wd)rowClass+=' row-locked';
+    if(isToday&&wd)rowClass+=' row-today';
 
     const dateColor=isWknd?'color:#a32d2d':isHol?'color:#3c3289':isFri?'color:#0f6e56':'color:#1a1a18';
     tbl+='<tr class="'+rowClass+'">';
@@ -689,7 +694,7 @@ function renderSchedule(){
       +'<div style="display:flex;align-items:baseline;gap:3px">'
       +'<span style="font-size:14px;font-weight:700">'+String(dt.getDate()).padStart(2,'0')+'</span>'
       +'<span style="font-size:11px;opacity:0.7">'+DAY_SHORT[dow]+'</span>'
-      +(isToday?'<span style="background:#185FA5;color:#fff;font-size:9px;padding:1px 5px;border-radius:4px">Hari ini</span>':'')
+      +(isToday?'<span style="font-size:9px;color:#185FA5;font-weight:600;display:block;margin-top:1px">Hari ini</span>':'')
       +'</div></div></td>';
 
     if(isWknd){
@@ -705,7 +710,7 @@ function renderSchedule(){
       const blocked=wd.tptBlockedList||[];
       const ketLbl=fr?'<span class="ket-tag" style="background:#e1f5ee;color:#0f6e56">Jumat WFH</span>':'<span class="ket-tag" style="background:#e8f4ff;color:#185FA5">Kerja</span>';
       const lockedLbl=isLocked?'<span class="ket-tag" style="background:#fdf5e0;color:#7a4f00;margin-left:3px">&#128274;</span>':'';
-      const blockedInfo=isMon&&blocked.length?'<br><span style="font-size:10px;color:#633806" title="Tidak dapat TPT karena WFO Jumat lalu">&#9888; '+blocked.length+' skip TPT</span>':'';
+      const blockedInfo=isMon&&blocked.length?'<br><span style="font-size:10px;color:#633806" title="WFO Jumat lalu (TPT/App): tidak dapat TPT hari ini">&#9888; '+blocked.length+' skip TPT</span>':'';
       const cutiInfo=onLeaveAll.length?'<br><span style="font-size:10px;color:#712b13">'+onLeaveAll.length+' cuti</span>':'';
       tbl+='<td>'+ketLbl+lockedLbl+blockedInfo+cutiInfo+'</td>';
 
