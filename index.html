@@ -759,7 +759,7 @@ function renderSchedule(){
     /* sticky date cell with lock button */
     tbl+='<td style="'+dateColor+'">'
       +'<div style="display:flex;align-items:center;gap:4px">'
-      +(wd?'<button class="lock-btn'+(isLocked?' locked':'')+'" onclick="toggleLock(\''+ds+'\')" title="'+(isLocked?'Buka kunci':'Kunci baris ini')+'">'+(isLocked?'&#128274;':'&#128275;')+'</button>':'')
+      +(wd?'<button class="lock-btn'+(isLocked?' locked':'')+'" data-date="'+ds+'" title="'+(isLocked?'Buka kunci':'Kunci baris ini')+'">'+(isLocked?'&#128274;':'&#128275;')+'</button>':'')
       +'<div style="display:flex;align-items:baseline;gap:3px">'
       +'<span style="font-size:14px;font-weight:700">'+String(dt.getDate()).padStart(2,'0')+'</span>'
       +'<span style="font-size:11px;opacity:0.7">'+DAY_SHORT[dow]+'</span>'
@@ -828,6 +828,10 @@ function renderSchedule(){
     :'';
 
   document.getElementById('sched-container').innerHTML=legend+lockBar+tbl;
+  /* Pasang event listener lock buttons (hindari onclick string + var) */
+  document.querySelectorAll('.lock-btn[data-date]').forEach(btn=>{
+    btn.addEventListener('click',()=>toggleLock(btn.dataset.date));
+  });
 }
 
 /* ── Render dashboard (dinamis: hitung dari locked jika ada, else semua) ── */
@@ -1173,7 +1177,7 @@ function renderSwapSlots(){
     if(!people.length)return;
     people.forEach(emp=>{
       const sel=(swapState.slot===key&&swapState.fromEmp===emp);
-      html+='<div class="slot-card'+(sel?' selected':'')+'" onclick="selectSwapSlot(''+ds+'',''+key+'',''+emp+'')">'
+      html+='<div class="slot-card'+(sel?' selected':'')+'" data-date="'+ds+'" data-slot="'+key+'" data-emp="'+emp+'">'
         +'<div class="slot-card-label"><span class="badge-slot '+SLOT_BADGE[key]+'">'+label+'</span></div>'
         +'<div class="slot-card-name">'+emp+'</div>'
         +'</div>';
@@ -1181,6 +1185,9 @@ function renderSwapSlots(){
   });
   html+='</div></div>';
   sec.innerHTML=html;
+  sec.querySelectorAll('.slot-card').forEach(card=>{
+    card.addEventListener('click',()=>selectSwapSlot(card.dataset.date,card.dataset.slot,card.dataset.emp));
+  });
 }
 
 function selectSwapSlot(ds,slot,emp){
@@ -1212,11 +1219,15 @@ function renderSwapPersonPicker(){
   } else {
     candidates.forEach(e=>{
       const sel=(swapState.toEmp===e);
-      html+='<button class="person-btn'+(sel?' selected':'')+'" onclick="selectSwapPerson(''+e+'')">'+e+'</button>';
+      html+='<button class="person-btn'+(sel?' selected':'')+'" data-emp="'+e+'">'+e+'</button>';
     });
   }
   html+='</div></div>';
-  document.getElementById('swap-person-section').innerHTML=html;
+  const psecEl=document.getElementById('swap-person-section');
+  psecEl.innerHTML=html;
+  psecEl.querySelectorAll('.person-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>selectSwapPerson(btn.dataset.emp));
+  });
   prev.innerHTML='';
 }
 
