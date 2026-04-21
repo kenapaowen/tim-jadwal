@@ -288,8 +288,8 @@ input:focus,select:focus{border-color:#185FA5}
   <div id="dash-empty" style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada data. Generate jadwal terlebih dahulu.</div>
   <div id="dash-content" style="display:none">
     <div id="dash-mode-banner"></div>
-    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">Grafik beban &amp; WFH menggunakan pegawai <strong>non-SPMKP</strong>. SPMKP tetap tampil di tabel rincian dengan total penuh.</div>
     <div class="stat-grid" id="dash-metrics"></div>
+    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">Grafik beban &amp; WFH menggunakan pegawai <strong>non-SPMKP</strong>. SPMKP tetap tampil di tabel rincian dengan total penuh.</div>
     <div class="grid-2">
       <div class="card"><div class="card-title">Beban Kerja (non-SPMKP)</div><div id="dash-workload"></div></div>
       <div class="card"><div class="card-title">Jumlah WFH (non-SPMKP)</div><div id="dash-wfh"></div></div>
@@ -526,12 +526,14 @@ function toggleLock(ds){
   if(lockedDates.has(ds))lockedDates.delete(ds);else lockedDates.add(ds);
   saveScheduleToLS();
   renderSchedule();
+  renderDashboard();
 }
 function unlockAll(){
   if(!lockedDates.size)return;
   lockedDates.clear();
   saveScheduleToLS();
   renderSchedule();
+  renderDashboard();
   showPanel('schedule');
 }
 function saveScheduleToLS(){
@@ -916,19 +918,20 @@ function renderDashboard(){
   const activeWd=lockedWd.length>0?lockedWd:workdays;
   const isPartialDash=lockedWd.length>0&&lockedWd.length<workdays.length;
 
-  /* Hitung counter dari activeWd */
+  /* Hitung counter SELALU dari activeWd — berlaku untuk semua bagian dashboard */
   const counters={};
   (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
   activeWd.forEach(w=>{
     const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
-    w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+    if(w.isFriday)w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
     (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
   });
 
   const totalDays=workdays.length;
   const lockedCount=lockedWd.length;
+  const activeDays=activeWd.length;
   const friDays=activeWd.filter(d=>d.isFriday).length;
   const avgLoad=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].total:0),0)/emps.length).toFixed(1):'0';
   const avgWfh=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].wfh:0),0)/emps.length).toFixed(1):'0';
@@ -937,17 +940,18 @@ function renderDashboard(){
   const dashMode=document.getElementById('dash-mode-banner');
   if(dashMode){
     if(isPartialDash){
-      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Dashboard menampilkan data dari <strong>'+lockedCount+' hari terkunci</strong> dari total '+totalDays+' hari kerja. Kunci lebih banyak hari atau generate semua untuk melihat statistik penuh.</div>';
+      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Menampilkan statistik dari <strong>'+lockedCount+' hari terkunci</strong> (dari '+totalDays+' total hari kerja). Kunci lebih banyak hari untuk statistik lebih lengkap.</div>';
     } else if(lockedCount===totalDays&&lockedCount>0){
-      dashMode.innerHTML='<div class="notice notice-success" style="font-size:12px;margin-bottom:12px">&#9989; Dashboard menampilkan data lengkap dari semua <strong>'+totalDays+' hari kerja</strong> (semua terkunci).</div>';
+      dashMode.innerHTML='<div class="notice notice-success" style="font-size:12px;margin-bottom:12px">&#9989; Statistik lengkap dari semua <strong>'+totalDays+' hari kerja</strong> (semua terkunci).</div>';
     } else {
-      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Dashboard menampilkan data dari semua <strong>'+totalDays+' hari kerja</strong>. Kunci hari tertentu untuk melihat statistik sebagian.</div>';
+      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Statistik dari semua <strong>'+totalDays+' hari kerja</strong>. Kunci hari tertentu untuk melihat statistik sebagian.</div>';
     }
   }
 
+  /* Metric cards — gunakan activeDays agar angkanya sesuai dengan counter */
   document.getElementById('dash-metrics').innerHTML=
-    '<div class="metric-card"><div class="metric-label">Hari Kerja '+(isPartialDash?'(terkunci)':'(total)')+'</div><div class="metric-value">'+(isPartialDash?lockedCount:totalDays)+'</div></div>'
-    +'<div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">'+totalDays+'</div></div>'
+    '<div class="metric-card"><div class="metric-label">'+(isPartialDash?'Hari Terkunci':'Hari Kerja')+'</div><div class="metric-value">'+activeDays+'</div></div>'
+    +(isPartialDash?'<div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">'+totalDays+'</div></div>':'')
     +'<div class="metric-card"><div class="metric-label">Jumat WFH</div><div class="metric-value">'+friDays+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Rata-rata Beban</div><div class="metric-value">'+avgLoad+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Rata-rata WFH</div><div class="metric-value">'+avgWfh+'</div></div>'
@@ -966,6 +970,7 @@ function renderDashboard(){
     return '<div class="emp-row"><div class="avatar" style="background:#e1f5ee;color:#0f6e56">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(c.wfh/maxWfh*100)+'%;background:#0f6e56"></div></div><div class="bar-label">'+c.wfh+'</div></div></div>';
   }).join('');
 
+  /* Tabel rincian juga pakai counter dari activeWd yang sama */
   document.getElementById('dash-detail-body').innerHTML=(allEmps||[]).map(e=>{
     const c=counters[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};
     const isSp=(sSpmkp||[]).includes(e);
@@ -978,9 +983,12 @@ function renderDashboard(){
       +'<td><strong>'+c.total+'</strong>'+(isSp?' <span style="font-size:10px;color:#7a4f00" title="Termasuk penugasan SPMKP">*</span>':'')+'</td>'
       +'</tr>';
   }).join('');
-  /* Tambah catatan kaki */
   const noteEl=document.getElementById('dash-detail-note');
-  if(noteEl)noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* Pegawai SPMKP: total penugasan dihitung penuh. Rata-rata beban di grafik menggunakan pegawai non-SPMKP.</span>';
+  if(noteEl){
+    const scope=isPartialDash?(' dari '+lockedCount+' hari terkunci'):'';
+    noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* SPMKP: total dihitung penuh. Rata-rata beban di grafik menggunakan pegawai non-SPMKP.</span>'
+      +(isPartialDash?'<span style="font-size:11px;color:#633806;margin-left:8px">&#128274; Semua angka dihitung'+scope+'.</span>':'');
+  }
 }
 
 /* ── Export CSV (semua atau terkunci saja) ── */
