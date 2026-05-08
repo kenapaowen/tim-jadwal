@@ -130,23 +130,32 @@ input:focus,select:focus{border-color:#185FA5}
 .swap-arrow{text-align:center;font-size:20px;color:#185FA5;margin:8px 0}
 .swap-preview{background:#f5f5f3;border-radius:8px;padding:10px 14px;font-size:12px;color:#333;line-height:1.7}
 .badge-slot{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11px;font-weight:500;margin-right:4px}
-/* Drag & Drop Swap */
-.badge[draggable]{cursor:grab;user-select:none;transition:box-shadow 0.12s,opacity 0.12s}
-.badge[draggable]:hover{box-shadow:0 2px 8px rgba(24,95,165,0.25);filter:brightness(0.93)}
-.badge[draggable]:active{cursor:grabbing}
-.badge.drag-source{opacity:0.45;box-shadow:0 0 0 2px #185FA5;outline:2px dashed #185FA5}
-.badge.drop-target-hover{box-shadow:0 0 0 2.5px #0f6e56;filter:brightness(0.92);transform:scale(1.07)}
-.dnd-mode-active .sched-table td{transition:background 0.1s}
-/* Drag ghost tooltip */
-#dnd-ghost{position:fixed;pointer-events:none;z-index:9999;padding:5px 10px;background:#185FA5;color:#fff;border-radius:8px;font-size:12px;font-weight:500;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.22);display:none}
-/* Swap confirm panel (inline bottom of schedule) */
-#swap-confirm-bar{display:none;position:sticky;bottom:0;background:#fff;border-top:2px solid #185FA5;padding:10px 16px;z-index:50;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 -4px 12px rgba(24,95,165,0.1)}
-#swap-confirm-bar.show{display:flex}
-.swap-bar-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
-.swap-bar-pill-a{background:#e6f1fb;color:#185FA5}
-.swap-bar-pill-b{background:#e1f5ee;color:#0f6e56}
-.swap-bar-icon{font-size:16px;color:#185FA5}
-.dnd-hint{font-size:11px;background:#e6f1fb;color:#185FA5;border-radius:6px;padding:4px 10px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tab-bar{display:flex;gap:2px;border-bottom:2px solid #e8e8e4;margin-bottom:16px}
+.tab-btn{padding:7px 16px;font-size:13px;border:none;background:none;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all 0.15s;border-radius:6px 6px 0 0}
+.tab-btn.active{color:#185FA5;border-bottom-color:#185FA5;background:#f0f6ff;font-weight:500}
+.tab-btn:hover:not(.active){background:#f5f5f3;color:#333}
+.tab-pane{display:none}.tab-pane.active{display:block}
+.slot-config-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:8px}
+.slot-config-item{display:flex;flex-direction:column;gap:4px}
+.slot-config-item label{font-size:11px;color:#666;font-weight:500}
+.slot-config-item input{padding:5px 8px;font-size:13px;text-align:center;width:100%}
+.multimonth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;margin-bottom:10px}
+.month-check{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1.5px solid #e8e8e4;border-radius:8px;cursor:pointer;font-size:12px;transition:all 0.12s}
+.month-check:hover{border-color:#185FA5;background:#f0f6ff}
+.month-check.checked{border-color:#185FA5;background:#e6f1fb;font-weight:500}
+.month-check input{width:auto;cursor:pointer}
+.range-card{background:#f0f6ff;border:1px solid #b5d4f4;border-radius:10px;padding:12px 16px;margin-bottom:12px}
+.wfo-target-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0ec;font-size:12px}
+.wfo-target-row:last-child{border-bottom:none}
+.badge-wfo{background:#e6f1fb;color:#185FA5}
+.rekap-table{width:100%;border-collapse:collapse;font-size:12px}
+.rekap-table th{padding:7px 10px;border-bottom:2px solid #e8e8e4;background:#f5f5f3;text-align:center;font-weight:600;white-space:nowrap;color:#444}
+.rekap-table th:first-child{text-align:left}
+.rekap-table td{padding:6px 10px;border-bottom:1px solid #f0f0ec;text-align:center}
+.rekap-table td:first-child{text-align:left;font-weight:500}
+.rekap-table tr:last-child td{border-bottom:none}
+.rekap-table .total-row td{font-weight:700;background:#f0f0ec;border-top:2px solid #e8e8e4}
+.rekap-month-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;background:#e6f1fb;color:#185FA5;margin:2px}
 @media(max-width:640px){.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}.row{flex-direction:column}}
 </style>
 </head>
@@ -158,6 +167,7 @@ input:focus,select:focus{border-color:#185FA5}
     <button class="nav-btn active" onclick="showPanel('setup')">Pengaturan</button>
     <button class="nav-btn" onclick="showPanel('schedule')">Jadwal</button>
     <button class="nav-btn" onclick="showPanel('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="showPanel('rekap')">Rekap</button>
   </div>
 </div>
 <div class="content">
@@ -167,7 +177,8 @@ input:focus,select:focus{border-color:#185FA5}
   <div class="section-title">Pengaturan Tim &amp; Jadwal</div>
 
   <div class="rule-box rule-wfh">
-    <strong>Aturan WFH Jumat:</strong> Hanya pegawai <strong>TPT Pagi &amp; TPT Siang</strong> yang WFO di hari Jumat. Semua pegawai lain yang tidak cuti = <strong>WFH</strong>. Jika Jumat adalah hari libur, tidak ada WFH minggu itu. Rotasi WFO Jumat diusahakan bergantian tiap pekan.
+    <strong>Aturan WFO Jumat:</strong> Hanya <strong>TPT Pagi &amp; TPT Siang</strong> yang wajib WFO. Aplikasi, WA Pagi &amp; Siang = WFH.
+    Pegawai <strong>WA Pagi &amp; WA Siang</strong> tetap WFH.
   </div>
   <div class="rule-box rule-spmkp">
     <strong>Aturan SPMKP:</strong> Pegawai SPMKP mendapat maksimal <strong>50% slot TPT</strong> dibanding pegawai lain.
@@ -212,6 +223,17 @@ input:focus,select:focus{border-color:#185FA5}
         </div>
         <div class="tag-wrap" id="spmkp-tags" style="min-height:36px"></div>
       </div>
+      <div class="card">
+        <div class="card-title">&#9881; Konfigurasi Jumlah Penugasan per Hari</div>
+        <div class="slot-config-grid">
+          <div class="slot-config-item"><label>TPT Pagi (WFO)</label><input type="number" id="cfg-tpt-p" value="2" min="1" max="6" onchange="autoSave()"/></div>
+          <div class="slot-config-item"><label>TPT Siang (WFO)</label><input type="number" id="cfg-tpt-s" value="2" min="1" max="6" onchange="autoSave()"/></div>
+          <div class="slot-config-item"><label>Aplikasi</label><input type="number" id="cfg-app" value="1" min="0" max="4" onchange="autoSave()"/></div>
+          <div class="slot-config-item"><label>WA Pagi</label><input type="number" id="cfg-wa-p" value="1" min="0" max="4" onchange="autoSave()"/></div>
+          <div class="slot-config-item"><label>WA Siang</label><input type="number" id="cfg-wa-s" value="1" min="0" max="4" onchange="autoSave()"/></div>
+        </div>
+        <div style="font-size:11px;color:#888">WFO per hari = TPT Pagi + TPT Siang. Semua pegawai lain = WFH di hari Jumat.</div>
+      </div>
     </div>
 
     <div>
@@ -238,13 +260,56 @@ input:focus,select:focus{border-color:#185FA5}
     </div>
   </div>
 
+  <!-- Generate Options -->
+  <div class="card" style="margin-top:4px">
+    <div class="card-title">&#9654; Opsi Generate Jadwal</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchGenTab('tab-full')">Satu Bulan Penuh</button>
+      <button class="tab-btn" onclick="switchGenTab('tab-range')">Rentang Tanggal</button>
+      <button class="tab-btn" onclick="switchGenTab('tab-multi')">Multi-Bulan</button>
+    </div>
+
+    <!-- Tab 1: Full month -->
+    <div class="tab-pane active" id="tab-full">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div style="font-size:12px;color:#666">Generate jadwal lengkap untuk bulan &amp; tahun yang dipilih di atas.</div>
+        <button class="btn btn-primary" onclick="generateSchedule(false)" style="padding:10px 24px;font-size:14px">&#9654; Generate Bulan Penuh</button>
+      </div>
+    </div>
+
+    <!-- Tab 2: Date range -->
+    <div class="tab-pane" id="tab-range">
+      <div class="range-card">
+        <div style="font-size:12px;color:#185FA5;margin-bottom:10px;font-weight:500">&#8505; Generate hanya hari kerja dalam rentang tanggal yang dipilih. Berguna saat ada mutasi atau cuti mendadak di tengah bulan.</div>
+        <div class="row" style="margin-bottom:6px">
+          <div><label>Dari Tanggal</label><input type="date" id="inp-range-from"/></div>
+          <div><label>Sampai Tanggal</label><input type="date" id="inp-range-to"/></div>
+          <div style="flex:0"><button class="btn btn-primary" onclick="generateRangeSchedule()">&#9654; Generate Rentang</button></div>
+        </div>
+        <div style="font-size:11px;color:#666">Tanggal yang sudah ada dan terkunci akan dipertahankan. Hari di luar rentang tidak berubah.</div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Multi-month -->
+    <div class="tab-pane" id="tab-multi">
+      <div style="font-size:12px;color:#666;margin-bottom:10px">Pilih bulan yang ingin di-generate sekaligus (tahun dari input Tahun di atas):</div>
+      <div class="multimonth-grid" id="multimonth-checks"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="toggleAllMonths(true)">Pilih Semua</button>
+        <button class="btn btn-sm" onclick="toggleAllMonths(false)">Hapus Pilihan</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="generateMultiMonth()" style="padding:8px 20px">&#9654; Generate Multi-Bulan</button>
+      </div>
+      <div id="multi-month-notice" style="margin-top:10px"></div>
+    </div>
+  </div>
+
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:4px">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span style="font-size:12px;color:#999">Backup:</span>
       <button class="btn btn-sm" onclick="exportSettings()">&#8595; Export JSON</button>
       <label class="btn btn-sm" style="cursor:pointer;margin:0">&#8593; Import JSON<input type="file" accept=".json" onchange="importSettings(event)" style="display:none"/></label>
     </div>
-    <button class="btn btn-primary" onclick="generateSchedule(false)" style="padding:10px 24px;font-size:14px">&#9654; Generate Jadwal</button>
   </div>
   <div id="gen-notice" style="margin-top:12px"></div>
   <div id="autosave-notice" style="margin-top:6px;font-size:12px;color:#999;text-align:right"></div>
@@ -276,7 +341,6 @@ input:focus,select:focus{border-color:#185FA5}
   <div class="notice notice-info" style="font-size:12px;margin-bottom:10px">
     &#128274; Klik tombol kunci di setiap baris untuk mengunci tanggal tersebut. Baris terkunci tidak akan berubah saat <strong>Regenerate Unlocked</strong>.
   </div>
-  <div class="dnd-hint">&#9654;&#65039; <strong>Drag &amp; Drop:</strong> Seret nama pegawai ke nama pegawai lain untuk menukar jadwal — bisa beda tanggal &amp; beda slot. Atau gunakan tombol <strong>⇄ Tukar Jadwal</strong>.</div>
   <div id="sched-notice" class="notice notice-success" style="display:none"></div>
   <div id="sched-container"><div style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada jadwal. Generate dari tab Pengaturan.</div></div>
 </div>
@@ -287,8 +351,8 @@ input:focus,select:focus{border-color:#185FA5}
   <div id="dash-empty" style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada data. Generate jadwal terlebih dahulu.</div>
   <div id="dash-content" style="display:none">
     <div id="dash-mode-banner"></div>
+    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">Grafik beban &amp; WFH menggunakan pegawai <strong>non-SPMKP</strong>. SPMKP tetap tampil di tabel rincian dengan total penuh.</div>
     <div class="stat-grid" id="dash-metrics"></div>
-    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">WFH hanya dihitung pada hari Jumat. Grafik beban &amp; WFH menggunakan pegawai <strong>non-SPMKP</strong>. SPMKP tetap tampil di tabel rincian.</div>
     <div class="grid-2">
       <div class="card"><div class="card-title">Beban Kerja (non-SPMKP)</div><div id="dash-workload"></div></div>
       <div class="card"><div class="card-title">Jumlah WFH (non-SPMKP)</div><div id="dash-wfh"></div></div>
@@ -307,21 +371,6 @@ input:focus,select:focus{border-color:#185FA5}
 </div>
 
 </div></div>
-
-<!-- DnD ghost -->
-<div id="dnd-ghost"></div>
-
-<!-- Swap Confirm Bar (sticky bottom of schedule panel) -->
-<div id="swap-confirm-bar">
-  <span class="swap-bar-icon">&#8646;</span>
-  <span style="font-size:13px;font-weight:500;color:#1a1a18">Tukar Jadwal:</span>
-  <div id="swap-bar-a" class="swap-bar-pill swap-bar-pill-a">—</div>
-  <span style="font-size:16px;color:#185FA5;font-weight:300">⇄</span>
-  <div id="swap-bar-b" class="swap-bar-pill swap-bar-pill-b">—</div>
-  <div style="flex:1"></div>
-  <button class="btn btn-sm btn-danger" onclick="cancelDndSwap()">Batal</button>
-  <button class="btn btn-sm btn-primary" id="dnd-confirm-btn" onclick="confirmDndSwap()">✓ Terapkan Tukar</button>
-</div>
 
 <!-- ═══ SWAP MODAL ═══ -->
 <div class="modal-overlay" id="swap-modal" onclick="if(event.target===this)closeSwapModal()">
@@ -525,14 +574,12 @@ function toggleLock(ds){
   if(lockedDates.has(ds))lockedDates.delete(ds);else lockedDates.add(ds);
   saveScheduleToLS();
   renderSchedule();
-  renderDashboard();
 }
 function unlockAll(){
   if(!lockedDates.size)return;
   lockedDates.clear();
   saveScheduleToLS();
   renderSchedule();
-  renderDashboard();
   showPanel('schedule');
 }
 function saveScheduleToLS(){
@@ -584,23 +631,30 @@ function generateSchedule(partialMode, lockedMode){
       const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
       cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
       cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
-      if(w.isFriday)w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+      w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+      (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
     });
   }
 
-  /* ── Rotasi WFO Jumat ──
-     friWfoHistory[emp] = jumlah Jumat di mana pegawai ini WFO (TPT)
-     Tujuan: setiap Jumat, yang di-pick untuk TPT diutamakan yang
-     paling sedikit WFO Jumat-nya → setiap orang bergantian WFO.
-     Seed dari locked rows jika partial mode. */
-  const friWfoCount={};
-  employees.forEach(e=>{friWfoCount[e]=0;});
+  /* ── Build tptFriBlock & wfoFriCompensation ── */
+  const tptFriBlock={};
+  const wfoFriCompensation={};
+  workdays.forEach(day=>{
+    if(day.isFriday){tptFriBlock[addDays(day.date,3)]=new Set();}
+  });
   if(partialMode&&schedule){
     schedule.workdays.forEach(w=>{
-      if(!lockedDates.has(w.date)||!w.isFriday)return;
-      [...w.assignments.tpt_p,...w.assignments.tpt_s].forEach(e=>{
-        if(friWfoCount[e]!==undefined)friWfoCount[e]++;
-      });
+      if(!lockedDates.has(w.date))return;
+      if(w.isFriday){
+        const monKey=addDays(w.date,3);
+        if(!tptFriBlock[monKey])tptFriBlock[monKey]=new Set();
+        [...w.assignments.tpt_p,...w.assignments.tpt_s,...w.assignments.app].forEach(e=>tptFriBlock[monKey].add(e));
+        const wfoSet=new Set([...w.assignments.tpt_p,...w.assignments.tpt_s]);
+        wfoFriCompensation[monKey]=[...wfoSet];
+      }
+      if((w.wfhCompList||[]).length){
+        w.wfhCompList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+      }
     });
   }
 
@@ -620,42 +674,18 @@ function generateSchedule(partialMode, lockedMode){
   const tptTargetSpmkp=tptTargetNormal*0.5;
   const tptTotal=(e)=>counters[e].tpt_p+counters[e].tpt_s;
 
-  /* ── Slot rotation tracking ──
-     Catat slot terakhir tiap pegawai agar tidak dapat slot yang persis sama
-     di hari berikutnya (anti-monoton). Ini sangat membantu pegawai yang baru
-     kembali dari cuti panjang — counter mereka 0 di semua slot sehingga tanpa
-     rotation mereka bisa kena slot yang sama terus-menerus.
-     lastSlot[emp] = key slot terakhir yang diterima (tpt_p/tpt_s/app/wa_p/wa_s) */
-  const lastSlot={};
-  employees.forEach(e=>{lastSlot[e]=null;});
-
-  /* Seed lastSlot dari hari LOCKED yang sudah ada (partial mode) */
-  if(partialMode&&schedule){
-    const sortedLocked=[...schedule.workdays]
-      .filter(w=>lockedDates.has(w.date))
-      .sort((a,b)=>a.date.localeCompare(b.date));
-    sortedLocked.forEach(w=>{
-      Object.entries(w.assignments).forEach(([key,arr])=>{
-        arr.forEach(e=>{if(lastSlot[e]!==undefined)lastSlot[e]=key;});
-      });
-    });
-  }
-
   const result=[];
 
   workdays.forEach(day=>{
     /* Jika partial dan hari ini locked, ambil dari old data */
     if(partialMode&&lockedDates.has(day.date)&&oldWorkdayMap[day.date]){
       result.push(oldWorkdayMap[day.date]);
-      /* Update friWfoCount dari hari locked agar rotasi WFO akurat */
-      if(oldWorkdayMap[day.date].isFriday){
-        [...oldWorkdayMap[day.date].assignments.tpt_p,...oldWorkdayMap[day.date].assignments.tpt_s]
-          .forEach(e=>{if(friWfoCount[e]!==undefined)friWfoCount[e]++;});
+      /* Update tptFriBlock jika ini Jumat */
+      if(day.isFriday){
+        const monKey=addDays(day.date,3);
+        if(!tptFriBlock[monKey])tptFriBlock[monKey]=new Set();
+        [...oldWorkdayMap[day.date].assignments.tpt_p,...oldWorkdayMap[day.date].assignments.tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
       }
-      /* Update lastSlot dari hari locked agar rotation tracker akurat */
-      Object.entries(oldWorkdayMap[day.date].assignments).forEach(([key,arr])=>{
-        arr.forEach(e=>{if(lastSlot[e]!==undefined)lastSlot[e]=key;});
-      });
       return;
     }
 
@@ -663,35 +693,33 @@ function generateSchedule(partialMode, lockedMode){
     const onLeave=employees.filter(e=>isOnLeave(e,day.date,curLeaves));
     const isFri=day.isFriday;
     const assigned=new Set();
+    const tptBlocked=tptFriBlock[day.date]||new Set();
+    const dow=fromDateStr(day.date).getDay();
+    const isMon=(dow===1);
 
-    /* ── pick(): distribusi merata dengan quota TPT + anti-monoton slot rotation ──
+    /* ── pick(): distribusi merata dengan quota TPT ──
        Prioritas:
        1. Skip pegawai sudah assigned hari ini
-       2. Untuk TPT: defer jika sudah >= target quota (soft cap)
+       2. Untuk TPT di Senin: skip tptBlocked (WFO Jumat lalu)
+       3. Untuk TPT: defer jika sudah >= target quota (soft cap)
           SPMKP quota = 50% target normal
-       3. Khusus TPT di hari Jumat: prioritaskan yang paling sedikit WFO Jumat-nya
-          → setiap Jumat orang yang WFO bergantian (rotasi adil)
-       4. Anti-monoton: defer pegawai yang slot terakhirnya == slot ini
-       5. Sort primary: tpt_total / counter slot
-       6. Sort secondary: total beban
-       7. Fallback bertingkat agar slot tidak kosong */
+       4. Sort primary: tpt_total (pagi+siang) untuk TPT,
+          counter slot untuk non-TPT
+       5. Sort secondary: total beban keseluruhan
+       6. Fallback: jika pref kurang, ambil dari defer agar slot tidak kosong */
     const pick=(key,count,isTpt=false)=>{
+      const blocked=isTpt&&isMon?tptBlocked:new Set();
       const pool=avail.filter(e=>!assigned.has(e));
       const pref=[],defer=[];
       pool.forEach(e=>{
+        if(blocked.has(e)){defer.push(e);return;}
         if(isTpt){
           const cap=curSpmkp.includes(e)?tptTargetSpmkp:tptTargetNormal;
           if(tptTotal(e)>=cap){defer.push(e);return;}
         }
-        if(lastSlot[e]===key){defer.push(e);return;}
         pref.push(e);
       });
       const sortFn=(a,b)=>{
-        /* Jumat + TPT: utamakan yang paling sedikit WFO Jumat-nya (rotasi) */
-        if(isFri&&isTpt){
-          const wfoDiff=friWfoCount[a]-friWfoCount[b];
-          if(wfoDiff!==0)return wfoDiff;
-        }
         const ka=isTpt?tptTotal(a):counters[a][key];
         const kb=isTpt?tptTotal(b):counters[b][key];
         const d=ka-kb;
@@ -702,7 +730,6 @@ function generateSchedule(partialMode, lockedMode){
       for(let i=0;i<Math.min(count,ordered.length);i++){
         res.push(ordered[i]);assigned.add(ordered[i]);
         counters[ordered[i]][key]++;counters[ordered[i]].total++;
-        lastSlot[ordered[i]]=key;
       }
       return res;
     };
@@ -713,21 +740,43 @@ function generateSchedule(partialMode, lockedMode){
     const wa_p=pick('wa_p',1,false);
     const wa_s=pick('wa_s',1,false);
 
-    /* ── WFH Logic (hanya hari Jumat) ──
-       WFO = pegawai TPT pagi & TPT siang (4 orang)
-       WFH = semua available yang TIDAK WFO (termasuk App, WA, dan tidak bertugas)
-       Jika Jumat libur → tidak ada WFH minggu ini
-       Update friWfoCount untuk rotasi Jumat berikutnya */
+    /* WFH logic (Jumat):
+       - TPT pagi & siang = WFO (tidak dapat WFH)
+       - Aplikasi, WA pagi, WA siang = WFH
+       - Sisa pegawai available = WFH
+       WFH kompensasi Senin: hanya TPT (WFO sejati)
+       Tidak dapat TPT Senin: TPT + Aplikasi (sudah bekerja ekstra) */
     let wfhList=[];
     if(isFri){
+      /* WFO sejati = hanya TPT pagi & siang */
       const wfoSet=new Set([...tpt_p,...tpt_s]);
+      /* Semua available kecuali WFO = WFH (termasuk App, WA, dan yang tidak bertugas) */
       wfhList=avail.filter(e=>!wfoSet.has(e));
       wfhList.forEach(e=>{counters[e].wfh++;});
-      /* Update rotasi WFO */
-      wfoSet.forEach(e=>{if(friWfoCount[e]!==undefined)friWfoCount[e]++;});
+      const monKey=addDays(day.date,3);
+      /* Hanya WFO (TPT) yang dapat kompensasi WFH Senin */
+      wfoFriCompensation[monKey]=[...wfoSet].filter(e=>avail.includes(e));
+      /* TPT pagi, siang DAN Aplikasi tidak boleh TPT Senin depan */
+      if(tptFriBlock[monKey]!==undefined){
+        [...tpt_p,...tpt_s,...app].forEach(e=>tptFriBlock[monKey].add(e));
+      }
     }
 
-    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave});
+    /* WFH kompensasi Senin: jika hari ini adalah Senin dan ada WFO Jumat lalu */
+    const wfhCompList=[];
+    if(isMon&&wfoFriCompensation[day.date]){
+      /* Hanya pegawai yang tersedia (tidak cuti) dan Senin ini bukan libur
+         (sudah pasti workday jika kita sampai sini) */
+      wfoFriCompensation[day.date].forEach(e=>{
+        if(avail.includes(e)){
+          wfhCompList.push(e);
+          counters[e].wfh++; /* dihitung ke dashboard */
+        }
+      });
+    }
+
+    const tptBlockedList=isMon&&tptBlocked.size?[...tptBlocked]:[];
+    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList,wfhCompList});
   });
 
   schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...curHolidays],leaves:[...curLeaves],spmkpList:[...curSpmkp]};
@@ -761,8 +810,9 @@ function renderSchedule(){
     +'<div class="legend-item"><div class="legend-dot" style="background:#fff;border-color:#e0eefd"></div>Hari Kerja</div>'
     +'<div class="legend-item"><div class="legend-dot" style="background:#fffbf0;border-color:#e9c87a"></div>&#128274; Terkunci</div>'
     +'<div class="legend-item"><div class="legend-dot" style="background:#eef6ff;border-color:#185FA5"></div>Hari Ini</div>'
-    +'<div class="legend-item"><span class="badge badge-tpt-p" style="font-size:10px">TPT &#127968; WFO Jumat</span></div>'
-    +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">Nama &#127968; WFH Jumat</span></div>'
+    +'<div class="legend-item"><span class="badge badge-app" style="font-size:10px">App &#128338; WFO Jumat</span></div>'
+    +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">WA &#127968; WFH Jumat</span></div>'
+    +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">Nama &#8617; WFH kompensasi WFO</span></div>'
     +'<div class="legend-item"><span class="badge badge-spmkp" style="font-size:10px">&#127970; SPMKP</span></div>'
     +'</div>';
 
@@ -806,33 +856,40 @@ function renderSchedule(){
       tbl+='<td colspan="7" style="color:#9080c0;font-size:11px;font-style:italic">'+hol.name+'</td>';
     } else if(wd){
       const fr=wd.isFriday;
+      const isMon=(dow===1);
+      const blocked=wd.tptBlockedList||[];
       const ketLbl=fr?'<span class="ket-tag" style="background:#e1f5ee;color:#0f6e56">Jumat WFH</span>':'<span class="ket-tag" style="background:#e8f4ff;color:#185FA5">Kerja</span>';
       const lockedLbl=isLocked?'<span class="ket-tag" style="background:#fdf5e0;color:#7a4f00;margin-left:3px">&#128274;</span>':'';
+      const blockedInfo=isMon&&blocked.length?'<br><span style="font-size:10px;color:#633806" title="WFO Jumat lalu (TPT/App): tidak dapat TPT hari ini">&#9888; '+blocked.length+' skip TPT</span>':'';
       const cutiInfo=onLeaveAll.length?'<br><span style="font-size:10px;color:#712b13">'+onLeaveAll.length+' cuti</span>':'';
-      tbl+='<td>'+ketLbl+lockedLbl+cutiInfo+'</td>';
+      tbl+='<td>'+ketLbl+lockedLbl+blockedInfo+cutiInfo+'</td>';
 
-      /* badge renderer: tandai SPMKP dengan ikon khusus, tambah draggable */
+      /* badge renderer: tandai SPMKP dengan ikon khusus */
       const sCur=schedule.spmkpList||[];
-      const bgs=(arr,cls,wfhNote,slotKey)=>arr.length
+      const bgs=(arr,cls,wfhNote)=>arr.length
         ?'<div class="cell-badges">'+arr.map(e=>{
             const isSp=sCur.includes(e);
-            const dndAttr=slotKey?(' draggable="true" data-dnd-emp="'+e+'" data-dnd-date="'+ds+'" data-dnd-slot="'+slotKey+'"'):'';
-            return '<span class="badge '+cls+'"'+dndAttr+'>'+(isSp?'&#127970;':'')+e+(wfhNote?' &#127968;':'')+'</span>';
+            return '<span class="badge '+cls+'">'+(isSp?'&#127970;':'')+e+(wfhNote?' &#127968;':'')+'</span>';
           }).join('')+'</div>'
         :'<span style="color:#ccc;font-size:11px">\u2014</span>';
 
-      tbl+='<td>'+bgs(wd.assignments.tpt_p,'badge-tpt-p',false,'tpt_p')+'</td>';
-      tbl+='<td>'+bgs(wd.assignments.tpt_s,'badge-tpt-s',false,'tpt_s')+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.tpt_p,'badge-tpt-p',false)+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.tpt_s,'badge-tpt-s',false)+'</td>';
       /* Aplikasi: WFH di Jumat (sama seperti WA) */
-      tbl+='<td>'+bgs(wd.assignments.app,'badge-app',fr,'app')+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.app,'badge-app',fr)+'</td>';
       /* WA: WFH Jumat */
-      tbl+='<td>'+bgs(wd.assignments.wa_p,'badge-wa-p',fr,'wa_p')+'</td>';
-      tbl+='<td>'+bgs(wd.assignments.wa_s,'badge-wa-s',fr,'wa_s')+'</td>';
-      /* WFH: hanya hari Jumat, semua available non-TPT */
-      const hasWfh=fr&&wd.wfhList.length;
-      const wfhCell=hasWfh
-        ?'<div class="cell-badges">'+wd.wfhList.map(e=>'<span class="badge badge-wfh">'+e+' &#127968;</span>').join('')+'</div>'
-        :'';
+      tbl+='<td>'+bgs(wd.assignments.wa_p,'badge-wa-p',fr)+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.wa_s,'badge-wa-s',fr)+'</td>';
+      /* WFH normal (Jumat) + WFH kompensasi (Senin) */
+      const wfhComp=wd.wfhCompList||[];
+      const hasWfh=(fr&&wd.wfhList.length)||wfhComp.length;
+      let wfhCell='';
+      if(fr&&wd.wfhList.length){
+        wfhCell+='<div class="cell-badges">'+wd.wfhList.map(e=>'<span class="badge badge-wfh">'+e+'</span>').join('')+'</div>';
+      }
+      if(wfhComp.length){
+        wfhCell+='<div class="cell-badges" style="margin-top:2px">'+wfhComp.map(e=>'<span class="badge badge-wfh" title="WFH kompensasi WFO Jumat">'+e+' &#8617;</span>').join('')+'</div>';
+      }
       tbl+='<td>'+(hasWfh?wfhCell:'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
       tbl+='<td>'+(wd.onLeave.length
         ?'<div class="cell-badges">'+wd.onLeave.map(e=>'<span class="badge badge-cuti">'+e+'</span>').join('')+'</div>'
@@ -856,8 +913,6 @@ function renderSchedule(){
   document.querySelectorAll('.lock-btn[data-date]').forEach(btn=>{
     btn.addEventListener('click',()=>toggleLock(btn.dataset.date));
   });
-  /* Pasang DnD listeners untuk tukar jadwal */
-  initDndSwap();
 }
 
 /* ── Render dashboard (dinamis: hitung dari locked jika ada, else semua) ── */
@@ -874,19 +929,19 @@ function renderDashboard(){
   const activeWd=lockedWd.length>0?lockedWd:workdays;
   const isPartialDash=lockedWd.length>0&&lockedWd.length<workdays.length;
 
-  /* Hitung counter SELALU dari activeWd — berlaku untuk semua bagian dashboard */
+  /* Hitung counter dari activeWd */
   const counters={};
   (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
   activeWd.forEach(w=>{
     const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
-    if(w.isFriday)w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+    w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
   });
 
   const totalDays=workdays.length;
   const lockedCount=lockedWd.length;
-  const activeDays=activeWd.length;
   const friDays=activeWd.filter(d=>d.isFriday).length;
   const avgLoad=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].total:0),0)/emps.length).toFixed(1):'0';
   const avgWfh=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].wfh:0),0)/emps.length).toFixed(1):'0';
@@ -895,18 +950,17 @@ function renderDashboard(){
   const dashMode=document.getElementById('dash-mode-banner');
   if(dashMode){
     if(isPartialDash){
-      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Menampilkan statistik dari <strong>'+lockedCount+' hari terkunci</strong> (dari '+totalDays+' total hari kerja). Kunci lebih banyak hari untuk statistik lebih lengkap.</div>';
+      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Dashboard menampilkan data dari <strong>'+lockedCount+' hari terkunci</strong> dari total '+totalDays+' hari kerja. Kunci lebih banyak hari atau generate semua untuk melihat statistik penuh.</div>';
     } else if(lockedCount===totalDays&&lockedCount>0){
-      dashMode.innerHTML='<div class="notice notice-success" style="font-size:12px;margin-bottom:12px">&#9989; Statistik lengkap dari semua <strong>'+totalDays+' hari kerja</strong> (semua terkunci).</div>';
+      dashMode.innerHTML='<div class="notice notice-success" style="font-size:12px;margin-bottom:12px">&#9989; Dashboard menampilkan data lengkap dari semua <strong>'+totalDays+' hari kerja</strong> (semua terkunci).</div>';
     } else {
-      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Statistik dari semua <strong>'+totalDays+' hari kerja</strong>. Kunci hari tertentu untuk melihat statistik sebagian.</div>';
+      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Dashboard menampilkan data dari semua <strong>'+totalDays+' hari kerja</strong>. Kunci hari tertentu untuk melihat statistik sebagian.</div>';
     }
   }
 
-  /* Metric cards — gunakan activeDays agar angkanya sesuai dengan counter */
   document.getElementById('dash-metrics').innerHTML=
-    '<div class="metric-card"><div class="metric-label">'+(isPartialDash?'Hari Terkunci':'Hari Kerja')+'</div><div class="metric-value">'+activeDays+'</div></div>'
-    +(isPartialDash?'<div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">'+totalDays+'</div></div>':'')
+    '<div class="metric-card"><div class="metric-label">Hari Kerja '+(isPartialDash?'(terkunci)':'(total)')+'</div><div class="metric-value">'+(isPartialDash?lockedCount:totalDays)+'</div></div>'
+    +'<div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">'+totalDays+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Jumat WFH</div><div class="metric-value">'+friDays+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Rata-rata Beban</div><div class="metric-value">'+avgLoad+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Rata-rata WFH</div><div class="metric-value">'+avgWfh+'</div></div>'
@@ -925,7 +979,6 @@ function renderDashboard(){
     return '<div class="emp-row"><div class="avatar" style="background:#e1f5ee;color:#0f6e56">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(c.wfh/maxWfh*100)+'%;background:#0f6e56"></div></div><div class="bar-label">'+c.wfh+'</div></div></div>';
   }).join('');
 
-  /* Tabel rincian juga pakai counter dari activeWd yang sama */
   document.getElementById('dash-detail-body').innerHTML=(allEmps||[]).map(e=>{
     const c=counters[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};
     const isSp=(sSpmkp||[]).includes(e);
@@ -938,12 +991,9 @@ function renderDashboard(){
       +'<td><strong>'+c.total+'</strong>'+(isSp?' <span style="font-size:10px;color:#7a4f00" title="Termasuk penugasan SPMKP">*</span>':'')+'</td>'
       +'</tr>';
   }).join('');
+  /* Tambah catatan kaki */
   const noteEl=document.getElementById('dash-detail-note');
-  if(noteEl){
-    const scope=isPartialDash?(' dari '+lockedCount+' hari terkunci'):'';
-    noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* SPMKP: total dihitung penuh. Rata-rata beban di grafik menggunakan pegawai non-SPMKP.</span>'
-      +(isPartialDash?'<span style="font-size:11px;color:#633806;margin-left:8px">&#128274; Semua angka dihitung'+scope+'.</span>':'');
-  }
+  if(noteEl)noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* Pegawai SPMKP: total penugasan dihitung penuh. Rata-rata beban di grafik menggunakan pegawai non-SPMKP.</span>';
 }
 
 /* ── Export CSV (semua atau terkunci saja) ── */
@@ -1150,58 +1200,13 @@ function importJadwal(evt){
 
 
 /* ════════════════════════════════════════════════════════
-   SWAP JADWAL — Modal (step-by-step) + Drag & Drop
+   SWAP JADWAL — tukar satu slot penugasan antar pegawai
+   State mesin: step1=pilih tanggal+slot, step2=pilih pengganti
    ════════════════════════════════════════════════════════ */
 const SLOT_LABELS={tpt_p:'TPT Pagi',tpt_s:'TPT Siang',app:'Aplikasi',wa_p:'WA Pagi',wa_s:'WA Siang'};
 const SLOT_BADGE={tpt_p:'badge-tpt-p',tpt_s:'badge-tpt-s',app:'badge-app',wa_p:'badge-wa-p',wa_s:'badge-wa-s'};
 let swapState={date:null,slot:null,fromEmp:null,toEmp:null};
 
-/* ── Shared apply-swap logic ── */
-function applySwap(dateA,slotA,empA, dateB,slotB,empB){
-  /* Tukar empA@dateA/slotA dengan empB@dateB/slotB
-     Keduanya bisa sama tanggal/slot atau berbeda */
-  const wdA=schedule.workdays.find(w=>w.date===dateA);
-  const wdB=schedule.workdays.find(w=>w.date===dateB);
-  if(!wdA||!wdB)return false;
-
-  const arrA=wdA.assignments[slotA];
-  const arrB=wdB.assignments[slotB];
-  const iA=arrA.indexOf(empA);
-  const iB=arrB.indexOf(empB);
-  if(iA===-1||iB===-1)return false;
-
-  /* Cegah tukar orang yang sama */
-  if(dateA===dateB&&slotA===slotB&&empA===empB)return false;
-
-  /* Lakukan pertukaran */
-  arrA[iA]=empB;
-  arrB[iB]=empA;
-
-  /* Recalculate wfhList untuk hari Jumat yang terlibat */
-  [wdA,wdB].forEach(wd=>{
-    if(wd.isFriday){
-      const wfoSet=new Set([...wd.assignments.tpt_p,...wd.assignments.tpt_s]);
-      const sEmps=schedule.employees||employees;
-      const sLeaves=schedule.leaves||leaves;
-      const avail=sEmps.filter(e=>!(sLeaves||[]).some(l=>l.emp===e&&wd.date>=l.from&&wd.date<=l.to));
-      wd.wfhList=avail.filter(e=>!wfoSet.has(e));
-    }
-  });
-
-  recomputeCounters();
-  saveScheduleToLS();
-  renderSchedule();
-  renderDashboard();
-  return true;
-}
-
-function showSwapNotice(msg){
-  const n=document.getElementById('sched-notice');
-  n.style.display='block';n.textContent=msg;
-  setTimeout(()=>n.style.display='none',4000);
-}
-
-/* ────────────── MODAL SWAP ────────────── */
 function openSwapModal(){
   if(!schedule){alert('Generate jadwal dulu');return;}
   swapState={date:null,slot:null,fromEmp:null,toEmp:null};
@@ -1214,16 +1219,20 @@ function closeSwapModal(){
 
 function renderSwapStep1(){
   const wds=schedule.workdays.filter(w=>w.assignments);
+  const sHols=schedule.holidays||holidays;
   const body=document.getElementById('swap-modal-body');
   document.getElementById('swap-confirm-btn').disabled=true;
 
+  /* Pilih tanggal */
   let html='<div class="swap-step"><div class="swap-step-label">1 — Pilih tanggal</div>';
   html+='<select id="swap-sel-date" onchange="renderSwapSlots()" style="margin-bottom:12px"><option value="">-- Pilih tanggal --</option>';
   wds.forEach(w=>{
-    const dt=fromDateStr(w.date);const dow=dt.getDay();
+    const dt=fromDateStr(w.date);
+    const dow=dt.getDay();
     html+='<option value="'+w.date+'">'+String(dt.getDate()).padStart(2,'0')+' '+DAY_LONG[dow]+', '+w.date+'</option>';
   });
   html+='</select></div>';
+
   html+='<div id="swap-slots-section"></div>';
   html+='<div id="swap-person-section"></div>';
   html+='<div id="swap-preview-section"></div>';
@@ -1239,12 +1248,14 @@ function renderSwapSlots(){
   const prev=document.getElementById('swap-preview-section');
   psec.innerHTML='';prev.innerHTML='';
   if(!ds){sec.innerHTML='';return;}
+
   const wd=schedule.workdays.find(w=>w.date===ds);
   if(!wd){sec.innerHTML='';return;}
 
   let html='<div class="swap-step"><div class="swap-step-label">2 — Pilih slot &amp; orang yang ingin ditukar</div><div class="slot-grid">';
   Object.entries(SLOT_LABELS).forEach(([key,label])=>{
-    const people=wd.assignments[key]||[];if(!people.length)return;
+    const people=wd.assignments[key]||[];
+    if(!people.length)return;
     people.forEach(emp=>{
       const sel=(swapState.slot===key&&swapState.fromEmp===emp);
       html+='<div class="slot-card'+(sel?' selected':'')+'" data-date="'+ds+'" data-slot="'+key+'" data-emp="'+emp+'">'
@@ -1263,7 +1274,7 @@ function renderSwapSlots(){
 function selectSwapSlot(ds,slot,emp){
   swapState.date=ds;swapState.slot=slot;swapState.fromEmp=emp;swapState.toEmp=null;
   document.getElementById('swap-confirm-btn').disabled=true;
-  renderSwapSlots();
+  renderSwapSlots();/* re-render slots biar selected state update */
   renderSwapPersonPicker();
 }
 
@@ -1272,217 +1283,91 @@ function renderSwapPersonPicker(){
   if(!date||!slot||!fromEmp)return;
   const wd=schedule.workdays.find(w=>w.date===date);
   const sEmps=schedule.employees||employees;
+  /* Semua pegawai yang TIDAK sedang di slot yang sama pada hari itu */
+  const alreadyInSlot=new Set(wd.assignments[slot]||[]);
+  /* Juga cek cuti */
   const sLeaves=schedule.leaves||leaves;
   const onLeaveToday=sEmps.filter(e=>(sLeaves||[]).some(l=>l.emp===e&&date>=l.from&&date<=l.to));
   const onLeaveSet=new Set(onLeaveToday);
-  /* Semua pegawai KECUALI: fromEmp itu sendiri, dan yang cuti hari itu */
-  const candidates=sEmps.filter(e=>e!==fromEmp&&!onLeaveSet.has(e));
+
+  const candidates=sEmps.filter(e=>e!==fromEmp&&!alreadyInSlot.has(e)&&!onLeaveSet.has(e));
   const prev=document.getElementById('swap-preview-section');
 
-  /* Group candidates: sudah punya slot di hari yang sama (akan tukar posisi), atau hari lain (insert cross-day) */
-  const sameDaySlots=[];
-  const otherEmps=[];
-  if(wd){
-    const alreadyInSameSlot=new Set(wd.assignments[slot]||[]);
-    candidates.forEach(e=>{
-      /* cek apakah ada di slot lain hari ini */
-      const empSlotToday=Object.entries(wd.assignments).find(([k,arr])=>arr.includes(e));
-      if(empSlotToday){sameDaySlots.push({emp:e,slotKey:empSlotToday[0]});}
-      else{otherEmps.push(e);}
-    });
+  let html='<div class="swap-step"><div class="swap-step-label">3 — Pilih pengganti untuk <strong>'+fromEmp+'</strong> di slot <span class="badge-slot '+SLOT_BADGE[slot]+'">'+SLOT_LABELS[slot]+'</span></div>';
+  html+='<div class="person-grid">';
+  if(!candidates.length){
+    html+='<div style="font-size:12px;color:#999;grid-column:1/-1">Tidak ada kandidat yang tersedia.</div>';
   } else {
-    candidates.forEach(e=>otherEmps.push(e));
-  }
-
-  let html='<div class="swap-step"><div class="swap-step-label">3 — Pilih pengganti / penukar untuk <strong>'+fromEmp+'</strong> di slot <span class="badge-slot '+SLOT_BADGE[slot]+'">'+SLOT_LABELS[slot]+'</span></div>';
-
-  if(sameDaySlots.length){
-    html+='<div style="font-size:11px;color:#666;margin-bottom:5px;font-weight:600">Pegawai bertugas hari ini (tukar slot):</div>';
-    html+='<div class="person-grid">';
-    sameDaySlots.forEach(({emp,slotKey})=>{
-      const sel=(swapState.toEmp===emp);
-      html+='<button class="person-btn'+(sel?' selected':'')+'" data-emp="'+emp+'" data-to-date="'+date+'" data-to-slot="'+slotKey+'">'
-        +emp+'<br><span style="font-size:10px;color:#888">'+SLOT_LABELS[slotKey]+'</span></button>';
-    });
-    html+='</div>';
-  }
-
-  if(otherEmps.length){
-    html+='<div style="font-size:11px;color:#666;margin:8px 0 5px;font-weight:600">Pegawai lain (posisi di hari lain / tidak bertugas hari ini):</div>';
-    html+='<div class="person-grid">';
-    /* Cari slot pegawai di tanggal lain */
-    otherEmps.forEach(e=>{
+    candidates.forEach(e=>{
       const sel=(swapState.toEmp===e);
-      /* Temukan di mana pegawai ini bertugas dalam jadwal — ambil tanggal terdekat */
-      let empInfo='(tidak ada jadwal)';
-      let toDate=date,toSlot=slot;/* default: masuk ke slot yang sama di tanggal yang sama */
-      for(const w of (schedule.workdays||[])){
-        const found=Object.entries(w.assignments).find(([k,arr])=>arr.includes(e));
-        if(found){empInfo=String(fromDateStr(w.date).getDate()).padStart(2,'0')+' '+DAY_SHORT[fromDateStr(w.date).getDay()]+' – '+SLOT_LABELS[found[0]];toDate=w.date;toSlot=found[0];break;}
-      }
-      html+='<button class="person-btn'+(sel?' selected':'')+'" data-emp="'+e+'" data-to-date="'+toDate+'" data-to-slot="'+toSlot+'">'
-        +e+'<br><span style="font-size:10px;color:#888">'+empInfo+'</span></button>';
+      html+='<button class="person-btn'+(sel?' selected':'')+'" data-emp="'+e+'">'+e+'</button>';
     });
-    html+='</div>';
   }
-
-  if(!sameDaySlots.length&&!otherEmps.length){
-    html+='<div style="font-size:12px;color:#999">Tidak ada kandidat yang tersedia.</div>';
-  }
-  html+='</div>';
-
+  html+='</div></div>';
   const psecEl=document.getElementById('swap-person-section');
   psecEl.innerHTML=html;
   psecEl.querySelectorAll('.person-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>selectSwapPerson(btn.dataset.emp,btn.dataset.toDate,btn.dataset.toSlot));
+    btn.addEventListener('click',()=>selectSwapPerson(btn.dataset.emp));
   });
   prev.innerHTML='';
 }
 
-function selectSwapPerson(emp,toDate,toSlot){
-  swapState.toEmp=emp;swapState.toDate=toDate;swapState.toSlot=toSlot;
+function selectSwapPerson(emp){
+  swapState.toEmp=emp;
+  /* Re-render person grid biar selected */
   renderSwapPersonPicker();
   renderSwapPreview();
   document.getElementById('swap-confirm-btn').disabled=false;
 }
 
 function renderSwapPreview(){
-  const {date,slot,fromEmp,toEmp,toDate,toSlot}=swapState;
+  const {date,slot,fromEmp,toEmp}=swapState;
   if(!date||!slot||!fromEmp||!toEmp)return;
-  const dtA=fromDateStr(date);const dtB=fromDateStr(toDate||date);
-  const lblA=String(dtA.getDate()).padStart(2,'0')+' '+DAY_LONG[dtA.getDay()]+' ('+date+')';
-  const lblB=String(dtB.getDate()).padStart(2,'0')+' '+DAY_LONG[dtB.getDay()]+' ('+toDate+')';
+  const dt=fromDateStr(date);
+  const dateLabel=String(dt.getDate()).padStart(2,'0')+' '+DAY_LONG[dt.getDay()]+' '+date;
   const html='<div class="swap-preview">'
     +'<strong>Pratinjau perubahan:</strong><br>'
-    +'<span style="color:#185FA5">&#9312;</span> <strong>'+fromEmp+'</strong> di <span class="badge-slot '+SLOT_BADGE[slot]+'">'+SLOT_LABELS[slot]+'</span> — '+lblA+'<br>'
-    +'<span style="color:#0f6e56">&#9313;</span> <strong>'+toEmp+'</strong> di <span class="badge-slot '+SLOT_BADGE[toSlot||slot]+'">'+SLOT_LABELS[toSlot||slot]+'</span> — '+lblB+'<br>'
-    +'<span style="font-size:11px;color:#666">→ Keduanya akan saling bertukar posisi</span>'
+    +dateLabel+' — <span class="badge-slot '+SLOT_BADGE[slot]+'">'+SLOT_LABELS[slot]+'</span><br>'
+    +'<span style="color:#a32d2d">&#10007; Hapus:</span> <strong>'+fromEmp+'</strong><br>'
+    +'<span style="color:#3b6d11">&#10003; Masukkan:</span> <strong>'+toEmp+'</strong>'
     +'</div>';
   document.getElementById('swap-preview-section').innerHTML=html;
 }
 
 function confirmSwap(){
-  const {date,slot,fromEmp,toEmp,toDate,toSlot}=swapState;
+  const {date,slot,fromEmp,toEmp}=swapState;
   if(!date||!slot||!fromEmp||!toEmp)return;
-  const ok=applySwap(date,slot,fromEmp,toDate||date,toSlot||slot,toEmp);
-  if(ok){
-    closeSwapModal();
-    showSwapNotice('Tukar jadwal berhasil: '+fromEmp+' ('+SLOT_LABELS[slot]+' '+date+') ⇄ '+toEmp+' ('+SLOT_LABELS[toSlot||slot]+' '+(toDate||date)+')');
+
+  /* Terapkan perubahan ke schedule.workdays */
+  const wd=schedule.workdays.find(w=>w.date===date);
+  if(!wd)return;
+  const arr=wd.assignments[slot];
+  const idx=arr.indexOf(fromEmp);
+  if(idx===-1)return;
+  arr[idx]=toEmp;
+
+  /* Juga update wfhList jika Jumat (tukar pegawai WFH) */
+  if(wd.isFriday){
+    const wfoSet=new Set([...wd.assignments.tpt_p,...wd.assignments.tpt_s]);
+    /* recalc wfhList: semua available kecuali WFO */
+    const sEmps=schedule.employees||employees;
+    const sLeaves=schedule.leaves||leaves;
+    const avail=sEmps.filter(e=>!(sLeaves||[]).some(l=>l.emp===e&&date>=l.from&&date<=l.to));
+    wd.wfhList=avail.filter(e=>!wfoSet.has(e));
   }
-}
 
-/* ────────────── DRAG & DROP SWAP ────────────── */
-let dndState={active:false,empA:null,dateA:null,slotA:null,empB:null,dateB:null,slotB:null};
-let dndSourceEl=null;
-const dndGhost=document.getElementById('dnd-ghost');
+  /* Hitung ulang counters */
+  recomputeCounters();
+  saveScheduleToLS();
+  renderSchedule();
+  renderDashboard();
+  closeSwapModal();
 
-function initDndSwap(){
-  /* Pasang drag events ke semua badge draggable */
-  document.querySelectorAll('.badge[draggable]').forEach(el=>{
-    el.addEventListener('dragstart',onDragStart);
-    el.addEventListener('dragend',onDragEnd);
-    el.addEventListener('dragover',onDragOver);
-    el.addEventListener('dragleave',onDragLeave);
-    el.addEventListener('drop',onDrop);
-  });
-  /* dragover pada table agar drop target aktif */
-  document.addEventListener('dragover',onDocDragOver);
-}
-
-function onDragStart(e){
-  const el=e.currentTarget;
-  dndState.active=true;
-  dndState.empA=el.dataset.dndEmp;
-  dndState.dateA=el.dataset.dndDate;
-  dndState.slotA=el.dataset.dndSlot;
-  dndState.empB=null;dndState.dateB=null;dndState.slotB=null;
-  dndSourceEl=el;
-  el.classList.add('drag-source');
-  e.dataTransfer.effectAllowed='move';
-  e.dataTransfer.setData('text/plain',dndState.empA);
-  /* Ghost */
-  dndGhost.textContent='⇄ '+dndState.empA+' ('+SLOT_LABELS[dndState.slotA]+')';
-  dndGhost.style.display='block';
-  e.dataTransfer.setDragImage(dndGhost,0,0);
-  /* Tambah mode class ke tabel */
-  document.querySelector('.sched-wrap')&&document.querySelector('.sched-wrap').classList.add('dnd-mode-active');
-}
-
-function onDragEnd(){
-  if(dndSourceEl)dndSourceEl.classList.remove('drag-source');
-  dndSourceEl=null;
-  dndGhost.style.display='none';
-  document.querySelectorAll('.badge.drop-target-hover').forEach(b=>b.classList.remove('drop-target-hover'));
-  document.querySelector('.sched-wrap')&&document.querySelector('.sched-wrap').classList.remove('dnd-mode-active');
-  if(!dndState.empB)dndState.active=false;
-}
-
-function onDocDragOver(e){
-  if(dndGhost.style.display==='block'){
-    dndGhost.style.left=(e.clientX+14)+'px';
-    dndGhost.style.top=(e.clientY-10)+'px';
-  }
-}
-
-function onDragOver(e){
-  if(!dndState.active)return;
-  const el=e.currentTarget;
-  const targetEmp=el.dataset.dndEmp;
-  const targetDate=el.dataset.dndDate;
-  if(!targetEmp||!targetDate)return;
-  /* Jangan highlight diri sendiri */
-  if(targetEmp===dndState.empA&&targetDate===dndState.dateA&&el.dataset.dndSlot===dndState.slotA)return;
-  e.preventDefault();
-  e.dataTransfer.dropEffect='move';
-  el.classList.add('drop-target-hover');
-}
-
-function onDragLeave(e){
-  e.currentTarget.classList.remove('drop-target-hover');
-}
-
-function onDrop(e){
-  e.preventDefault();
-  const el=e.currentTarget;
-  el.classList.remove('drop-target-hover');
-  if(!dndState.active)return;
-  const empB=el.dataset.dndEmp;
-  const dateB=el.dataset.dndDate;
-  const slotB=el.dataset.dndSlot;
-  if(!empB||!dateB||!slotB)return;
-  if(empB===dndState.empA&&dateB===dndState.dateA&&slotB===dndState.slotA)return;
-
-  /* Simpan target dan tampilkan confirm bar */
-  dndState.empB=empB;dndState.dateB=dateB;dndState.slotB=slotB;
-  showDndConfirmBar();
-}
-
-function showDndConfirmBar(){
-  const {empA,dateA,slotA,empB,dateB,slotB}=dndState;
-  const dtA=fromDateStr(dateA);const dtB=fromDateStr(dateB);
-  const lblDateA=String(dtA.getDate()).padStart(2,'0')+' '+DAY_SHORT[dtA.getDay()]+' – '+SLOT_LABELS[slotA];
-  const lblDateB=String(dtB.getDate()).padStart(2,'0')+' '+DAY_SHORT[dtB.getDay()]+' – '+SLOT_LABELS[slotB];
-  document.getElementById('swap-bar-a').textContent=empA+' ('+lblDateA+')';
-  document.getElementById('swap-bar-b').textContent=empB+' ('+lblDateB+')';
-  document.getElementById('swap-confirm-bar').classList.add('show');
-  /* scroll ke bar */
-  document.getElementById('swap-confirm-bar').scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-function cancelDndSwap(){
-  dndState={active:false,empA:null,dateA:null,slotA:null,empB:null,dateB:null,slotB:null};
-  document.getElementById('swap-confirm-bar').classList.remove('show');
-}
-
-function confirmDndSwap(){
-  const {empA,dateA,slotA,empB,dateB,slotB}=dndState;
-  if(!empA||!empB)return;
-  const ok=applySwap(dateA,slotA,empA,dateB,slotB,empB);
-  document.getElementById('swap-confirm-bar').classList.remove('show');
-  dndState={active:false,empA:null,dateA:null,slotA:null,empB:null,dateB:null,slotB:null};
-  if(ok){
-    showSwapNotice('Tukar jadwal berhasil: '+empA+' ('+SLOT_LABELS[slotA]+' '+dateA+') ⇄ '+empB+' ('+SLOT_LABELS[slotB]+' '+dateB+')');
-  }
+  /* Feedback singkat */
+  const n=document.getElementById('sched-notice');
+  n.style.display='block';
+  n.textContent='Tukar jadwal berhasil: '+fromEmp+' ↔ '+toEmp+' di '+SLOT_LABELS[slot]+' ('+date+')';
+  setTimeout(()=>n.style.display='none',4000);
 }
 
 function recomputeCounters(){
@@ -1494,7 +1379,8 @@ function recomputeCounters(){
     const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
-    if(w.isFriday)w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+    w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
   });
   schedule.counters=counters;
 }
