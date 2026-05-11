@@ -41,6 +41,8 @@ input:focus,select:focus{border-color:#185FA5}
 .badge-wfh{background:#e1f5ee;color:#0f6e56}
 .badge-cuti{background:#faece7;color:#712b13}
 .badge-spmkp{background:#fdf0e0;color:#7a4f00;border:1px solid #e9c87a}
+/* Bebas Tugas badge */
+.badge-free{background:#f5f5f3;color:#555;border:1px solid #ddd}
 .emp-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:#f5f5f3;border:1px solid #e8e8e4;border-radius:8px;font-size:12px;margin:3px}
 .emp-tag.spmkp-tag{background:#fdf5e0;border-color:#e9c87a}
 .emp-tag button{background:none;border:none;cursor:pointer;color:#999;font-size:14px;line-height:1;padding:0}
@@ -72,11 +74,13 @@ input:focus,select:focus{border-color:#185FA5}
 .bar-label{font-size:11px;color:#666;min-width:28px;text-align:right}
 /* Schedule table */
 .sched-wrap{overflow-x:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #e8e8e4;border-radius:12px;max-height:72vh}
-.sched-table{width:100%;border-collapse:collapse;font-size:12px;min-width:720px}
+.sched-table{width:100%;border-collapse:collapse;font-size:12px;min-width:820px}
 .sched-table thead{position:sticky;top:0;z-index:4}
 .sched-table th{padding:8px 10px;text-align:left;border-bottom:2px solid #e8e8e4;color:#555;font-weight:600;font-size:11px;background:#f0f0ec;white-space:nowrap}
 .sched-table th:first-child{position:sticky;left:0;z-index:5;background:#f0f0ec;min-width:100px}
 .sched-table th:nth-child(2){min-width:80px}
+/* Bebas Tugas column header */
+.th-free{background:#f0f0ec!important;color:#555}
 .sched-table td{padding:6px 10px;border-bottom:1px solid #f0f0ec;vertical-align:middle;line-height:1.5}
 .sched-table td:first-child{position:sticky;left:0;z-index:1;background:inherit;border-right:1px solid #e8e8e4;min-width:100px}
 .sched-table tr:last-child td{border-bottom:none}
@@ -87,6 +91,8 @@ input:focus,select:focus{border-color:#185FA5}
 .row-locked td{background:#fffbf0!important}.row-locked td:first-child{border-left:3px solid #e9c87a!important}
 .row-today td{background:#eef6ff!important}.row-today td:first-child{border-left:3px solid #185FA5!important}
 .sched-table tr:hover td{filter:brightness(0.975)}
+/* Bebas Tugas cell — soft gray highlight */
+.td-free{background:rgba(0,0,0,0.015)!important}
 .cell-badges{display:flex;flex-wrap:wrap;gap:3px}
 .ket-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:500}
 .legend-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;align-items:center;font-size:12px;color:#555;padding:8px 12px;background:#fff;border:1px solid #e8e8e4;border-radius:8px}
@@ -127,6 +133,9 @@ input:focus,select:focus{border-color:#185FA5}
 .person-btn{border:1.5px solid #e8e8e4;border-radius:8px;padding:7px 10px;cursor:pointer;transition:all 0.12s;background:#fff;text-align:left;font-size:12px;font-family:inherit}
 .person-btn:hover{border-color:#185FA5;background:#f0f6ff}
 .person-btn.selected{border-color:#185FA5;background:#e6f1fb;font-weight:500}
+/* Bebas tugas person button styling */
+.person-btn.free-btn{border-color:#ddd;color:#555;background:#f9f9f7}
+.person-btn.free-btn:hover{border-color:#185FA5;background:#f0f6ff;color:#1a1a18}
 .swap-arrow{text-align:center;font-size:20px;color:#185FA5;margin:8px 0}
 .swap-preview{background:#f5f5f3;border-radius:8px;padding:10px 14px;font-size:12px;color:#333;line-height:1.7}
 .badge-slot{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11px;font-weight:500;margin-right:4px}
@@ -148,6 +157,7 @@ input:focus,select:focus{border-color:#185FA5}
 .wfo-target-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0ec;font-size:12px}
 .wfo-target-row:last-child{border-bottom:none}
 .badge-wfo{background:#e6f1fb;color:#185FA5}
+/* Rekap panel */
 .rekap-table{width:100%;border-collapse:collapse;font-size:12px}
 .rekap-table th{padding:7px 10px;border-bottom:2px solid #e8e8e4;background:#f5f5f3;text-align:center;font-weight:600;white-space:nowrap;color:#444}
 .rekap-table th:first-child{text-align:left}
@@ -155,7 +165,22 @@ input:focus,select:focus{border-color:#185FA5}
 .rekap-table td:first-child{text-align:left;font-weight:500}
 .rekap-table tr:last-child td{border-bottom:none}
 .rekap-table .total-row td{font-weight:700;background:#f0f0ec;border-top:2px solid #e8e8e4}
+.rekap-table .spmkp-row td{background:#fdf9f0}
+/* Bebas tugas column in rekap */
+.col-free{background:#f9f9f7}
 .rekap-month-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;background:#e6f1fb;color:#185FA5;margin:2px}
+/* Free pool box — shown in "Bebas Tugas" column of schedule */
+.free-pool-box{padding:4px 6px;border-radius:6px;background:#f5f5f3;border:1px dashed #ccc;font-size:11px;color:#888;line-height:1.6}
+.free-pool-box .free-name{display:inline-block;background:#fff;border:1px solid #ddd;border-radius:4px;padding:1px 6px;margin:2px;font-size:11px;color:#555}
+.free-pool-box .free-name:hover{border-color:#185FA5;color:#185FA5;cursor:default}
+/* Rekap summary cards */
+.rekap-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.rekap-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;padding:12px 16px}
+.rekap-card-label{font-size:11px;color:#888;margin-bottom:4px}
+.rekap-card-value{font-size:20px;font-weight:700;color:#1a1a18}
+.rekap-card-sub{font-size:11px;color:#aaa;margin-top:2px}
+/* Free highlight in detail table */
+.td-free-count{background:#f7f7f5;color:#555}
 @media(max-width:640px){.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}.row{flex-direction:column}}
 </style>
 </head>
@@ -182,7 +207,7 @@ input:focus,select:focus{border-color:#185FA5}
   </div>
   <div class="rule-box rule-spmkp">
     <strong>Aturan SPMKP:</strong> Pegawai SPMKP mendapat maksimal <strong>50% slot TPT</strong> dibanding pegawai lain.
-    SPMKP tidak dihitung dalam statistik dashboard.
+    SPMKP tidak dihitung dalam statistik dashboard beban kerja utama.
   </div>
 
   <div class="grid-2">
@@ -232,7 +257,7 @@ input:focus,select:focus{border-color:#185FA5}
           <div class="slot-config-item"><label>WA Pagi</label><input type="number" id="cfg-wa-p" value="1" min="0" max="4" onchange="autoSave()"/></div>
           <div class="slot-config-item"><label>WA Siang</label><input type="number" id="cfg-wa-s" value="1" min="0" max="4" onchange="autoSave()"/></div>
         </div>
-        <div style="font-size:11px;color:#888">WFO per hari = TPT Pagi + TPT Siang. Semua pegawai lain = WFH di hari Jumat.</div>
+        <div style="font-size:11px;color:#888">WFO per hari = TPT Pagi + TPT Siang. Semua pegawai lain = WFH di hari Jumat. Pegawai yang tidak dapat slot manapun masuk kolom <strong>Bebas Tugas</strong>.</div>
       </div>
     </div>
 
@@ -269,7 +294,6 @@ input:focus,select:focus{border-color:#185FA5}
       <button class="tab-btn" onclick="switchGenTab('tab-multi')">Multi-Bulan</button>
     </div>
 
-    <!-- Tab 1: Full month -->
     <div class="tab-pane active" id="tab-full">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
         <div style="font-size:12px;color:#666">Generate jadwal lengkap untuk bulan &amp; tahun yang dipilih di atas.</div>
@@ -277,22 +301,20 @@ input:focus,select:focus{border-color:#185FA5}
       </div>
     </div>
 
-    <!-- Tab 2: Date range -->
     <div class="tab-pane" id="tab-range">
       <div class="range-card">
-        <div style="font-size:12px;color:#185FA5;margin-bottom:10px;font-weight:500">&#8505; Generate hanya hari kerja dalam rentang tanggal yang dipilih. Berguna saat ada mutasi atau cuti mendadak di tengah bulan.</div>
+        <div style="font-size:12px;color:#185FA5;margin-bottom:10px;font-weight:500">&#8505; Generate hanya hari kerja dalam rentang tanggal yang dipilih.</div>
         <div class="row" style="margin-bottom:6px">
           <div><label>Dari Tanggal</label><input type="date" id="inp-range-from"/></div>
           <div><label>Sampai Tanggal</label><input type="date" id="inp-range-to"/></div>
           <div style="flex:0"><button class="btn btn-primary" onclick="generateRangeSchedule()">&#9654; Generate Rentang</button></div>
         </div>
-        <div style="font-size:11px;color:#666">Tanggal yang sudah ada dan terkunci akan dipertahankan. Hari di luar rentang tidak berubah.</div>
+        <div style="font-size:11px;color:#666">Tanggal yang sudah ada dan terkunci akan dipertahankan.</div>
       </div>
     </div>
 
-    <!-- Tab 3: Multi-month -->
     <div class="tab-pane" id="tab-multi">
-      <div style="font-size:12px;color:#666;margin-bottom:10px">Pilih bulan yang ingin di-generate sekaligus (tahun dari input Tahun di atas):</div>
+      <div style="font-size:12px;color:#666;margin-bottom:10px">Pilih bulan yang ingin di-generate sekaligus:</div>
       <div class="multimonth-grid" id="multimonth-checks"></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-sm" onclick="toggleAllMonths(true)">Pilih Semua</button>
@@ -334,12 +356,12 @@ input:focus,select:focus{border-color:#185FA5}
           <button class="dropdown-item" onclick="exportJadwal(true);toggleDropdown('dd-export')">&#128274; Export Jadwal JSON Terkunci</button>
         </div>
       </div>
-      <label class="btn btn-sm" style="cursor:pointer;margin:0" title="Import jadwal JSON — tanggal yang ada di file akan otomatis terkunci">&#8593; Import Jadwal<input type="file" accept=".json" onchange="importJadwal(event)" style="display:none"/></label>
+      <label class="btn btn-sm" style="cursor:pointer;margin:0" title="Import jadwal JSON">&#8593; Import Jadwal<input type="file" accept=".json" onchange="importJadwal(event)" style="display:none"/></label>
       <button class="btn btn-sm btn-primary" onclick="saveSchedule()">Simpan Jadwal</button>
     </div>
   </div>
   <div class="notice notice-info" style="font-size:12px;margin-bottom:10px">
-    &#128274; Klik tombol kunci di setiap baris untuk mengunci tanggal tersebut. Baris terkunci tidak akan berubah saat <strong>Regenerate Unlocked</strong>.
+    &#128274; Klik tombol kunci di setiap baris untuk mengunci tanggal tersebut. Kolom <strong>Bebas Tugas</strong> menampilkan pegawai yang tidak mendapat penugasan — berguna untuk tukar jadwal mendadak.
   </div>
   <div id="sched-notice" class="notice notice-success" style="display:none"></div>
   <div id="sched-container"><div style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada jadwal. Generate dari tab Pengaturan.</div></div>
@@ -351,21 +373,59 @@ input:focus,select:focus{border-color:#185FA5}
   <div id="dash-empty" style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada data. Generate jadwal terlebih dahulu.</div>
   <div id="dash-content" style="display:none">
     <div id="dash-mode-banner"></div>
-    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">Grafik beban &amp; WFH menggunakan pegawai <strong>non-SPMKP</strong>. SPMKP tetap tampil di tabel rincian dengan total penuh.</div>
+    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">Grafik beban &amp; WFH menggunakan pegawai <strong>non-SPMKP</strong>. Kolom <strong>Bebas Tugas</strong> menampilkan hari kerja di mana pegawai tidak mendapat penugasan apapun (bisa dipakai untuk tukar jadwal).</div>
     <div class="stat-grid" id="dash-metrics"></div>
-    <div class="grid-2">
+    <div class="grid-2" style="margin-bottom:16px">
       <div class="card"><div class="card-title">Beban Kerja (non-SPMKP)</div><div id="dash-workload"></div></div>
       <div class="card"><div class="card-title">Jumlah WFH (non-SPMKP)</div><div id="dash-wfh"></div></div>
+    </div>
+    <!-- NEW: Bebas Tugas bar chart -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">&#128100; Hari Bebas Tugas per Pegawai <span style="font-size:11px;color:#888;font-weight:400">(tidak ada penugasan slot apapun — pool untuk tukar jadwal)</span></div>
+      <div id="dash-free"></div>
     </div>
     <div class="card">
       <div class="card-title">Rincian Penugasan per Pegawai</div>
       <div style="overflow-x:auto">
         <table class="detail-table">
-          <thead><tr><th>Pegawai</th><th>SPMKP</th><th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Total</th></tr></thead>
+          <thead><tr><th>Pegawai</th><th>SPMKP</th><th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th style="background:#f5f5f3;color:#555">Bebas Tugas</th><th>Total</th></tr></thead>
           <tbody id="dash-detail-body"></tbody>
         </table>
         <div id="dash-detail-note" style="margin-top:8px;padding:6px 0"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REKAP ═══ -->
+<div class="panel" id="panel-rekap">
+  <div class="section-title">Rekap Jadwal</div>
+  <div id="rekap-empty" style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada data. Generate jadwal terlebih dahulu.</div>
+  <div id="rekap-content" style="display:none">
+    <div id="rekap-summary-cards" class="rekap-summary"></div>
+    <div class="card">
+      <div class="card-title">Rekap Penugasan per Pegawai</div>
+      <!-- Filter -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+        <label style="margin-bottom:0;white-space:nowrap">Filter pegawai:</label>
+        <select id="rekap-filter-emp" style="width:auto;min-width:150px" onchange="renderRekap()">
+          <option value="">Semua Pegawai</option>
+        </select>
+        <div style="flex:1"></div>
+        <button class="btn btn-sm" onclick="exportRekapCSV()">&#8595; Export Rekap CSV</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="rekap-table" id="rekap-main-table">
+          <thead id="rekap-thead"></thead>
+          <tbody id="rekap-tbody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#aaa" id="rekap-footer-note"></div>
+    </div>
+    <!-- Bebas Tugas detail per hari -->
+    <div class="card">
+      <div class="card-title">&#128100; Detail Hari Bebas Tugas <span style="font-size:11px;color:#888;font-weight:400">— klik nama pegawai untuk filter</span></div>
+      <div id="rekap-free-detail"></div>
     </div>
   </div>
 </div>
@@ -397,11 +457,10 @@ const LS_SETTINGS='timjadwal_settings_v2';
 const LS_SCHEDULE='timjadwal_schedule_v2';
 
 let employees=[],holidays=[],leaves=[],spmkpList=[],schedule=null;
-// lockedDates: Set of date strings that are locked
 let lockedDates=new Set();
 let autoSaveTimer=null;
 
-/* ── Date helpers (timezone-safe) ── */
+/* ── Date helpers ── */
 function toLocalDateStr(dt){return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
 function fromDateStr(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function todayStr(){return toLocalDateStr(new Date());}
@@ -438,7 +497,7 @@ function restoreSchedule(){
     if(!holidays.length&&schedule.holidays)holidays=schedule.holidays;
     if(!leaves.length&&schedule.leaves)leaves=schedule.leaves;
     if(!spmkpList.length&&schedule.spmkpList)spmkpList=schedule.spmkpList;
-    renderSchedule();renderDashboard();
+    renderSchedule();renderDashboard();renderRekap();
   }catch(e){}
 }
 
@@ -471,8 +530,9 @@ function showPanel(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
-  const labels={setup:'Pengaturan',schedule:'Jadwal',dashboard:'Dashboard'};
+  const labels={setup:'Pengaturan',schedule:'Jadwal',dashboard:'Dashboard',rekap:'Rekap'};
   document.querySelectorAll('.nav-btn').forEach(b=>{if(b.textContent.trim()===labels[name])b.classList.add('active');});
+  if(name==='rekap')renderRekap();
 }
 
 /* ── Employees ── */
@@ -569,18 +629,31 @@ function getWorkdays(year,month,hols){
 }
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
+/* ── Compute freeList for a workday ──
+   pegawai yang available (tidak cuti) tapi tidak dapat slot apapun dan bukan hari libur/weekend */
+function computeFreeList(wd){
+  if(!wd||!wd.assignments)return[];
+  const allAssigned=new Set([
+    ...wd.assignments.tpt_p,
+    ...wd.assignments.tpt_s,
+    ...wd.assignments.app,
+    ...wd.assignments.wa_p,
+    ...wd.assignments.wa_s
+  ]);
+  /* Juga exclude onLeave */
+  const onLeaveSet=new Set(wd.onLeave||[]);
+  const schedEmps=schedule?schedule.employees:employees;
+  return schedEmps.filter(e=>!allAssigned.has(e)&&!onLeaveSet.has(e));
+}
+
 /* ── Lock / Unlock ── */
 function toggleLock(ds){
   if(lockedDates.has(ds))lockedDates.delete(ds);else lockedDates.add(ds);
-  saveScheduleToLS();
-  renderSchedule();
+  saveScheduleToLS();renderSchedule();
 }
 function unlockAll(){
   if(!lockedDates.size)return;
-  lockedDates.clear();
-  saveScheduleToLS();
-  renderSchedule();
-  showPanel('schedule');
+  lockedDates.clear();saveScheduleToLS();renderSchedule();showPanel('schedule');
 }
 function saveScheduleToLS(){
   try{localStorage.setItem(LS_SCHEDULE,JSON.stringify({schedule,lockedDates:[...lockedDates]}));}catch(e){}
@@ -588,16 +661,11 @@ function saveScheduleToLS(){
 
 /* ══════════════════════════════════════════════════════
    GENERATE SCHEDULE
-   partialMode=false → generate semua workday
-   partialMode=true  → skip baris yang sudah locked,
-                        hitung ulang counter dari locked rows dulu
    ══════════════════════════════════════════════════════ */
 function generateSchedule(partialMode, lockedMode){
-  /* lockedMode='locked' → regenerate HANYA baris terkunci, pertahankan unlocked */
   if(lockedMode==='locked'){
     if(!schedule){alert('Generate jadwal dulu');return;}
     if(!lockedDates.size){alert('Tidak ada hari terkunci');return;}
-    /* Swap logic: locked jadi unlocked sementara, unlocked jadi locked */
     const allWorkdayDates=new Set(schedule.workdays.map(w=>w.date));
     const prevLocked=new Set(lockedDates);
     lockedDates=new Set([...allWorkdayDates].filter(d=>!prevLocked.has(d)));
@@ -614,17 +682,12 @@ function generateSchedule(partialMode, lockedMode){
   const workdays=getWorkdays(year,month,curHolidays);
   if(!workdays.length){document.getElementById('gen-notice').innerHTML='<div class="notice notice-warn">Tidak ada hari kerja di periode ini.</div>';return;}
 
-  /* Jika partial, validasi schedule lama masih relevan */
   const oldWorkdayMap={};
   if(partialMode&&schedule){schedule.workdays.forEach(w=>{oldWorkdayMap[w.date]=w;});}
 
-  /* ── Inisialisasi counter ── */
   const counters={};
-  employees.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
+  employees.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};});
 
-  /* ── Seed counter dari baris LOCKED (partial mode) ──
-     Generate ulang hari unlocked dengan distribusi yang sudah
-     memperhitungkan beban dari hari terkunci */
   if(partialMode&&schedule){
     schedule.workdays.forEach(w=>{
       if(!lockedDates.has(w.date))return;
@@ -633,15 +696,14 @@ function generateSchedule(partialMode, lockedMode){
       cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
       w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
       (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
+      /* Seed free counter dari locked rows */
+      (w.freeList||computeFreeListRaw(w,employees)).forEach(e=>{if(counters[e])counters[e].free++;});
     });
   }
 
-  /* ── Build tptFriBlock & wfoFriCompensation ── */
   const tptFriBlock={};
   const wfoFriCompensation={};
-  workdays.forEach(day=>{
-    if(day.isFriday){tptFriBlock[addDays(day.date,3)]=new Set();}
-  });
+  workdays.forEach(day=>{if(day.isFriday){tptFriBlock[addDays(day.date,3)]=new Set();}});
   if(partialMode&&schedule){
     schedule.workdays.forEach(w=>{
       if(!lockedDates.has(w.date))return;
@@ -652,19 +714,9 @@ function generateSchedule(partialMode, lockedMode){
         const wfoSet=new Set([...w.assignments.tpt_p,...w.assignments.tpt_s]);
         wfoFriCompensation[monKey]=[...wfoSet];
       }
-      if((w.wfhCompList||[]).length){
-        w.wfhCompList.forEach(e=>{if(counters[e])counters[e].wfh++;});
-      }
     });
   }
 
-  /* ── Quota TPT yang adil dan presisi ──
-     Total slot TPT bulan ini dibagi rata ke semua pegawai,
-     dengan SPMKP mendapat tepat 50% porsi non-SPMKP.
-     Rumus: effectiveHead = nonSPMKP + SPMKP×0.5
-     targetNormal = totalSlot / effectiveHead
-     targetSPMKP  = targetNormal × 0.5
-     → total slot selalu terpenuhi, distribusi adil */
   const totalWorkdays=workdays.length;
   const totalTptSlots=totalWorkdays*4;
   const nonSpmkpEmps=employees.filter(e=>!curSpmkp.includes(e));
@@ -677,14 +729,15 @@ function generateSchedule(partialMode, lockedMode){
   const result=[];
 
   workdays.forEach(day=>{
-    /* Jika partial dan hari ini locked, ambil dari old data */
     if(partialMode&&lockedDates.has(day.date)&&oldWorkdayMap[day.date]){
-      result.push(oldWorkdayMap[day.date]);
-      /* Update tptFriBlock jika ini Jumat */
+      const wd=oldWorkdayMap[day.date];
+      /* Ensure freeList is computed/stored */
+      if(!wd.freeList)wd.freeList=computeFreeListRaw(wd,employees);
+      result.push(wd);
       if(day.isFriday){
         const monKey=addDays(day.date,3);
         if(!tptFriBlock[monKey])tptFriBlock[monKey]=new Set();
-        [...oldWorkdayMap[day.date].assignments.tpt_p,...oldWorkdayMap[day.date].assignments.tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
+        [...wd.assignments.tpt_p,...wd.assignments.tpt_s].forEach(e=>tptFriBlock[monKey].add(e));
       }
       return;
     }
@@ -697,16 +750,6 @@ function generateSchedule(partialMode, lockedMode){
     const dow=fromDateStr(day.date).getDay();
     const isMon=(dow===1);
 
-    /* ── pick(): distribusi merata dengan quota TPT ──
-       Prioritas:
-       1. Skip pegawai sudah assigned hari ini
-       2. Untuk TPT di Senin: skip tptBlocked (WFO Jumat lalu)
-       3. Untuk TPT: defer jika sudah >= target quota (soft cap)
-          SPMKP quota = 50% target normal
-       4. Sort primary: tpt_total (pagi+siang) untuk TPT,
-          counter slot untuk non-TPT
-       5. Sort secondary: total beban keseluruhan
-       6. Fallback: jika pref kurang, ambil dari defer agar slot tidak kosong */
     const pick=(key,count,isTpt=false)=>{
       const blocked=isTpt&&isMon?tptBlocked:new Set();
       const pool=avail.filter(e=>!assigned.has(e));
@@ -740,48 +783,38 @@ function generateSchedule(partialMode, lockedMode){
     const wa_p=pick('wa_p',1,false);
     const wa_s=pick('wa_s',1,false);
 
-    /* WFH logic (Jumat):
-       - TPT pagi & siang = WFO (tidak dapat WFH)
-       - Aplikasi, WA pagi, WA siang = WFH
-       - Sisa pegawai available = WFH
-       WFH kompensasi Senin: hanya TPT (WFO sejati)
-       Tidak dapat TPT Senin: TPT + Aplikasi (sudah bekerja ekstra) */
     let wfhList=[];
     if(isFri){
-      /* WFO sejati = hanya TPT pagi & siang */
       const wfoSet=new Set([...tpt_p,...tpt_s]);
-      /* Semua available kecuali WFO = WFH (termasuk App, WA, dan yang tidak bertugas) */
       wfhList=avail.filter(e=>!wfoSet.has(e));
       wfhList.forEach(e=>{counters[e].wfh++;});
       const monKey=addDays(day.date,3);
-      /* Hanya WFO (TPT) yang dapat kompensasi WFH Senin */
       wfoFriCompensation[monKey]=[...wfoSet].filter(e=>avail.includes(e));
-      /* TPT pagi, siang DAN Aplikasi tidak boleh TPT Senin depan */
       if(tptFriBlock[monKey]!==undefined){
         [...tpt_p,...tpt_s,...app].forEach(e=>tptFriBlock[monKey].add(e));
       }
     }
 
-    /* WFH kompensasi Senin: jika hari ini adalah Senin dan ada WFO Jumat lalu */
     const wfhCompList=[];
     if(isMon&&wfoFriCompensation[day.date]){
-      /* Hanya pegawai yang tersedia (tidak cuti) dan Senin ini bukan libur
-         (sudah pasti workday jika kita sampai sini) */
       wfoFriCompensation[day.date].forEach(e=>{
-        if(avail.includes(e)){
-          wfhCompList.push(e);
-          counters[e].wfh++; /* dihitung ke dashboard */
-        }
+        if(avail.includes(e)){wfhCompList.push(e);counters[e].wfh++;}
       });
     }
 
+    /* ── Compute freeList: available but not assigned any slot ── */
+    const assignedSet=new Set([...tpt_p,...tpt_s,...app,...wa_p,...wa_s]);
+    const freeList=avail.filter(e=>!assignedSet.has(e));
+    /* Count free days */
+    freeList.forEach(e=>{if(counters[e])counters[e].free++;});
+
     const tptBlockedList=isMon&&tptBlocked.size?[...tptBlocked]:[];
-    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList,wfhCompList});
+    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList,wfhCompList,freeList});
   });
 
   schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...curHolidays],leaves:[...curLeaves],spmkpList:[...curSpmkp]};
   saveScheduleToLS();
-  renderSchedule();renderDashboard();
+  renderSchedule();renderDashboard();renderRekap();
 
   const lockedCount=partialMode?lockedDates.size:0;
   const msg=partialMode
@@ -789,6 +822,80 @@ function generateSchedule(partialMode, lockedMode){
     :'Jadwal berhasil digenerate!';
   document.getElementById('gen-notice').innerHTML='<div class="notice notice-success">'+msg+'</div>';
   setTimeout(()=>showPanel('schedule'),600);
+}
+
+/* Helper: compute freeList from raw workday data (used when loading old saved data) */
+function computeFreeListRaw(wd, emps){
+  if(!wd||!wd.assignments)return[];
+  const allAssigned=new Set([
+    ...wd.assignments.tpt_p,
+    ...wd.assignments.tpt_s,
+    ...wd.assignments.app,
+    ...wd.assignments.wa_p,
+    ...wd.assignments.wa_s
+  ]);
+  const onLeaveSet=new Set(wd.onLeave||[]);
+  return (emps||employees).filter(e=>!allAssigned.has(e)&&!onLeaveSet.has(e));
+}
+
+/* Generate range schedule stub */
+function generateRangeSchedule(){
+  const from=document.getElementById('inp-range-from').value;
+  const to=document.getElementById('inp-range-to').value;
+  if(!from||!to){alert('Pilih rentang tanggal');return;}
+  if(from>to){alert('Tanggal awal harus sebelum tanggal akhir');return;}
+  /* Use existing month/year from form, lock range logic via partial mode */
+  /* Simple: lock all dates outside range, then generate */
+  if(!schedule){generateSchedule(false);return;}
+  const allDates=schedule.workdays.map(w=>w.date);
+  const prevLocked=new Set(lockedDates);
+  /* Lock everything outside the range */
+  allDates.forEach(ds=>{if(ds<from||ds>to)lockedDates.add(ds);});
+  generateSchedule(true);
+  /* Restore locks that weren't there before (only keep newly generated ones as unlocked) */
+  allDates.forEach(ds=>{
+    if((ds<from||ds>to)&&!prevLocked.has(ds))lockedDates.delete(ds);
+  });
+  saveScheduleToLS();
+  renderSchedule();
+}
+
+/* Multi-month stub */
+function switchGenTab(id){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='tab-multi')buildMultiMonthChecks();
+}
+function buildMultiMonthChecks(){
+  const wrap=document.getElementById('multimonth-checks');
+  if(!wrap||wrap.children.length)return;
+  MONTHS.forEach((m,i)=>{
+    const div=document.createElement('label');
+    div.className='month-check';
+    div.innerHTML='<input type="checkbox" value="'+i+'"> '+m;
+    div.querySelector('input').addEventListener('change',e=>{div.classList.toggle('checked',e.target.checked);});
+    wrap.appendChild(div);
+  });
+}
+function toggleAllMonths(val){
+  document.querySelectorAll('#multimonth-checks input').forEach(cb=>{
+    cb.checked=val;cb.closest('label').classList.toggle('checked',val);
+  });
+}
+function generateMultiMonth(){
+  const checks=[...document.querySelectorAll('#multimonth-checks input:checked')];
+  if(!checks.length){alert('Pilih minimal satu bulan');return;}
+  const year=parseInt(document.getElementById('inp-year').value);
+  let msg='';
+  checks.forEach(cb=>{
+    const m=parseInt(cb.value);
+    document.getElementById('sel-month').value=m;
+    generateSchedule(false);
+    msg+=MONTHS[m]+' ';
+  });
+  document.getElementById('multi-month-notice').innerHTML='<div class="notice notice-success">Generate selesai: '+msg.trim()+'</div>';
 }
 
 /* ── Render schedule ── */
@@ -810,15 +917,13 @@ function renderSchedule(){
     +'<div class="legend-item"><div class="legend-dot" style="background:#fff;border-color:#e0eefd"></div>Hari Kerja</div>'
     +'<div class="legend-item"><div class="legend-dot" style="background:#fffbf0;border-color:#e9c87a"></div>&#128274; Terkunci</div>'
     +'<div class="legend-item"><div class="legend-dot" style="background:#eef6ff;border-color:#185FA5"></div>Hari Ini</div>'
-    +'<div class="legend-item"><span class="badge badge-app" style="font-size:10px">App &#128338; WFO Jumat</span></div>'
-    +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">WA &#127968; WFH Jumat</span></div>'
-    +'<div class="legend-item"><span class="badge badge-wfh" style="font-size:10px">Nama &#8617; WFH kompensasi WFO</span></div>'
-    +'<div class="legend-item"><span class="badge badge-spmkp" style="font-size:10px">&#127970; SPMKP</span></div>'
+    +'<div class="legend-item"><span class="badge badge-free" style="font-size:10px">Nama = Bebas Tugas</span></div>'
     +'</div>';
 
   let tbl='<div class="sched-wrap"><table class="sched-table"><thead><tr>'
     +'<th>Tanggal</th><th>Keterangan</th><th>TPT Pagi</th><th>TPT Siang</th>'
     +'<th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Cuti</th>'
+    +'<th class="th-free" title="Pegawai yang tidak mendapat penugasan hari ini — siap untuk tukar jadwal mendadak">&#128100; Bebas Tugas</th>'
     +'</tr></thead><tbody>';
 
   allDaysInMonth(year,month).forEach(({dt,ds,dow})=>{
@@ -837,7 +942,6 @@ function renderSchedule(){
 
     const dateColor=isWknd?'color:#a32d2d':isHol?'color:#3c3289':isFri?'color:#0f6e56':'color:#1a1a18';
     tbl+='<tr class="'+rowClass+'">';
-    /* sticky date cell with lock button */
     tbl+='<td style="'+dateColor+'">'
       +'<div style="display:flex;align-items:center;gap:4px">'
       +(wd?'<button class="lock-btn'+(isLocked?' locked':'')+'" data-date="'+ds+'" title="'+(isLocked?'Buka kunci':'Kunci baris ini')+'">'+(isLocked?'&#128274;':'&#128275;')+'</button>':'')
@@ -850,21 +954,20 @@ function renderSchedule(){
     if(isWknd){
       const lbl=dow===0?'Minggu':'Sabtu';
       tbl+='<td><span class="ket-tag" style="background:#fff0f0;color:#a32d2d">'+lbl+'</span></td>';
-      tbl+='<td colspan="7" style="color:#c8a0a0;font-size:11px;font-style:italic">'+lbl+'</td>';
+      tbl+='<td colspan="8" style="color:#c8a0a0;font-size:11px;font-style:italic">'+lbl+'</td>';
     } else if(isHol){
       tbl+='<td><span class="ket-tag" style="background:#f5f0ff;color:#3c3489">Libur</span></td>';
-      tbl+='<td colspan="7" style="color:#9080c0;font-size:11px;font-style:italic">'+hol.name+'</td>';
+      tbl+='<td colspan="8" style="color:#9080c0;font-size:11px;font-style:italic">'+hol.name+'</td>';
     } else if(wd){
       const fr=wd.isFriday;
       const isMon=(dow===1);
       const blocked=wd.tptBlockedList||[];
       const ketLbl=fr?'<span class="ket-tag" style="background:#e1f5ee;color:#0f6e56">Jumat WFH</span>':'<span class="ket-tag" style="background:#e8f4ff;color:#185FA5">Kerja</span>';
       const lockedLbl=isLocked?'<span class="ket-tag" style="background:#fdf5e0;color:#7a4f00;margin-left:3px">&#128274;</span>':'';
-      const blockedInfo=isMon&&blocked.length?'<br><span style="font-size:10px;color:#633806" title="WFO Jumat lalu (TPT/App): tidak dapat TPT hari ini">&#9888; '+blocked.length+' skip TPT</span>':'';
+      const blockedInfo=isMon&&blocked.length?'<br><span style="font-size:10px;color:#633806">&#9888; '+blocked.length+' skip TPT</span>':'';
       const cutiInfo=onLeaveAll.length?'<br><span style="font-size:10px;color:#712b13">'+onLeaveAll.length+' cuti</span>':'';
       tbl+='<td>'+ketLbl+lockedLbl+blockedInfo+cutiInfo+'</td>';
 
-      /* badge renderer: tandai SPMKP dengan ikon khusus */
       const sCur=schedule.spmkpList||[];
       const bgs=(arr,cls,wfhNote)=>arr.length
         ?'<div class="cell-badges">'+arr.map(e=>{
@@ -875,12 +978,10 @@ function renderSchedule(){
 
       tbl+='<td>'+bgs(wd.assignments.tpt_p,'badge-tpt-p',false)+'</td>';
       tbl+='<td>'+bgs(wd.assignments.tpt_s,'badge-tpt-s',false)+'</td>';
-      /* Aplikasi: WFH di Jumat (sama seperti WA) */
       tbl+='<td>'+bgs(wd.assignments.app,'badge-app',fr)+'</td>';
-      /* WA: WFH Jumat */
       tbl+='<td>'+bgs(wd.assignments.wa_p,'badge-wa-p',fr)+'</td>';
       tbl+='<td>'+bgs(wd.assignments.wa_s,'badge-wa-s',fr)+'</td>';
-      /* WFH normal (Jumat) + WFH kompensasi (Senin) */
+
       const wfhComp=wd.wfhCompList||[];
       const hasWfh=(fr&&wd.wfhList.length)||wfhComp.length;
       let wfhCell='';
@@ -894,28 +995,36 @@ function renderSchedule(){
       tbl+='<td>'+(wd.onLeave.length
         ?'<div class="cell-badges">'+wd.onLeave.map(e=>'<span class="badge badge-cuti">'+e+'</span>').join('')+'</div>'
         :'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
+
+      /* ── BEBAS TUGAS CELL ── */
+      const freeList=wd.freeList||computeFreeListRaw(wd,schedule.employees||employees);
+      if(freeList.length){
+        tbl+='<td class="td-free"><div class="free-pool-box">';
+        tbl+=freeList.map(e=>'<span class="free-name">'+e+'</span>').join('');
+        tbl+='</div></td>';
+      } else {
+        tbl+='<td class="td-free"><span style="color:#ccc;font-size:11px">\u2014</span></td>';
+      }
     } else {
-      tbl+='<td colspan="8" style="color:#ccc;font-size:11px">\u2014</td>';
+      tbl+='<td colspan="9" style="color:#ccc;font-size:11px">\u2014</td>';
     }
     tbl+='</tr>';
   });
 
   tbl+='</tbody></table></div>';
 
-  /* Lock summary */
   const lCount=lockedDates.size;
   const lockBar=lCount>0
-    ?'<div class="notice notice-warn" style="font-size:12px;margin-bottom:8px">&#128274; '+lCount+' hari terkunci. Klik <strong>Regenerate Unlocked</strong> untuk generate ulang hanya hari yang belum dikunci.</div>'
+    ?'<div class="notice notice-warn" style="font-size:12px;margin-bottom:8px">&#128274; '+lCount+' hari terkunci. <strong>Regenerate Unlocked</strong> untuk generate ulang hari yang belum dikunci.</div>'
     :'';
 
   document.getElementById('sched-container').innerHTML=legend+lockBar+tbl;
-  /* Pasang event listener lock buttons (hindari onclick string + var) */
   document.querySelectorAll('.lock-btn[data-date]').forEach(btn=>{
     btn.addEventListener('click',()=>toggleLock(btn.dataset.date));
   });
 }
 
-/* ── Render dashboard (dinamis: hitung dari locked jika ada, else semua) ── */
+/* ── Render dashboard ── */
 function renderDashboard(){
   if(!schedule)return;
   document.getElementById('dash-empty').style.display='none';
@@ -924,20 +1033,22 @@ function renderDashboard(){
   const nonSpmkp=(allEmps||[]).filter(e=>!(sSpmkp||[]).includes(e));
   const emps=nonSpmkp.length?nonSpmkp:allEmps;
 
-  /* Dinamis: jika ada hari terkunci, hitung counter dari locked saja */
   const lockedWd=workdays.filter(w=>lockedDates.has(w.date));
   const activeWd=lockedWd.length>0?lockedWd:workdays;
   const isPartialDash=lockedWd.length>0&&lockedWd.length<workdays.length;
 
-  /* Hitung counter dari activeWd */
+  /* Hitung counters termasuk free */
   const counters={};
-  (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
+  (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};});
   activeWd.forEach(w=>{
     const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
     w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
     (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
+    /* Free counter */
+    const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
+    fl.forEach(e=>{if(counters[e])counters[e].free++;});
   });
 
   const totalDays=workdays.length;
@@ -945,29 +1056,29 @@ function renderDashboard(){
   const friDays=activeWd.filter(d=>d.isFriday).length;
   const avgLoad=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].total:0),0)/emps.length).toFixed(1):'0';
   const avgWfh=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].wfh:0),0)/emps.length).toFixed(1):'0';
+  const avgFree=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].free:0),0)/emps.length).toFixed(1):'0';
 
-  /* Banner info mode dinamis */
   const dashMode=document.getElementById('dash-mode-banner');
   if(dashMode){
     if(isPartialDash){
-      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Dashboard menampilkan data dari <strong>'+lockedCount+' hari terkunci</strong> dari total '+totalDays+' hari kerja. Kunci lebih banyak hari atau generate semua untuk melihat statistik penuh.</div>';
-    } else if(lockedCount===totalDays&&lockedCount>0){
-      dashMode.innerHTML='<div class="notice notice-success" style="font-size:12px;margin-bottom:12px">&#9989; Dashboard menampilkan data lengkap dari semua <strong>'+totalDays+' hari kerja</strong> (semua terkunci).</div>';
+      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Dashboard menampilkan data dari <strong>'+lockedCount+' hari terkunci</strong> dari total '+totalDays+' hari kerja.</div>';
     } else {
-      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Dashboard menampilkan data dari semua <strong>'+totalDays+' hari kerja</strong>. Kunci hari tertentu untuk melihat statistik sebagian.</div>';
+      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Dashboard menampilkan data dari semua <strong>'+totalDays+' hari kerja</strong>.</div>';
     }
   }
 
   document.getElementById('dash-metrics').innerHTML=
-    '<div class="metric-card"><div class="metric-label">Hari Kerja '+(isPartialDash?'(terkunci)':'(total)')+'</div><div class="metric-value">'+(isPartialDash?lockedCount:totalDays)+'</div></div>'
+    '<div class="metric-card"><div class="metric-label">Hari Kerja</div><div class="metric-value">'+(isPartialDash?lockedCount:totalDays)+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">'+totalDays+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Jumat WFH</div><div class="metric-value">'+friDays+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Rata-rata Beban</div><div class="metric-value">'+avgLoad+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Rata-rata WFH</div><div class="metric-value">'+avgWfh+'</div></div>'
+    +'<div class="metric-card"><div class="metric-label" style="color:#555">Rata-rata Bebas</div><div class="metric-value" style="color:#666">'+avgFree+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">SPMKP</div><div class="metric-value">'+(sSpmkp||[]).length+'</div></div>';
 
   const maxTotal=Math.max(...emps.map(e=>counters[e]?counters[e].total:0),1);
   const maxWfh=Math.max(...emps.map(e=>counters[e]?counters[e].wfh:0),1);
+  const maxFree=Math.max(...(allEmps||[]).map(e=>counters[e]?counters[e].free:0),1);
 
   document.getElementById('dash-workload').innerHTML=[...emps].sort((a,b)=>(counters[b]?counters[b].total:0)-(counters[a]?counters[a].total:0)).map(e=>{
     const c=counters[e]||{total:0};const init=e.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
@@ -979,8 +1090,29 @@ function renderDashboard(){
     return '<div class="emp-row"><div class="avatar" style="background:#e1f5ee;color:#0f6e56">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(c.wfh/maxWfh*100)+'%;background:#0f6e56"></div></div><div class="bar-label">'+c.wfh+'</div></div></div>';
   }).join('');
 
+  /* ── Bebas Tugas bar chart (semua pegawai, bukan hanya non-SPMKP) ── */
+  const dashFreeEl=document.getElementById('dash-free');
+  if(dashFreeEl){
+    const sortedByFree=[...(allEmps||[])].sort((a,b)=>(counters[b]?counters[b].free:0)-(counters[a]?counters[a].free:0));
+    dashFreeEl.innerHTML=sortedByFree.map(e=>{
+      const c=counters[e]||{free:0};
+      const isSp=(sSpmkp||[]).includes(e);
+      const init=e.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      return '<div class="emp-row">'
+        +'<div class="avatar" style="background:#f5f5f3;color:#555">'+init+'</div>'
+        +'<div class="emp-name">'+e+(isSp?' <span style="font-size:10px;color:#7a4f00">&#127970;</span>':'')+'</div>'
+        +'<div class="bar-wrap">'
+        +'<div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(c.free/maxFree*100)+'%;background:#aaa"></div></div>'
+        +'<div class="bar-label">'+c.free+'</div>'
+        +'</div>'
+        +(c.free>0?'<div style="font-size:10px;color:#888;margin-left:4px" title="Hari-hari bebas tugas (bisa jadi pengganti mendadak)">&#128100;</div>':'')
+        +'</div>';
+    }).join('');
+  }
+
+  /* ── Detail table ── */
   document.getElementById('dash-detail-body').innerHTML=(allEmps||[]).map(e=>{
-    const c=counters[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};
+    const c=counters[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};
     const isSp=(sSpmkp||[]).includes(e);
     return '<tr'+(isSp?' style="background:#fdf5e0"':'')+'>'
       +'<td>'+e+(isSp?' <span class="spmkp-note">&#127970; SPMKP</span>':'')+'</td>'
@@ -988,32 +1120,235 @@ function renderDashboard(){
       +'<td>'+c.tpt_p+'</td><td>'+c.tpt_s+'</td><td>'+c.app+'</td>'
       +'<td>'+c.wa_p+'</td><td>'+c.wa_s+'</td>'
       +'<td><span class="badge badge-wfh">'+c.wfh+'</span></td>'
-      +'<td><strong>'+c.total+'</strong>'+(isSp?' <span style="font-size:10px;color:#7a4f00" title="Termasuk penugasan SPMKP">*</span>':'')+'</td>'
+      +'<td class="td-free-count"><span class="badge badge-free">'+c.free+'</span></td>'
+      +'<td><strong>'+c.total+'</strong>'+(isSp?' <span style="font-size:10px;color:#7a4f00">*</span>':'')+'</td>'
       +'</tr>';
   }).join('');
-  /* Tambah catatan kaki */
   const noteEl=document.getElementById('dash-detail-note');
-  if(noteEl)noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* Pegawai SPMKP: total penugasan dihitung penuh. Rata-rata beban di grafik menggunakan pegawai non-SPMKP.</span>';
+  if(noteEl)noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* Pegawai SPMKP: total penugasan dihitung penuh.</span> <span style="font-size:11px;color:#555">&#128100; Bebas Tugas = hari di mana pegawai tidak mendapat slot penugasan apapun (bisa jadi pengganti mendadak).</span>';
 }
 
-/* ── Export CSV (semua atau terkunci saja) ── */
+/* ══════════════════════════════════════════════════════
+   REKAP PANEL
+   ══════════════════════════════════════════════════════ */
+function renderRekap(){
+  if(!schedule){return;}
+  const rekapEmptyEl=document.getElementById('rekap-empty');
+  const rekapContentEl=document.getElementById('rekap-content');
+  if(!rekapEmptyEl||!rekapContentEl)return;
+  rekapEmptyEl.style.display='none';
+  rekapContentEl.style.display='block';
+
+  const {employees:allEmps,workdays,spmkpList:sSpmkp,month,year}=schedule;
+  const activeWd=workdays;
+
+  /* Hitung counters per pegawai */
+  const counters={};
+  (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0,leave_days:0};});
+  activeWd.forEach(w=>{
+    const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
+    cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
+    cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
+    w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
+    const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
+    fl.forEach(e=>{if(counters[e])counters[e].free++;});
+    (w.onLeave||[]).forEach(e=>{if(counters[e])counters[e].leave_days++;});
+  });
+
+  const totalDays=activeWd.length;
+  const friDays=activeWd.filter(d=>d.isFriday).length;
+  const nonSpmkp=(allEmps||[]).filter(e=>!(sSpmkp||[]).includes(e));
+
+  /* Summary cards */
+  const avgTotal=nonSpmkp.length?(nonSpmkp.reduce((s,e)=>s+counters[e].total,0)/nonSpmkp.length).toFixed(1):'0';
+  const avgFree=nonSpmkp.length?(nonSpmkp.reduce((s,e)=>s+counters[e].free,0)/nonSpmkp.length).toFixed(1):'0';
+  const maxFreeEmp=allEmps.reduce((best,e)=>counters[e].free>counters[best].free?e:best,allEmps[0]||'');
+  const minFreeEmp=allEmps.reduce((best,e)=>counters[e].free<counters[best].free?e:best,allEmps[0]||'');
+
+  document.getElementById('rekap-summary-cards').innerHTML=
+    '<div class="rekap-card"><div class="rekap-card-label">Bulan</div><div class="rekap-card-value">'+MONTHS[month]+' '+year+'</div><div class="rekap-card-sub">'+totalDays+' hari kerja, '+friDays+' Jumat</div></div>'
+    +'<div class="rekap-card"><div class="rekap-card-label">Rata-rata Beban</div><div class="rekap-card-value">'+avgTotal+'</div><div class="rekap-card-sub">penugasan/orang (non-SPMKP)</div></div>'
+    +'<div class="rekap-card"><div class="rekap-card-label">Rata-rata Bebas Tugas</div><div class="rekap-card-value" style="color:#555">'+avgFree+'</div><div class="rekap-card-sub">hari/orang (non-SPMKP)</div></div>'
+    +(maxFreeEmp?'<div class="rekap-card"><div class="rekap-card-label">Paling Bebas Tugas</div><div class="rekap-card-value" style="font-size:14px">'+maxFreeEmp+'</div><div class="rekap-card-sub">'+counters[maxFreeEmp].free+' hari bebas</div></div>':'')
+    +(minFreeEmp&&minFreeEmp!==maxFreeEmp?'<div class="rekap-card"><div class="rekap-card-label">Paling Sibuk</div><div class="rekap-card-value" style="font-size:14px">'+minFreeEmp+'</div><div class="rekap-card-sub">hanya '+counters[minFreeEmp].free+' hari bebas</div></div>':'');
+
+  /* Update filter dropdown */
+  const filterSel=document.getElementById('rekap-filter-emp');
+  if(filterSel){
+    const prev=filterSel.value;
+    filterSel.innerHTML='<option value="">Semua Pegawai</option>';
+    (allEmps||[]).forEach(e=>{filterSel.innerHTML+='<option value="'+e+'"'+(e===prev?' selected':'')+'>'+e+'</option>';});
+  }
+
+  /* Build main rekap table */
+  buildRekapTable(allEmps,counters,sSpmkp);
+
+  /* Build free detail section */
+  buildRekapFreeDetail(activeWd,allEmps,sSpmkp);
+}
+
+function buildRekapTable(allEmps, counters, sSpmkp){
+  const filterVal=document.getElementById('rekap-filter-emp')?document.getElementById('rekap-filter-emp').value:'';
+  const empsToShow=filterVal?allEmps.filter(e=>e===filterVal):allEmps;
+
+  const thead=document.getElementById('rekap-thead');
+  const tbody=document.getElementById('rekap-tbody');
+  if(!thead||!tbody)return;
+
+  thead.innerHTML='<tr>'
+    +'<th style="text-align:left">Pegawai</th>'
+    +'<th>SPMKP</th>'
+    +'<th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th>'
+    +'<th>WFH</th>'
+    +'<th class="col-free" title="Hari tidak ada penugasan slot apapun">&#128100; Bebas Tugas</th>'
+    +'<th>Cuti</th>'
+    +'<th>Total Tugas</th>'
+    +'</tr>';
+
+  /* Rows */
+  let rowsHtml='';
+  let totals={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,leave_days:0,total:0};
+  empsToShow.forEach(e=>{
+    const c=counters[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,leave_days:0,total:0};
+    const isSp=(sSpmkp||[]).includes(e);
+    Object.keys(totals).forEach(k=>{if(c[k]!==undefined)totals[k]+=c[k];});
+    rowsHtml+='<tr class="'+(isSp?'spmkp-row':'')+'">'
+      +'<td>'+e+(isSp?' <span class="spmkp-note">&#127970;</span>':'')+'</td>'
+      +'<td>'+(isSp?'&#9989;':'\u2014')+'</td>'
+      +'<td>'+c.tpt_p+'</td><td>'+c.tpt_s+'</td><td>'+c.app+'</td>'
+      +'<td>'+c.wa_p+'</td><td>'+c.wa_s+'</td>'
+      +'<td><span class="badge badge-wfh">'+c.wfh+'</span></td>'
+      +'<td class="col-free"><span class="badge badge-free"'+(c.free>0?' style="font-weight:700;color:#333"':'')+'>'+c.free+'</span></td>'
+      +'<td>'+(c.leave_days>0?'<span class="badge badge-cuti">'+c.leave_days+'</span>':'\u2014')+'</td>'
+      +'<td><strong>'+c.total+'</strong></td>'
+      +'</tr>';
+  });
+
+  /* Total row */
+  if(empsToShow.length>1){
+    rowsHtml+='<tr class="total-row">'
+      +'<td>TOTAL ('+empsToShow.length+' pegawai)</td><td>\u2014</td>'
+      +'<td>'+totals.tpt_p+'</td><td>'+totals.tpt_s+'</td><td>'+totals.app+'</td>'
+      +'<td>'+totals.wa_p+'</td><td>'+totals.wa_s+'</td>'
+      +'<td>'+totals.wfh+'</td>'
+      +'<td class="col-free">'+totals.free+'</td>'
+      +'<td>'+totals.leave_days+'</td>'
+      +'<td>'+totals.total+'</td>'
+      +'</tr>';
+  }
+  tbody.innerHTML=rowsHtml;
+
+  const footerEl=document.getElementById('rekap-footer-note');
+  if(footerEl)footerEl.textContent='&#128100; Bebas Tugas: hari kerja di mana pegawai tidak mendapat penugasan slot apapun. Bisa digunakan sebagai pengganti mendadak saat ada cuti sakit atau kebutuhan mendesak.';
+}
+
+function buildRekapFreeDetail(activeWd,allEmps,sSpmkp){
+  const el=document.getElementById('rekap-free-detail');
+  if(!el)return;
+
+  /* Build a map: date -> freeList */
+  const freeDays=activeWd.filter(w=>{
+    const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
+    return fl.length>0;
+  });
+
+  if(!freeDays.length){
+    el.innerHTML='<div style="font-size:12px;color:#999;padding:8px">Semua pegawai mendapat penugasan di setiap hari kerja.</div>';
+    return;
+  }
+
+  let html='<div style="overflow-x:auto"><table class="rekap-table"><thead><tr>'
+    +'<th style="text-align:left;min-width:80px">Tanggal</th>'
+    +'<th style="text-align:left;min-width:60px">Hari</th>'
+    +'<th style="text-align:left">Pegawai Bebas Tugas</th>'
+    +'<th>Jumlah</th>'
+    +'</tr></thead><tbody>';
+
+  freeDays.forEach(w=>{
+    const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
+    const dt=fromDateStr(w.date);
+    const dow=dt.getDay();
+    html+='<tr>'
+      +'<td><strong>'+String(dt.getDate()).padStart(2,'0')+' '+MONTHS[dt.getMonth()].slice(0,3)+'</strong></td>'
+      +'<td><span style="font-size:11px;color:#666">'+DAY_LONG[dow]+(w.isFriday?' <span style="font-size:10px;background:#e1f5ee;color:#0f6e56;border-radius:3px;padding:1px 4px">WFH</span>':'')+'</span></td>'
+      +'<td><div class="cell-badges">'+fl.map(e=>{
+          const isSp=(sSpmkp||[]).includes(e);
+          return '<span class="badge badge-free" style="cursor:pointer" onclick="filterRekapByEmp(\''+e+'\')" title="Klik untuk filter rekap '+e+'">'+(isSp?'&#127970;':'')+e+'</span>';
+        }).join('')+'</div></td>'
+      +'<td><strong>'+fl.length+'</strong></td>'
+      +'</tr>';
+  });
+
+  html+='</tbody></table></div>';
+  html+='<div style="font-size:11px;color:#aaa;margin-top:8px">Klik nama pegawai di atas untuk memfilter rekap per orang.</div>';
+  el.innerHTML=html;
+}
+
+function filterRekapByEmp(emp){
+  const sel=document.getElementById('rekap-filter-emp');
+  if(sel){sel.value=emp;renderRekap();}
+  /* Scroll ke rekap table */
+  document.getElementById('rekap-main-table').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ── Export Rekap CSV ── */
+function exportRekapCSV(){
+  if(!schedule){alert('Generate jadwal dulu');return;}
+  const {employees:allEmps,workdays,spmkpList:sSpmkp,month,year}=schedule;
+  const counters={};
+  (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,leave_days:0,total:0};});
+  workdays.forEach(w=>{
+    const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
+    cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
+    cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
+    w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
+    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
+    const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
+    fl.forEach(e=>{if(counters[e])counters[e].free++;});
+    (w.onLeave||[]).forEach(e=>{if(counters[e])counters[e].leave_days++;});
+  });
+  let csv='\uFEFFPegawai,SPMKP,TPT Pagi,TPT Siang,Aplikasi,WA Pagi,WA Siang,WFH,Bebas Tugas,Cuti,Total Tugas\n';
+  (allEmps||[]).forEach(e=>{
+    const c=counters[e];
+    const isSp=(sSpmkp||[]).includes(e);
+    csv+='"'+e+'",'+(isSp?'Ya':'Tidak')+','+c.tpt_p+','+c.tpt_s+','+c.app+','+c.wa_p+','+c.wa_s+','+c.wfh+','+c.free+','+c.leave_days+','+c.total+'\n';
+  });
+  /* Append bebas tugas detail per hari */
+  csv+='\nDetail Hari Bebas Tugas\nTanggal,Hari,Pegawai Bebas\n';
+  workdays.forEach(w=>{
+    const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
+    if(fl.length){
+      const dt=fromDateStr(w.date);
+      csv+=w.date+','+DAY_LONG[dt.getDay()]+',"'+fl.join('; ')+'"\n';
+    }
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='Rekap_Jadwal_'+MONTHS[month]+'_'+year+'.csv';a.click();URL.revokeObjectURL(url);
+}
+
+/* ── Export CSV ── */
 function exportCSV(lockedOnly){
   if(!schedule){alert('Generate jadwal dulu');return;}
   const {workdays,month,year}=schedule;
   const sHols=schedule.holidays||holidays;
   const wdMap={};workdays.forEach(w=>{wdMap[w.date]=w;});
-  let csv='\uFEFFTanggal,Hari,Keterangan,Terkunci,TPT Pagi,TPT Siang,Aplikasi,WA Pagi,WA Siang,WFH,Cuti\n';
+  let csv='\uFEFFTanggal,Hari,Keterangan,Terkunci,TPT Pagi,TPT Siang,Aplikasi,WA Pagi,WA Siang,WFH,Cuti,Bebas Tugas\n';
   allDaysInMonth(year,month).forEach(({dt,ds,dow})=>{
     const isWknd=(dow===0||dow===6);
     const hol=getHoliday(ds,sHols);
     const wd=wdMap[ds];
     const isLocked=lockedDates.has(ds);
-    // Jika lockedOnly, skip baris yang tidak terkunci (kecuali weekend/libur ikut serta)
     if(lockedOnly&&wd&&!isLocked)return;
     const locked=isLocked?'Ya':'';
     const ket=isWknd?(dow===0?'Minggu':'Sabtu'):(hol?hol.name:(dow===5?'Jumat WFH':'Hari Kerja'));
-    if(wd){csv+=ds+','+DAY_LONG[dow]+',"'+ket+'",'+locked+',"'+wd.assignments.tpt_p.join('; ')+'","'+wd.assignments.tpt_s.join('; ')+'","'+wd.assignments.app.join('; ')+'","'+wd.assignments.wa_p.join('; ')+'","'+wd.assignments.wa_s.join('; ')+'","'+wd.wfhList.join('; ')+'","'+wd.onLeave.join('; ')+'"\n';}
-    else if(!lockedOnly){csv+=ds+','+DAY_LONG[dow]+',"'+ket+'","","","","","","","",""\n';}
+    if(wd){
+      const fl=wd.freeList||computeFreeListRaw(wd,schedule.employees||employees);
+      csv+=ds+','+DAY_LONG[dow]+',"'+ket+'",'+locked+',"'+wd.assignments.tpt_p.join('; ')+'","'+wd.assignments.tpt_s.join('; ')+'","'+wd.assignments.app.join('; ')+'","'+wd.assignments.wa_p.join('; ')+'","'+wd.assignments.wa_s.join('; ')+'","'+wd.wfhList.join('; ')+'","'+wd.onLeave.join('; ')+'","'+fl.join('; ')+'"\n';
+    } else if(!lockedOnly){
+      csv+=ds+','+DAY_LONG[dow]+',"'+ket+'","","","","","","","","",""\n';
+    }
   });
   const suffix=lockedOnly?'_terkunci':'_semua';
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
@@ -1030,8 +1365,7 @@ function saveSchedule(){
   setTimeout(()=>n.style.display='none',3000);
 }
 
-
-/* ── Dropdown toggle ── */
+/* ── Dropdown ── */
 function toggleDropdown(id){
   const el=document.getElementById(id);
   el.style.display=el.style.display==='none'?'block':'none';
@@ -1042,54 +1376,27 @@ document.addEventListener('click',function(e){
   }
 });
 
-/* ── Export Jadwal JSON (semua atau terkunci saja) ── */
+/* ── Export Jadwal JSON ── */
 function exportJadwal(lockedOnly){
   if(!schedule){alert('Generate jadwal dulu');return;}
-  const {month,year,employees:sEmps,holidays:sHols,leaves:sLeaves,spmkpList:sSpmkp,counters}=schedule;
-
-  // Filter workdays jika lockedOnly
-  const workdays=lockedOnly
-    ? schedule.workdays.filter(w=>lockedDates.has(w.date))
-    : schedule.workdays;
-
+  const {month,year,employees:sEmps,holidays:sHols,leaves:sLeaves,spmkpList:sSpmkp}=schedule;
+  const workdays=lockedOnly?schedule.workdays.filter(w=>lockedDates.has(w.date)):schedule.workdays;
   if(!workdays.length){alert('Tidak ada hari yang '+(lockedOnly?'terkunci':'tersedia'));return;}
-
-  // Hitung ulang counters dari workdays yang diexport
   const expCounters={};
-  (sEmps||[]).forEach(e=>{expCounters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
+  (sEmps||[]).forEach(e=>{expCounters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};});
   workdays.forEach(w=>{
     const count=(arr,key)=>arr.forEach(e=>{if(expCounters[e]){expCounters[e][key]++;expCounters[e].total++;}});
     count(w.assignments.tpt_p,'tpt_p');count(w.assignments.tpt_s,'tpt_s');
     count(w.assignments.app,'app');count(w.assignments.wa_p,'wa_p');count(w.assignments.wa_s,'wa_s');
     if(w.isFriday)w.wfhList.forEach(e=>{if(expCounters[e])expCounters[e].wfh++;});
+    const fl=w.freeList||computeFreeListRaw(w,sEmps||employees);
+    fl.forEach(e=>{if(expCounters[e])expCounters[e].free++;});
   });
-
-  const exportedDates=workdays.map(w=>w.date);
-  const allWorkDates=schedule.workdays.map(w=>w.date);
-  const isPartial=exportedDates.length < allWorkDates.length;
-
-  const data={
-    _type:'jadwal',
-    _version:2,
-    _partial:isPartial,
-    _lockedOnly:lockedOnly,
-    month,year,
-    employees:sEmps,
-    holidays:sHols,
-    leaves:sLeaves,
-    spmkpList:sSpmkp||[],
-    workdays,
-    counters:expCounters,
-    exportedDates,
-    exportedAt:new Date().toISOString()
-  };
+  const data={_type:'jadwal',_version:2,_partial:workdays.length<schedule.workdays.length,_lockedOnly:lockedOnly,month,year,employees:sEmps,holidays:sHols,leaves:sLeaves,spmkpList:sSpmkp||[],workdays,counters:expCounters,exportedDates:workdays.map(w=>w.date),exportedAt:new Date().toISOString()};
   const suffix=lockedOnly?'_terkunci':'_semua';
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='Jadwal_'+MONTHS[month]+'_'+year+suffix+'.json';
-  a.click();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=url;a.download='Jadwal_'+MONTHS[month]+'_'+year+suffix+'.json';a.click();URL.revokeObjectURL(url);
 }
 
 /* ── Import Jadwal JSON ── */
@@ -1099,109 +1406,61 @@ function importJadwal(evt){
   reader.onload=e=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(data._type!=='jadwal'||!data.workdays){
-        alert('File bukan jadwal yang valid. Gunakan file hasil Export Jadwal JSON.');return;
-      }
-
+      if(data._type!=='jadwal'||!data.workdays){alert('File bukan jadwal yang valid.');return;}
       const importedDates=new Set(data.workdays.map(w=>w.date));
-      const month=parseInt(data.month);
-      const year=parseInt(data.year);
-
-      // Hitung total workday di bulan tersebut
+      const month=parseInt(data.month);const year=parseInt(data.year);
       const allHols=data.holidays||[];
       const totalWorkdaysInMonth=getWorkdays(year,month,allHols).length;
-      const isPartial=data._partial || (importedDates.size < totalWorkdaysInMonth);
-
+      const isPartial=data._partial||(importedDates.size<totalWorkdaysInMonth);
       if(schedule&&(schedule.month!==month||schedule.year!==year)){
-        if(!confirm('Jadwal yang diimport adalah '+MONTHS[month]+' '+year+
-          ', berbeda dengan jadwal aktif ('+MONTHS[schedule.month]+' '+schedule.year+
-          '). Lanjutkan?'))return;
+        if(!confirm('Jadwal yang diimport adalah '+MONTHS[month]+' '+year+', berbeda dengan jadwal aktif. Lanjutkan?'))return;
       }
-
-      // Jika partial: merge dengan schedule yang ada (atau buat baru dengan workdays kosong)
       let mergedWorkdays=[];
       const existingMap={};
       if(schedule&&schedule.month===month&&schedule.year===year){
         schedule.workdays.forEach(w=>{existingMap[w.date]=w;});
         mergedWorkdays=[...schedule.workdays];
       }
-
-      // Masukkan/timpa workdays dari file import
       const importMap={};
       data.workdays.forEach(w=>{importMap[w.date]=w;});
-
       if(schedule&&schedule.month===month&&schedule.year===year){
-        // Merge: timpa tanggal yang ada di import, pertahankan sisanya
         mergedWorkdays=mergedWorkdays.map(w=>importMap[w.date]||w);
-        // Tambah tanggal yang ada di import tapi belum ada di existing
-        data.workdays.forEach(w=>{
-          if(!existingMap[w.date])mergedWorkdays.push(w);
-        });
+        data.workdays.forEach(w=>{if(!existingMap[w.date])mergedWorkdays.push(w);});
         mergedWorkdays.sort((a,b)=>a.date.localeCompare(b.date));
       } else {
-        // Tidak ada jadwal aktif atau beda bulan: gunakan data import langsung
         mergedWorkdays=data.workdays;
       }
-
-      // Hitung ulang counters dari mergedWorkdays
+      /* Ensure freeList on all workdays */
+      mergedWorkdays.forEach(w=>{if(!w.freeList)w.freeList=computeFreeListRaw(w,data.employees||employees);});
       const mergedEmps=data.employees||employees;
       const newCounters={};
-      mergedEmps.forEach(e=>{newCounters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
+      mergedEmps.forEach(e=>{newCounters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};});
       mergedWorkdays.forEach(w=>{
         const cnt=(arr,key)=>arr.forEach(e=>{if(newCounters[e]){newCounters[e][key]++;newCounters[e].total++;}});
         cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
         cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
         if(w.isFriday)w.wfhList.forEach(e=>{if(newCounters[e])newCounters[e].wfh++;});
+        const fl=w.freeList||[];fl.forEach(e=>{if(newCounters[e])newCounters[e].free++;});
       });
-
-      schedule={
-        month,year,
-        workdays:mergedWorkdays,
-        counters:newCounters,
-        employees:mergedEmps,
-        holidays:data.holidays||holidays,
-        leaves:data.leaves||leaves,
-        spmkpList:data.spmkpList||spmkpList
-      };
-
-      // Auto-lock: semua tanggal dari file import dikunci
+      schedule={month,year,workdays:mergedWorkdays,counters:newCounters,employees:mergedEmps,holidays:data.holidays||holidays,leaves:data.leaves||leaves,spmkpList:data.spmkpList||spmkpList};
       importedDates.forEach(ds=>lockedDates.add(ds));
-
-      saveScheduleToLS();
-      renderSchedule();
-      renderDashboard(); // ← dashboard langsung dihitung ulang
-
-      // Sinkronisasi settings jika beda dengan form aktif
+      saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
       if(data.employees){
-        employees=data.employees;
-        holidays=data.holidays||holidays;
-        leaves=data.leaves||leaves;
-        spmkpList=data.spmkpList||spmkpList;
+        employees=data.employees;holidays=data.holidays||holidays;leaves=data.leaves||leaves;spmkpList=data.spmkpList||spmkpList;
         renderEmpTags();renderHolidays();renderLeaves();renderSpmkpTags();
-        document.getElementById('sel-month').value=month;
-        document.getElementById('inp-year').value=year;
-        autoSave();
+        document.getElementById('sel-month').value=month;document.getElementById('inp-year').value=year;autoSave();
       }
-
-      const lockedCount=importedDates.size;
-      const msg=isPartial
-        ?'Import jadwal sebagian berhasil! '+lockedCount+' hari otomatis terkunci. Klik "Regenerate Unlocked" untuk mengisi sisa hari.'
-        :'Import jadwal lengkap berhasil! Semua '+lockedCount+' hari terkunci.';
-
+      const msg=isPartial?'Import jadwal sebagian berhasil! '+importedDates.size+' hari otomatis terkunci.':'Import jadwal lengkap berhasil! Semua '+importedDates.size+' hari terkunci.';
       showPanel('schedule');
-      const n=document.getElementById('sched-notice');
-      n.style.display='block';n.textContent=msg;
+      const n=document.getElementById('sched-notice');n.style.display='block';n.textContent=msg;
       setTimeout(()=>n.style.display='none',6000);
-
     }catch(err){alert('Gagal membaca file jadwal: '+err.message);}
   };
   reader.readAsText(file);evt.target.value='';
 }
 
-
 /* ════════════════════════════════════════════════════════
-   SWAP JADWAL — tukar satu slot penugasan antar pegawai
-   State mesin: step1=pilih tanggal+slot, step2=pilih pengganti
+   SWAP MODAL
    ════════════════════════════════════════════════════════ */
 const SLOT_LABELS={tpt_p:'TPT Pagi',tpt_s:'TPT Siang',app:'Aplikasi',wa_p:'WA Pagi',wa_s:'WA Siang'};
 const SLOT_BADGE={tpt_p:'badge-tpt-p',tpt_s:'badge-tpt-s',app:'badge-app',wa_p:'badge-wa-p',wa_s:'badge-wa-s'};
@@ -1213,26 +1472,22 @@ function openSwapModal(){
   document.getElementById('swap-modal').classList.add('open');
   renderSwapStep1();
 }
-function closeSwapModal(){
-  document.getElementById('swap-modal').classList.remove('open');
-}
+function closeSwapModal(){document.getElementById('swap-modal').classList.remove('open');}
 
 function renderSwapStep1(){
   const wds=schedule.workdays.filter(w=>w.assignments);
-  const sHols=schedule.holidays||holidays;
   const body=document.getElementById('swap-modal-body');
   document.getElementById('swap-confirm-btn').disabled=true;
 
-  /* Pilih tanggal */
   let html='<div class="swap-step"><div class="swap-step-label">1 — Pilih tanggal</div>';
   html+='<select id="swap-sel-date" onchange="renderSwapSlots()" style="margin-bottom:12px"><option value="">-- Pilih tanggal --</option>';
   wds.forEach(w=>{
-    const dt=fromDateStr(w.date);
-    const dow=dt.getDay();
-    html+='<option value="'+w.date+'">'+String(dt.getDate()).padStart(2,'0')+' '+DAY_LONG[dow]+', '+w.date+'</option>';
+    const dt=fromDateStr(w.date);const dow=dt.getDay();
+    const fl=w.freeList||computeFreeListRaw(w,schedule.employees||employees);
+    const freeNote=fl.length?' ('+fl.length+' bebas)':'';
+    html+='<option value="'+w.date+'">'+String(dt.getDate()).padStart(2,'0')+' '+DAY_LONG[dow]+', '+w.date+freeNote+'</option>';
   });
   html+='</select></div>';
-
   html+='<div id="swap-slots-section"></div>';
   html+='<div id="swap-person-section"></div>';
   html+='<div id="swap-preview-section"></div>';
@@ -1252,7 +1507,17 @@ function renderSwapSlots(){
   const wd=schedule.workdays.find(w=>w.date===ds);
   if(!wd){sec.innerHTML='';return;}
 
-  let html='<div class="swap-step"><div class="swap-step-label">2 — Pilih slot &amp; orang yang ingin ditukar</div><div class="slot-grid">';
+  /* Show free pool hint */
+  const fl=wd.freeList||computeFreeListRaw(wd,schedule.employees||employees);
+  let freeHint='';
+  if(fl.length){
+    freeHint='<div style="background:#f5f5f3;border:1px dashed #ccc;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#555">'
+      +'<strong>&#128100; Bebas Tugas hari ini</strong> — siap jadi pengganti: '
+      +fl.map(e=>'<span style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:1px 6px;margin:2px;display:inline-block">'+e+'</span>').join(' ')
+      +'</div>';
+  }
+
+  let html='<div class="swap-step"><div class="swap-step-label">2 — Pilih slot &amp; orang yang ingin ditukar</div>'+freeHint+'<div class="slot-grid">';
   Object.entries(SLOT_LABELS).forEach(([key,label])=>{
     const people=wd.assignments[key]||[];
     if(!people.length)return;
@@ -1274,8 +1539,7 @@ function renderSwapSlots(){
 function selectSwapSlot(ds,slot,emp){
   swapState.date=ds;swapState.slot=slot;swapState.fromEmp=emp;swapState.toEmp=null;
   document.getElementById('swap-confirm-btn').disabled=true;
-  renderSwapSlots();/* re-render slots biar selected state update */
-  renderSwapPersonPicker();
+  renderSwapSlots();renderSwapPersonPicker();
 }
 
 function renderSwapPersonPicker(){
@@ -1283,38 +1547,52 @@ function renderSwapPersonPicker(){
   if(!date||!slot||!fromEmp)return;
   const wd=schedule.workdays.find(w=>w.date===date);
   const sEmps=schedule.employees||employees;
-  /* Semua pegawai yang TIDAK sedang di slot yang sama pada hari itu */
   const alreadyInSlot=new Set(wd.assignments[slot]||[]);
-  /* Juga cek cuti */
   const sLeaves=schedule.leaves||leaves;
   const onLeaveToday=sEmps.filter(e=>(sLeaves||[]).some(l=>l.emp===e&&date>=l.from&&date<=l.to));
   const onLeaveSet=new Set(onLeaveToday);
 
+  /* Distinguish free employees (preferred replacements) */
+  const fl=new Set(wd.freeList||computeFreeListRaw(wd,sEmps));
   const candidates=sEmps.filter(e=>e!==fromEmp&&!alreadyInSlot.has(e)&&!onLeaveSet.has(e));
-  const prev=document.getElementById('swap-preview-section');
+  const freeCandidates=candidates.filter(e=>fl.has(e));
+  const otherCandidates=candidates.filter(e=>!fl.has(e));
 
   let html='<div class="swap-step"><div class="swap-step-label">3 — Pilih pengganti untuk <strong>'+fromEmp+'</strong> di slot <span class="badge-slot '+SLOT_BADGE[slot]+'">'+SLOT_LABELS[slot]+'</span></div>';
-  html+='<div class="person-grid">';
-  if(!candidates.length){
-    html+='<div style="font-size:12px;color:#999;grid-column:1/-1">Tidak ada kandidat yang tersedia.</div>';
-  } else {
-    candidates.forEach(e=>{
+
+  if(freeCandidates.length){
+    html+='<div style="font-size:11px;color:#555;margin-bottom:6px;font-weight:600">&#128100; Bebas Tugas hari ini (disarankan):</div>';
+    html+='<div class="person-grid">';
+    freeCandidates.forEach(e=>{
+      const sel=(swapState.toEmp===e);
+      html+='<button class="person-btn free-btn'+(sel?' selected':'')+'" data-emp="'+e+'" style="border-color:'+(sel?'#185FA5':'#b5d4f4')+';background:'+(sel?'#e6f1fb':'#f0f6ff')+'">&#128100; '+e+'</button>';
+    });
+    html+='</div>';
+  }
+  if(otherCandidates.length){
+    html+='<div style="font-size:11px;color:#999;margin:8px 0 4px;font-weight:500">Pegawai lain:</div>';
+    html+='<div class="person-grid">';
+    otherCandidates.forEach(e=>{
       const sel=(swapState.toEmp===e);
       html+='<button class="person-btn'+(sel?' selected':'')+'" data-emp="'+e+'">'+e+'</button>';
     });
+    html+='</div>';
   }
-  html+='</div></div>';
+  if(!candidates.length){
+    html+='<div style="font-size:12px;color:#999">Tidak ada kandidat yang tersedia.</div>';
+  }
+  html+='</div>';
+
   const psecEl=document.getElementById('swap-person-section');
   psecEl.innerHTML=html;
   psecEl.querySelectorAll('.person-btn').forEach(btn=>{
     btn.addEventListener('click',()=>selectSwapPerson(btn.dataset.emp));
   });
-  prev.innerHTML='';
+  document.getElementById('swap-preview-section').innerHTML='';
 }
 
 function selectSwapPerson(emp){
   swapState.toEmp=emp;
-  /* Re-render person grid biar selected */
   renderSwapPersonPicker();
   renderSwapPreview();
   document.getElementById('swap-confirm-btn').disabled=false;
@@ -1337,36 +1615,26 @@ function renderSwapPreview(){
 function confirmSwap(){
   const {date,slot,fromEmp,toEmp}=swapState;
   if(!date||!slot||!fromEmp||!toEmp)return;
-
-  /* Terapkan perubahan ke schedule.workdays */
   const wd=schedule.workdays.find(w=>w.date===date);
   if(!wd)return;
   const arr=wd.assignments[slot];
-  const idx=arr.indexOf(fromEmp);
-  if(idx===-1)return;
+  const idx=arr.indexOf(fromEmp);if(idx===-1)return;
   arr[idx]=toEmp;
-
-  /* Juga update wfhList jika Jumat (tukar pegawai WFH) */
   if(wd.isFriday){
     const wfoSet=new Set([...wd.assignments.tpt_p,...wd.assignments.tpt_s]);
-    /* recalc wfhList: semua available kecuali WFO */
     const sEmps=schedule.employees||employees;
     const sLeaves=schedule.leaves||leaves;
     const avail=sEmps.filter(e=>!(sLeaves||[]).some(l=>l.emp===e&&date>=l.from&&date<=l.to));
     wd.wfhList=avail.filter(e=>!wfoSet.has(e));
   }
-
-  /* Hitung ulang counters */
+  /* Recompute freeList for this day */
+  wd.freeList=computeFreeListRaw(wd,schedule.employees||employees);
   recomputeCounters();
-  saveScheduleToLS();
-  renderSchedule();
-  renderDashboard();
+  saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
   closeSwapModal();
-
-  /* Feedback singkat */
   const n=document.getElementById('sched-notice');
   n.style.display='block';
-  n.textContent='Tukar jadwal berhasil: '+fromEmp+' ↔ '+toEmp+' di '+SLOT_LABELS[slot]+' ('+date+')';
+  n.textContent='Tukar jadwal berhasil: '+fromEmp+' \u2194 '+toEmp+' di '+SLOT_LABELS[slot]+' ('+date+')';
   setTimeout(()=>n.style.display='none',4000);
 }
 
@@ -1374,13 +1642,15 @@ function recomputeCounters(){
   if(!schedule)return;
   const emps=schedule.employees||[];
   const counters={};
-  emps.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,total:0};});
+  emps.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};});
   schedule.workdays.forEach(w=>{
     const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
     w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
     (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
+    const fl=w.freeList||computeFreeListRaw(w,emps);
+    fl.forEach(e=>{if(counters[e])counters[e].free++;});
   });
   schedule.counters=counters;
 }
