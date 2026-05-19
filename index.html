@@ -186,6 +186,8 @@ input:focus,select:focus{border-color:#185FA5}
 .badge-draggable{cursor:grab;transition:opacity 0.15s,box-shadow 0.15s;display:inline-block;margin:2px}
 .badge-draggable:active{cursor:grabbing}
 .badge-draggable.dragging{opacity:0.4;box-shadow:0 0 0 2px #185FA5}
+.row-locked .badge-draggable{cursor:not-allowed;opacity:0.75}
+.row-locked .cell-drop-target{pointer-events:none}
 .cell-drop-target{min-height:24px;border-radius:6px;transition:background 0.15s,box-shadow 0.15s}
 .cell-drop-target.drag-over{background:rgba(24,95,165,0.12)!important;box-shadow:inset 0 0 0 2px #185FA5}
 .drag-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:0.85;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#185FA5;color:#fff;white-space:nowrap;transform:translate(-50%,-50%)}
@@ -353,6 +355,7 @@ input:focus,select:focus{border-color:#185FA5}
       <button class="btn btn-sm btn-warn" onclick="generateSchedule(true)" title="Regenerate hanya baris yang belum dikunci">&#8635; Regenerate Unlocked</button>
       <button class="btn btn-sm btn-warn" onclick="generateSchedule(true,'locked')" title="Regenerate hanya baris yang TERKUNCI">&#128274; Regenerate Locked</button>
       <button class="btn btn-sm" onclick="openSwapModal()" title="Tukar jadwal antar pegawai" style="background:#f0f6ff;border-color:#b5d4f4;color:#185FA5">&#8646; Tukar Jadwal</button>
+      <button class="btn btn-sm" onclick="lockAll()" id="btn-lock-all" title="Kunci semua hari kerja">&#128274; Kunci Semua</button>
       <button class="btn btn-sm" onclick="unlockAll()">&#128275; Buka Semua Kunci</button>
       <div style="position:relative;display:inline-block">
         <button class="btn btn-sm" onclick="toggleDropdown('dd-export')" style="display:flex;align-items:center;gap:4px">&#8595; Export &#9662;</button>
@@ -369,7 +372,7 @@ input:focus,select:focus{border-color:#185FA5}
     </div>
   </div>
   <div class="notice notice-info" style="font-size:12px;margin-bottom:10px">
-    &#128274; Klik tombol kunci di setiap baris untuk mengunci tanggal tersebut. Kolom <strong>Bebas Tugas</strong> menampilkan pegawai yang tidak mendapat penugasan — berguna untuk tukar jadwal mendadak.
+    &#128274; Klik tombol kunci di setiap baris untuk mengunci tanggal. Gunakan <strong>Kunci Semua</strong> untuk mengunci seluruh bulan. Baris terkunci tidak dapat digeser (drag-drop). Dashboard otomatis terupdate saat status kunci berubah.
   </div>
   <div id="sched-notice" class="notice notice-success" style="display:none"></div>
   <div id="sched-container"><div style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada jadwal. Generate dari tab Pengaturan.</div></div>
@@ -661,11 +664,16 @@ function computeFreeList(wd){
 /* ── Lock / Unlock ── */
 function toggleLock(ds){
   if(lockedDates.has(ds))lockedDates.delete(ds);else lockedDates.add(ds);
-  saveScheduleToLS();renderSchedule();
+  saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
+}
+function lockAll(){
+  if(!schedule)return;
+  schedule.workdays.forEach(w=>lockedDates.add(w.date));
+  saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
 }
 function unlockAll(){
   if(!lockedDates.size)return;
-  lockedDates.clear();saveScheduleToLS();renderSchedule();showPanel('schedule');
+  lockedDates.clear();saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
 }
 function saveScheduleToLS(){
   try{localStorage.setItem(LS_SCHEDULE,JSON.stringify({schedule,lockedDates:[...lockedDates]}));}catch(e){}
@@ -1140,8 +1148,15 @@ function initTableDragDrop(){
   container.addEventListener('dragstart',e=>{
     const badge=e.target.closest('.badge-draggable');
     if(!badge)return;
+    const dateOfBadge=badge.dataset.date;
+    /* Blokir drag jika baris terkunci */
+    if(lockedDates.has(dateOfBadge)){
+      e.preventDefault();
+      showDragNotice('Baris '+dateOfBadge+' terkunci — buka kunci terlebih dahulu untuk menggeser.');
+      return;
+    }
     dragState.emp=badge.dataset.emp;
-    dragState.fromDate=badge.dataset.date;
+    dragState.fromDate=dateOfBadge;
     dragState.fromSlot=badge.dataset.slot;
     badge.classList.add('dragging');
     e.dataTransfer.effectAllowed='move';
@@ -1185,6 +1200,12 @@ function initTableDragDrop(){
     const toSlot=target.dataset.slot;
     const {emp,fromDate,fromSlot}=dragState;
     if(!emp||!fromDate||!fromSlot||!toDate||!toSlot)return;
+
+    /* Blokir jika baris tujuan terkunci */
+    if(lockedDates.has(toDate)){
+      showDragNotice('Baris '+toDate+' terkunci — tidak bisa menerima drag.');
+      return;
+    }
 
     /* Sama persis — tidak ada yang berubah */
     if(fromDate===toDate&&fromSlot===toSlot)return;
@@ -1327,10 +1348,13 @@ function renderDashboard(){
 
   const dashMode=document.getElementById('dash-mode-banner');
   if(dashMode){
-    if(isPartialDash){
-      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Dashboard menampilkan data dari <strong>'+lockedCount+' hari terkunci</strong> dari total '+totalDays+' hari kerja.</div>';
+    const allLocked=lockedCount===totalDays&&totalDays>0;
+    if(allLocked){
+      dashMode.innerHTML='<div class="notice notice-success" style="font-size:12px;margin-bottom:12px">&#128274; Semua <strong>'+totalDays+' hari kerja terkunci</strong>. Dashboard menampilkan data final bulan ini.</div>';
+    } else if(isPartialDash){
+      dashMode.innerHTML='<div class="notice notice-warn" style="font-size:12px;margin-bottom:12px">&#128274; Dashboard menampilkan <strong>'+lockedCount+' dari '+totalDays+' hari terkunci</strong>. Kunci lebih banyak hari atau kunci semua untuk data final.</div>';
     } else {
-      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Dashboard menampilkan data dari semua <strong>'+totalDays+' hari kerja</strong>.</div>';
+      dashMode.innerHTML='<div class="notice notice-info" style="font-size:12px;margin-bottom:12px">&#128202; Belum ada hari dikunci. Dashboard menampilkan <strong>semua '+totalDays+' hari kerja</strong>. Kunci hari untuk memfinalisasi data.</div>';
     }
   }
 
