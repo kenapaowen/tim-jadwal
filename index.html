@@ -181,7 +181,14 @@ input:focus,select:focus{border-color:#185FA5}
 .rekap-card-sub{font-size:11px;color:#aaa;margin-top:2px}
 /* Free highlight in detail table */
 .td-free-count{background:#f7f7f5;color:#555}
-@media(max-width:640px){.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}.row{flex-direction:column}}
+/* Drag-and-drop in table */
+.badge-draggable{cursor:grab;transition:opacity 0.15s,box-shadow 0.15s;display:inline-block;margin:2px}
+.badge-draggable:active{cursor:grabbing}
+.badge-draggable.dragging{opacity:0.4;box-shadow:0 0 0 2px #185FA5}
+.cell-drop-target{min-height:24px;border-radius:6px;transition:background 0.15s,box-shadow 0.15s}
+.cell-drop-target.drag-over{background:rgba(24,95,165,0.12)!important;box-shadow:inset 0 0 0 2px #185FA5}
+.drag-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:0.85;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#185FA5;color:#fff;white-space:nowrap;transform:translate(-50%,-50%)}
+
 </style>
 </head>
 <body>
@@ -373,11 +380,15 @@ input:focus,select:focus{border-color:#185FA5}
   <div id="dash-empty" style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada data. Generate jadwal terlebih dahulu.</div>
   <div id="dash-content" style="display:none">
     <div id="dash-mode-banner"></div>
-    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">Grafik beban &amp; WFH menggunakan pegawai <strong>non-SPMKP</strong>. Kolom <strong>Bebas Tugas</strong> menampilkan hari kerja di mana pegawai tidak mendapat penugasan apapun (bisa dipakai untuk tukar jadwal).</div>
+    <div class="notice notice-info" style="font-size:12px;margin-bottom:12px">Grafik beban &amp; WFO Jumat menggunakan pegawai <strong>non-SPMKP</strong>. Kolom <strong>Bebas Tugas</strong> menampilkan hari kerja di mana pegawai tidak mendapat penugasan apapun (bisa dipakai untuk tukar jadwal).</div>
     <div class="stat-grid" id="dash-metrics"></div>
     <div class="grid-2" style="margin-bottom:16px">
       <div class="card"><div class="card-title">Beban Kerja (non-SPMKP)</div><div id="dash-workload"></div></div>
-      <div class="card"><div class="card-title">Jumlah WFH (non-SPMKP)</div><div id="dash-wfh"></div></div>
+      <div class="card"><div class="card-title">&#128197; WFO Jumat — Jumlah Piket TPT Jumat (non-SPMKP)</div><div id="dash-wfh"></div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">&#128203; Total TPT per Pegawai <span style="font-size:11px;color:#888;font-weight:400">(Pagi + Siang — non-SPMKP)</span></div>
+      <div id="dash-tpt"></div>
     </div>
     <!-- NEW: Bebas Tugas bar chart -->
     <div class="card" style="margin-bottom:16px">
@@ -388,7 +399,7 @@ input:focus,select:focus{border-color:#185FA5}
       <div class="card-title">Rincian Penugasan per Pegawai</div>
       <div style="overflow-x:auto">
         <table class="detail-table">
-          <thead><tr><th>Pegawai</th><th>SPMKP</th><th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th style="background:#f5f5f3;color:#555">Bebas Tugas</th><th>Total</th></tr></thead>
+          <thead><tr><th>Pegawai</th><th>SPMKP</th><th>TPT Pagi</th><th>TPT Siang</th><th>Total TPT</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFO Jumat</th><th style="background:#f5f5f3;color:#555">Bebas Tugas</th><th>Total</th></tr></thead>
           <tbody id="dash-detail-body"></tbody>
         </table>
         <div id="dash-detail-note" style="margin-top:8px;padding:6px 0"></div>
@@ -695,14 +706,12 @@ function generateSchedule(partialMode, lockedMode){
       cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
       cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
       w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
-      (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
       /* Seed free counter dari locked rows */
       (w.freeList||computeFreeListRaw(w,employees)).forEach(e=>{if(counters[e])counters[e].free++;});
     });
   }
 
   const tptFriBlock={};
-  const wfoFriCompensation={};
   workdays.forEach(day=>{if(day.isFriday){tptFriBlock[addDays(day.date,3)]=new Set();}});
   if(partialMode&&schedule){
     schedule.workdays.forEach(w=>{
@@ -711,8 +720,6 @@ function generateSchedule(partialMode, lockedMode){
         const monKey=addDays(w.date,3);
         if(!tptFriBlock[monKey])tptFriBlock[monKey]=new Set();
         [...w.assignments.tpt_p,...w.assignments.tpt_s,...w.assignments.app].forEach(e=>tptFriBlock[monKey].add(e));
-        const wfoSet=new Set([...w.assignments.tpt_p,...w.assignments.tpt_s]);
-        wfoFriCompensation[monKey]=[...wfoSet];
       }
     });
   }
@@ -789,17 +796,9 @@ function generateSchedule(partialMode, lockedMode){
       wfhList=avail.filter(e=>!wfoSet.has(e));
       wfhList.forEach(e=>{counters[e].wfh++;});
       const monKey=addDays(day.date,3);
-      wfoFriCompensation[monKey]=[...wfoSet].filter(e=>avail.includes(e));
       if(tptFriBlock[monKey]!==undefined){
         [...tpt_p,...tpt_s,...app].forEach(e=>tptFriBlock[monKey].add(e));
       }
-    }
-
-    const wfhCompList=[];
-    if(isMon&&wfoFriCompensation[day.date]){
-      wfoFriCompensation[day.date].forEach(e=>{
-        if(avail.includes(e)){wfhCompList.push(e);counters[e].wfh++;}
-      });
     }
 
     /* ── Compute freeList: available but not assigned any slot ── */
@@ -809,7 +808,7 @@ function generateSchedule(partialMode, lockedMode){
     freeList.forEach(e=>{if(counters[e])counters[e].free++;});
 
     const tptBlockedList=isMon&&tptBlocked.size?[...tptBlocked]:[];
-    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList,wfhCompList,freeList});
+    result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,tptBlockedList,freeList});
   });
 
   schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...curHolidays],leaves:[...curLeaves],spmkpList:[...curSpmkp]};
@@ -969,27 +968,24 @@ function renderSchedule(){
       tbl+='<td>'+ketLbl+lockedLbl+blockedInfo+cutiInfo+'</td>';
 
       const sCur=schedule.spmkpList||[];
-      const bgs=(arr,cls,wfhNote)=>arr.length
-        ?'<div class="cell-badges">'+arr.map(e=>{
+      const bgs=(arr,cls,wfhNote,slotKey)=>arr.length
+        ?'<div class="cell-badges cell-drop-target" data-date="'+ds+'" data-slot="'+slotKey+'">'+arr.map(e=>{
             const isSp=sCur.includes(e);
-            return '<span class="badge '+cls+'">'+(isSp?'&#127970;':'')+e+(wfhNote?' &#127968;':'')+'</span>';
+            return '<span class="badge '+cls+' badge-draggable" draggable="true" data-emp="'+e+'" data-date="'+ds+'" data-slot="'+slotKey+'">'+(isSp?'&#127970;':'')+e+(wfhNote?' &#127968;':'')+'</span>';
           }).join('')+'</div>'
-        :'<span style="color:#ccc;font-size:11px">\u2014</span>';
+        :'<div class="cell-badges cell-drop-target" data-date="'+ds+'" data-slot="'+slotKey+'"><span style="color:#ccc;font-size:11px">\u2014</span></div>';
 
-      tbl+='<td>'+bgs(wd.assignments.tpt_p,'badge-tpt-p',false)+'</td>';
-      tbl+='<td>'+bgs(wd.assignments.tpt_s,'badge-tpt-s',false)+'</td>';
-      tbl+='<td>'+bgs(wd.assignments.app,'badge-app',fr)+'</td>';
-      tbl+='<td>'+bgs(wd.assignments.wa_p,'badge-wa-p',fr)+'</td>';
-      tbl+='<td>'+bgs(wd.assignments.wa_s,'badge-wa-s',fr)+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.tpt_p,'badge-tpt-p',false,'tpt_p')+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.tpt_s,'badge-tpt-s',false,'tpt_s')+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.app,'badge-app',fr,'app')+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.wa_p,'badge-wa-p',fr,'wa_p')+'</td>';
+      tbl+='<td>'+bgs(wd.assignments.wa_s,'badge-wa-s',fr,'wa_s')+'</td>';
 
-      const wfhComp=wd.wfhCompList||[];
-      const hasWfh=(fr&&wd.wfhList.length)||wfhComp.length;
+      const wfhComp=[];
+      const hasWfh=(fr&&wd.wfhList.length);
       let wfhCell='';
       if(fr&&wd.wfhList.length){
         wfhCell+='<div class="cell-badges">'+wd.wfhList.map(e=>'<span class="badge badge-wfh">'+e+'</span>').join('')+'</div>';
-      }
-      if(wfhComp.length){
-        wfhCell+='<div class="cell-badges" style="margin-top:2px">'+wfhComp.map(e=>'<span class="badge badge-wfh" title="WFH kompensasi WFO Jumat">'+e+' &#8617;</span>').join('')+'</div>';
       }
       tbl+='<td>'+(hasWfh?wfhCell:'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
       tbl+='<td>'+(wd.onLeave.length
@@ -1022,6 +1018,153 @@ function renderSchedule(){
   document.querySelectorAll('.lock-btn[data-date]').forEach(btn=>{
     btn.addEventListener('click',()=>toggleLock(btn.dataset.date));
   });
+  initTableDragDrop();
+}
+
+/* ══════════════════════════════════════════════════════
+   DRAG-AND-DROP LANGSUNG DI TABEL JADWAL
+   ══════════════════════════════════════════════════════ */
+let dragState={emp:null,fromDate:null,fromSlot:null,ghostEl:null};
+
+function initTableDragDrop(){
+  const container=document.getElementById('sched-container');
+
+  /* Ghost element */
+  function createGhost(emp){
+    const g=document.createElement('div');
+    g.className='drag-ghost';g.textContent=emp;
+    document.body.appendChild(g);
+    return g;
+  }
+  function moveGhost(e){
+    if(!dragState.ghostEl)return;
+    dragState.ghostEl.style.left=e.clientX+'px';
+    dragState.ghostEl.style.top=e.clientY+'px';
+  }
+  function removeGhost(){
+    if(dragState.ghostEl){dragState.ghostEl.remove();dragState.ghostEl=null;}
+  }
+
+  /* Drag start on badges */
+  container.addEventListener('dragstart',e=>{
+    const badge=e.target.closest('.badge-draggable');
+    if(!badge)return;
+    dragState.emp=badge.dataset.emp;
+    dragState.fromDate=badge.dataset.date;
+    dragState.fromSlot=badge.dataset.slot;
+    badge.classList.add('dragging');
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain',badge.dataset.emp);
+    /* invisible drag image */
+    const blank=document.createElement('div');blank.style.position='fixed';blank.style.top='-9999px';document.body.appendChild(blank);
+    e.dataTransfer.setDragImage(blank,0,0);setTimeout(()=>blank.remove(),0);
+    dragState.ghostEl=createGhost(dragState.emp);
+    document.addEventListener('dragover',moveGhost);
+  });
+
+  container.addEventListener('dragover',e=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect='move';
+    const target=e.target.closest('.cell-drop-target');
+    container.querySelectorAll('.cell-drop-target.drag-over').forEach(el=>{if(el!==target)el.classList.remove('drag-over');});
+    if(target)target.classList.add('drag-over');
+  });
+
+  container.addEventListener('dragleave',e=>{
+    const target=e.target.closest('.cell-drop-target');
+    if(target&&!target.contains(e.relatedTarget))target.classList.remove('drag-over');
+  });
+
+  container.addEventListener('dragend',e=>{
+    e.target.closest('.badge-draggable')?.classList.remove('dragging');
+    container.querySelectorAll('.cell-drop-target.drag-over').forEach(el=>el.classList.remove('drag-over'));
+    document.removeEventListener('dragover',moveGhost);
+    removeGhost();
+    dragState={emp:null,fromDate:null,fromSlot:null,ghostEl:null};
+  });
+
+  container.addEventListener('drop',e=>{
+    e.preventDefault();
+    container.querySelectorAll('.cell-drop-target.drag-over').forEach(el=>el.classList.remove('drag-over'));
+    removeGhost();
+
+    const target=e.target.closest('.cell-drop-target');
+    if(!target)return;
+    const toDate=target.dataset.date;
+    const toSlot=target.dataset.slot;
+    const {emp,fromDate,fromSlot}=dragState;
+    if(!emp||!fromDate||!fromSlot||!toDate||!toSlot)return;
+
+    /* Sama persis — tidak ada yang berubah */
+    if(fromDate===toDate&&fromSlot===toSlot)return;
+
+    const wdFrom=schedule.workdays.find(w=>w.date===fromDate);
+    const wdTo=schedule.workdays.find(w=>w.date===toDate);
+    if(!wdFrom||!wdTo)return;
+
+    const fromArr=wdFrom.assignments[fromSlot];
+    const toArr=wdTo.assignments[toSlot];
+    if(!fromArr||!toArr)return;
+
+    const fromIdx=fromArr.indexOf(emp);
+    if(fromIdx===-1)return;
+
+    /* Cek apakah emp sudah ada di target slot hari yang sama */
+    if(fromDate===toDate&&toArr.includes(emp))return;
+
+    /* Cek konflik: emp sudah ada di toSlot di toDate (hari berbeda) */
+    if(toArr.includes(emp))return;
+
+    /* Eksekusi swap:
+       - Jika tarikan ke slot berbeda pada HARI YANG SAMA: tukar dengan orang di posisi pertama target
+       - Jika tarikan ke hari berbeda: pindahkan emp */
+    if(fromDate===toDate){
+      /* Tukar dengan orang di toSlot (ambil orang pertama jika ada) */
+      if(toArr.length>0){
+        const swapTarget=toArr[0];
+        fromArr[fromIdx]=swapTarget;
+        const toIdx=toArr.indexOf(swapTarget);
+        toArr[toIdx]=emp;
+        showDragNotice('Tukar '+emp+' ↔ '+swapTarget+' ('+SLOT_LABELS[fromSlot]+' ↔ '+SLOT_LABELS[toSlot]+', '+fromDate+')');
+      } else {
+        /* Pindahkan ke slot kosong pada hari yang sama */
+        fromArr.splice(fromIdx,1);
+        toArr.push(emp);
+        showDragNotice('Pindah '+emp+': '+SLOT_LABELS[fromSlot]+' → '+SLOT_LABELS[toSlot]+' ('+fromDate+')');
+      }
+    } else {
+      /* Pindahkan ke hari lain */
+      fromArr.splice(fromIdx,1);
+      toArr.push(emp);
+      showDragNotice('Pindah '+emp+': '+fromDate+'/'+SLOT_LABELS[fromSlot]+' → '+toDate+'/'+SLOT_LABELS[toSlot]);
+    }
+
+    /* Perbarui wfhList Jumat jika terdampak */
+    [wdFrom,wdTo].forEach(wd=>{
+      if(wd.isFriday){
+        const wfoSet=new Set([...wd.assignments.tpt_p,...wd.assignments.tpt_s]);
+        const sLeaves=schedule.leaves||leaves;
+        const sEmps=schedule.employees||employees;
+        const avail=sEmps.filter(e=>!(sLeaves||[]).some(l=>l.emp===e&&wd.date>=l.from&&wd.date<=l.to));
+        wd.wfhList=avail.filter(e=>!wfoSet.has(e));
+      }
+    });
+
+    /* Recompute freeList untuk hari yang terdampak */
+    const sEmps=schedule.employees||employees;
+    wdFrom.freeList=computeFreeListRaw(wdFrom,sEmps);
+    if(fromDate!==toDate)wdTo.freeList=computeFreeListRaw(wdTo,sEmps);
+
+    recomputeCounters();
+    saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
+    dragState={emp:null,fromDate:null,fromSlot:null,ghostEl:null};
+  });
+}
+
+function showDragNotice(msg){
+  const n=document.getElementById('sched-notice');
+  n.style.display='block';n.textContent=msg;
+  setTimeout(()=>n.style.display='none',4000);
 }
 
 /* ── Render dashboard ── */
@@ -1039,13 +1182,16 @@ function renderDashboard(){
 
   /* Hitung counters termasuk free */
   const counters={};
-  (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};});
+  (allEmps||[]).forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,wfo_fri:0,free:0,total:0};});
   activeWd.forEach(w=>{
     const cnt=(arr,key)=>arr.forEach(e=>{if(counters[e]){counters[e][key]++;counters[e].total++;}});
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
     w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
-    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
+    /* WFO Jumat: pegawai di tpt_p/tpt_s pada hari Jumat */
+    if(w.isFriday){
+      [...w.assignments.tpt_p,...w.assignments.tpt_s].forEach(e=>{if(counters[e])counters[e].wfo_fri++;});
+    }
     /* Free counter */
     const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
     fl.forEach(e=>{if(counters[e])counters[e].free++;});
@@ -1055,7 +1201,7 @@ function renderDashboard(){
   const lockedCount=lockedWd.length;
   const friDays=activeWd.filter(d=>d.isFriday).length;
   const avgLoad=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].total:0),0)/emps.length).toFixed(1):'0';
-  const avgWfh=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].wfh:0),0)/emps.length).toFixed(1):'0';
+  const avgWfoFri=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].wfo_fri:0),0)/emps.length).toFixed(1):'0';
   const avgFree=emps.length?(emps.reduce((s,e)=>s+(counters[e]?counters[e].free:0),0)/emps.length).toFixed(1):'0';
 
   const dashMode=document.getElementById('dash-mode-banner');
@@ -1072,12 +1218,13 @@ function renderDashboard(){
     +'<div class="metric-card"><div class="metric-label">Total Hari Kerja</div><div class="metric-value">'+totalDays+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Jumat WFH</div><div class="metric-value">'+friDays+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">Rata-rata Beban</div><div class="metric-value">'+avgLoad+'</div></div>'
-    +'<div class="metric-card"><div class="metric-label">Rata-rata WFH</div><div class="metric-value">'+avgWfh+'</div></div>'
+    +'<div class="metric-card"><div class="metric-label">Rata-rata WFO Jumat</div><div class="metric-value">'+avgWfoFri+'</div></div>'
     +'<div class="metric-card"><div class="metric-label" style="color:#555">Rata-rata Bebas</div><div class="metric-value" style="color:#666">'+avgFree+'</div></div>'
     +'<div class="metric-card"><div class="metric-label">SPMKP</div><div class="metric-value">'+(sSpmkp||[]).length+'</div></div>';
 
   const maxTotal=Math.max(...emps.map(e=>counters[e]?counters[e].total:0),1);
-  const maxWfh=Math.max(...emps.map(e=>counters[e]?counters[e].wfh:0),1);
+  const maxWfoFri=Math.max(...emps.map(e=>counters[e]?counters[e].wfo_fri:0),1);
+  const maxTpt=Math.max(...emps.map(e=>counters[e]?(counters[e].tpt_p+counters[e].tpt_s):0),1);
   const maxFree=Math.max(...(allEmps||[]).map(e=>counters[e]?counters[e].free:0),1);
 
   document.getElementById('dash-workload').innerHTML=[...emps].sort((a,b)=>(counters[b]?counters[b].total:0)-(counters[a]?counters[a].total:0)).map(e=>{
@@ -1085,10 +1232,33 @@ function renderDashboard(){
     return '<div class="emp-row"><div class="avatar">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(c.total/maxTotal*100)+'%;background:#185FA5"></div></div><div class="bar-label">'+c.total+'</div></div></div>';
   }).join('');
 
-  document.getElementById('dash-wfh').innerHTML=[...emps].sort((a,b)=>(counters[b]?counters[b].wfh:0)-(counters[a]?counters[a].wfh:0)).map(e=>{
-    const c=counters[e]||{wfh:0};const init=e.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    return '<div class="emp-row"><div class="avatar" style="background:#e1f5ee;color:#0f6e56">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(c.wfh/maxWfh*100)+'%;background:#0f6e56"></div></div><div class="bar-label">'+c.wfh+'</div></div></div>';
+  /* WFO Jumat chart */
+  document.getElementById('dash-wfh').innerHTML=[...emps].sort((a,b)=>(counters[b]?counters[b].wfo_fri:0)-(counters[a]?counters[a].wfo_fri:0)).map(e=>{
+    const c=counters[e]||{wfo_fri:0};const init=e.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return '<div class="emp-row"><div class="avatar" style="background:#e6f1fb;color:#185FA5">'+init+'</div><div class="emp-name">'+e+'</div><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(c.wfo_fri/maxWfoFri*100)+'%;background:#185FA5"></div></div><div class="bar-label">'+c.wfo_fri+'</div></div></div>';
   }).join('');
+
+  /* Total TPT chart */
+  const dashTptEl=document.getElementById('dash-tpt');
+  if(dashTptEl){
+    dashTptEl.innerHTML=[...emps].sort((a,b)=>{
+      const ta=(counters[b]?counters[b].tpt_p+counters[b].tpt_s:0);
+      const tb=(counters[a]?counters[a].tpt_p+counters[a].tpt_s:0);
+      return ta-tb;
+    }).map(e=>{
+      const c=counters[e]||{tpt_p:0,tpt_s:0};
+      const tpt=c.tpt_p+c.tpt_s;
+      const init=e.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const wP=Math.round(c.tpt_p/maxTpt*100);
+      const wS=Math.round(c.tpt_s/maxTpt*100);
+      return '<div class="emp-row"><div class="avatar" style="background:#b5d4f4;color:#0c447c">'+init+'</div><div class="emp-name">'+e+'</div>'
+        +'<div class="bar-wrap"><div class="bar-bg" style="position:relative;height:14px">'
+        +'<div style="position:absolute;left:0;top:0;height:100%;width:'+wP+'%;background:#185FA5;border-radius:4px 0 0 4px"></div>'
+        +'<div style="position:absolute;left:'+wP+'%;top:0;height:100%;width:'+wS+'%;background:#b5d4f4"></div>'
+        +'</div>'
+        +'<div class="bar-label" style="min-width:60px;font-size:11px">'+tpt+' <span style="color:#999;font-size:10px">(P:'+c.tpt_p+' S:'+c.tpt_s+')</span></div></div></div>';
+    }).join('');
+  }
 
   /* ── Bebas Tugas bar chart (semua pegawai, bukan hanya non-SPMKP) ── */
   const dashFreeEl=document.getElementById('dash-free');
@@ -1112,20 +1282,23 @@ function renderDashboard(){
 
   /* ── Detail table ── */
   document.getElementById('dash-detail-body').innerHTML=(allEmps||[]).map(e=>{
-    const c=counters[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};
+    const c=counters[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfo_fri:0,free:0,total:0};
     const isSp=(sSpmkp||[]).includes(e);
+    const tptTotal=c.tpt_p+c.tpt_s;
     return '<tr'+(isSp?' style="background:#fdf5e0"':'')+'>'
       +'<td>'+e+(isSp?' <span class="spmkp-note">&#127970; SPMKP</span>':'')+'</td>'
       +'<td>'+(isSp?'&#9989;':'\u2014')+'</td>'
-      +'<td>'+c.tpt_p+'</td><td>'+c.tpt_s+'</td><td>'+c.app+'</td>'
+      +'<td>'+c.tpt_p+'</td><td>'+c.tpt_s+'</td>'
+      +'<td><strong>'+tptTotal+'</strong></td>'
+      +'<td>'+c.app+'</td>'
       +'<td>'+c.wa_p+'</td><td>'+c.wa_s+'</td>'
-      +'<td><span class="badge badge-wfh">'+c.wfh+'</span></td>'
+      +'<td><span class="badge badge-wfo">'+c.wfo_fri+'</span></td>'
       +'<td class="td-free-count"><span class="badge badge-free">'+c.free+'</span></td>'
       +'<td><strong>'+c.total+'</strong>'+(isSp?' <span style="font-size:10px;color:#7a4f00">*</span>':'')+'</td>'
       +'</tr>';
   }).join('');
   const noteEl=document.getElementById('dash-detail-note');
-  if(noteEl)noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* Pegawai SPMKP: total penugasan dihitung penuh.</span> <span style="font-size:11px;color:#555">&#128100; Bebas Tugas = hari di mana pegawai tidak mendapat slot penugasan apapun (bisa jadi pengganti mendadak).</span>';
+  if(noteEl)noteEl.innerHTML='<span style="font-size:11px;color:#7a4f00">* Pegawai SPMKP: total penugasan dihitung penuh.</span> <span style="font-size:11px;color:#185FA5">&#128197; WFO Jumat = jumlah kali pegawai bertugas TPT (Pagi/Siang) di hari Jumat.</span> <span style="font-size:11px;color:#555">&#128100; Bebas Tugas = hari tidak mendapat slot apapun.</span>';
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1150,7 +1323,6 @@ function renderRekap(){
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
     w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
-    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
     const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
     fl.forEach(e=>{if(counters[e])counters[e].free++;});
     (w.onLeave||[]).forEach(e=>{if(counters[e])counters[e].leave_days++;});
@@ -1303,7 +1475,6 @@ function exportRekapCSV(){
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
     w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
-    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
     const fl=w.freeList||computeFreeListRaw(w,allEmps||employees);
     fl.forEach(e=>{if(counters[e])counters[e].free++;});
     (w.onLeave||[]).forEach(e=>{if(counters[e])counters[e].leave_days++;});
@@ -1648,7 +1819,6 @@ function recomputeCounters(){
     cnt(w.assignments.tpt_p,'tpt_p');cnt(w.assignments.tpt_s,'tpt_s');
     cnt(w.assignments.app,'app');cnt(w.assignments.wa_p,'wa_p');cnt(w.assignments.wa_s,'wa_s');
     w.wfhList.forEach(e=>{if(counters[e])counters[e].wfh++;});
-    (w.wfhCompList||[]).forEach(e=>{if(counters[e])counters[e].wfh++;});
     const fl=w.freeList||computeFreeListRaw(w,emps);
     fl.forEach(e=>{if(counters[e])counters[e].free++;});
   });
