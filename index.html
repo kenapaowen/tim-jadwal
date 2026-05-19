@@ -172,7 +172,8 @@ input:focus,select:focus{border-color:#185FA5}
 /* Free pool box — shown in "Bebas Tugas" column of schedule */
 .free-pool-box{padding:4px 6px;border-radius:6px;background:#f5f5f3;border:1px dashed #ccc;font-size:11px;color:#888;line-height:1.6}
 .free-pool-box .free-name{display:inline-block;background:#fff;border:1px solid #ddd;border-radius:4px;padding:1px 6px;margin:2px;font-size:11px;color:#555}
-.free-pool-box .free-name:hover{border-color:#185FA5;color:#185FA5;cursor:default}
+.free-pool-box .free-name.badge-draggable{cursor:grab}
+.free-pool-box .free-name.badge-draggable:hover{border-color:#185FA5;color:#185FA5}
 /* Rekap summary cards */
 .rekap-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
 .rekap-card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;padding:12px 16px}
@@ -733,6 +734,83 @@ function generateSchedule(partialMode, lockedMode){
   const tptTargetSpmkp=tptTargetNormal*0.5;
   const tptTotal=(e)=>counters[e].tpt_p+counters[e].tpt_s;
 
+  /* ══ PRE-ASSIGN WFO JUMAT (adil, tidak back-to-back) ══
+     Aturan:
+     1. Setiap pegawai mendapat giliran WFO ≈ totalJumat / totalPegawai (yang tidak cuti)
+     2. Pegawai yang WFO Jumat-N tidak boleh WFO Jumat-N+1 (back-to-back)
+     3. Pegawai yang cuti di Jumat-X diprioritaskan WFO di Jumat lain
+  */
+  const fridays=workdays.filter(d=>d.isFriday);
+  const tptPerFri=parseInt(document.getElementById('cfg-tpt-p').value||2)+parseInt(document.getElementById('cfg-tpt-s').value||2);
+
+  /* Hitung debt WFO: pegawai yang cuti di banyak Jumat harus dikompensasi */
+  const friWfoDebt={};
+  employees.forEach(e=>{
+    const cutiFri=fridays.filter(f=>isOnLeave(e,f.date,curLeaves)).length;
+    /* target = ceil(tptPerFri * totalJumat / totalPegawai), extra jika banyak cuti Jumat */
+    friWfoDebt[e]=0; /* akan diisi progresif */
+  });
+
+  /* friAssign[date] = Set of employees yang WFO (TPT) di Jumat itu */
+  const friAssign={};
+  fridays.forEach(f=>{friAssign[f.date]=new Set();});
+
+  /* Untuk setiap Jumat, pilih siapa yang WFO secara round-robin adil */
+  const lastWfoFri={}; /* emp → index jumat terakhir dia WFO */
+  employees.forEach(e=>{lastWfoFri[e]=-2;}); /* -2 = belum pernah */
+
+  /* Seed dari locked Fridays jika partial mode */
+  if(partialMode&&schedule){
+    schedule.workdays.forEach(w=>{
+      if(!lockedDates.has(w.date)||!w.isFriday)return;
+      const idx=fridays.findIndex(f=>f.date===w.date);
+      [...w.assignments.tpt_p,...w.assignments.tpt_s].forEach(e=>{
+        friAssign[w.date]=(friAssign[w.date]||new Set());
+        friAssign[w.date].add(e);
+        lastWfoFri[e]=idx;
+      });
+    });
+  }
+
+  /* wfoCount[e] = berapa kali sudah dapat WFO Jumat */
+  const wfoCount={};
+  employees.forEach(e=>{wfoCount[e]=0;});
+  if(partialMode&&schedule){
+    schedule.workdays.forEach(w=>{
+      if(!lockedDates.has(w.date)||!w.isFriday)return;
+      [...w.assignments.tpt_p,...w.assignments.tpt_s].forEach(e=>{if(wfoCount[e]!==undefined)wfoCount[e]++;});
+    });
+  }
+
+  fridays.forEach((fri,friIdx)=>{
+    if(partialMode&&lockedDates.has(fri.date))return; /* sudah di-seed */
+
+    const availFri=employees.filter(e=>!isOnLeave(e,fri.date,curLeaves));
+    const needed=Math.min(tptPerFri,availFri.length);
+
+    /* Hitung target WFO per orang secara proporsional:
+       target[e] = ceil(tptPerFri * jumlahJumatAvail[e] / totalPegawai)
+       tapi kita pakai skor: lebih rendah = lebih butuh giliran */
+    const score=(e)=>{
+      const noBack=(lastWfoFri[e]>=friIdx-1)?1000:0; /* penalti back-to-back */
+      /* Skor = wfoCount dikurangi "hutang" dari Jumat yang dia cuti */
+      const cutiFriSoFar=fridays.slice(0,friIdx).filter(f=>isOnLeave(e,f.date,curLeaves)).length;
+      return wfoCount[e]-cutiFriSoFar+noBack;
+    };
+
+    const sorted=[...availFri].sort((a,b)=>{
+      const sa=score(a),sb=score(b);
+      return sa!==sb?sa-sb:Math.random()-0.5;
+    });
+
+    const chosen=sorted.slice(0,needed);
+    chosen.forEach(e=>{
+      friAssign[fri.date].add(e);
+      wfoCount[e]++;
+      lastWfoFri[e]=friIdx;
+    });
+  });
+
   const result=[];
 
   workdays.forEach(day=>{
@@ -784,11 +862,24 @@ function generateSchedule(partialMode, lockedMode){
       return res;
     };
 
-    const tpt_p=pick('tpt_p',2,true);
-    const tpt_s=pick('tpt_s',2,true);
-    const app=pick('app',1,false);
-    const wa_p=pick('wa_p',1,false);
-    const wa_s=pick('wa_s',1,false);
+    let tpt_p, tpt_s;
+    if(isFri){
+      /* Gunakan pre-assigned WFO list */
+      const wfoList=[...(friAssign[day.date]||new Set())].filter(e=>avail.includes(e));
+      /* Bagi menjadi tpt_p dan tpt_s */
+      const nP=parseInt(document.getElementById('cfg-tpt-p').value||2);
+      const nS=parseInt(document.getElementById('cfg-tpt-s').value||2);
+      tpt_p=wfoList.slice(0,nP);
+      tpt_s=wfoList.slice(nP,nP+nS);
+      tpt_p.forEach(e=>{assigned.add(e);counters[e].tpt_p++;counters[e].total++;});
+      tpt_s.forEach(e=>{assigned.add(e);counters[e].tpt_s++;counters[e].total++;});
+    } else {
+      tpt_p=pick('tpt_p',parseInt(document.getElementById('cfg-tpt-p').value||2),true);
+      tpt_s=pick('tpt_s',parseInt(document.getElementById('cfg-tpt-s').value||2),true);
+    }
+    const app=pick('app',parseInt(document.getElementById('cfg-app').value||1),false);
+    const wa_p=pick('wa_p',parseInt(document.getElementById('cfg-wa-p').value||1),false);
+    const wa_s=pick('wa_s',parseInt(document.getElementById('cfg-wa-s').value||1),false);
 
     let wfhList=[];
     if(isFri){
@@ -995,11 +1086,11 @@ function renderSchedule(){
       /* ── BEBAS TUGAS CELL ── */
       const freeList=wd.freeList||computeFreeListRaw(wd,schedule.employees||employees);
       if(freeList.length){
-        tbl+='<td class="td-free"><div class="free-pool-box">';
-        tbl+=freeList.map(e=>'<span class="free-name">'+e+'</span>').join('');
+        tbl+='<td class="td-free"><div class="free-pool-box cell-drop-target" data-date="'+ds+'" data-slot="free">';
+        tbl+=freeList.map(e=>'<span class="free-name badge-draggable" draggable="true" data-emp="'+e+'" data-date="'+ds+'" data-slot="free">'+e+'</span>').join('');
         tbl+='</div></td>';
       } else {
-        tbl+='<td class="td-free"><span style="color:#ccc;font-size:11px">\u2014</span></td>';
+        tbl+='<td class="td-free"><div class="cell-drop-target" data-date="'+ds+'" data-slot="free" style="min-height:20px"><span style="color:#ccc;font-size:11px">\u2014</span></div></td>';
       }
     } else {
       tbl+='<td colspan="9" style="color:#ccc;font-size:11px">\u2014</td>';
@@ -1102,56 +1193,86 @@ function initTableDragDrop(){
     const wdTo=schedule.workdays.find(w=>w.date===toDate);
     if(!wdFrom||!wdTo)return;
 
-    const fromArr=wdFrom.assignments[fromSlot];
-    const toArr=wdTo.assignments[toSlot];
-    if(!fromArr||!toArr)return;
+    const sEmps=schedule.employees||employees;
+    const sLeaves=schedule.leaves||leaves;
 
-    const fromIdx=fromArr.indexOf(emp);
-    if(fromIdx===-1)return;
+    /* Helper: apakah slot adalah kolom penugasan (bukan free) */
+    const isAssignSlot=s=>s!=='free';
 
-    /* Cek apakah emp sudah ada di target slot hari yang sama */
-    if(fromDate===toDate&&toArr.includes(emp))return;
+    /* ── Kasus 1: Drag dari slot penugasan ke slot penugasan ── */
+    if(isAssignSlot(fromSlot)&&isAssignSlot(toSlot)){
+      const fromArr=wdFrom.assignments[fromSlot];
+      const toArr=wdTo.assignments[toSlot];
+      if(!fromArr||!toArr)return;
+      const fromIdx=fromArr.indexOf(emp);
+      if(fromIdx===-1)return;
+      if(fromDate===toDate&&toArr.includes(emp))return;
+      if(toArr.includes(emp))return;
 
-    /* Cek konflik: emp sudah ada di toSlot di toDate (hari berbeda) */
-    if(toArr.includes(emp))return;
-
-    /* Eksekusi swap:
-       - Jika tarikan ke slot berbeda pada HARI YANG SAMA: tukar dengan orang di posisi pertama target
-       - Jika tarikan ke hari berbeda: pindahkan emp */
-    if(fromDate===toDate){
-      /* Tukar dengan orang di toSlot (ambil orang pertama jika ada) */
-      if(toArr.length>0){
-        const swapTarget=toArr[0];
-        fromArr[fromIdx]=swapTarget;
-        const toIdx=toArr.indexOf(swapTarget);
-        toArr[toIdx]=emp;
-        showDragNotice('Tukar '+emp+' ↔ '+swapTarget+' ('+SLOT_LABELS[fromSlot]+' ↔ '+SLOT_LABELS[toSlot]+', '+fromDate+')');
+      if(fromDate===toDate){
+        if(toArr.length>0){
+          const swapTarget=toArr[0];
+          fromArr[fromIdx]=swapTarget;
+          toArr[toArr.indexOf(swapTarget)]=emp;
+          showDragNotice('Tukar '+emp+' ↔ '+swapTarget+' ('+SLOT_LABELS[fromSlot]+' ↔ '+SLOT_LABELS[toSlot]+', '+fromDate+')');
+        } else {
+          fromArr.splice(fromIdx,1);
+          toArr.push(emp);
+          showDragNotice('Pindah '+emp+': '+SLOT_LABELS[fromSlot]+' → '+SLOT_LABELS[toSlot]+' ('+fromDate+')');
+        }
       } else {
-        /* Pindahkan ke slot kosong pada hari yang sama */
         fromArr.splice(fromIdx,1);
         toArr.push(emp);
-        showDragNotice('Pindah '+emp+': '+SLOT_LABELS[fromSlot]+' → '+SLOT_LABELS[toSlot]+' ('+fromDate+')');
+        showDragNotice('Pindah '+emp+': '+fromDate+'/'+SLOT_LABELS[fromSlot]+' → '+toDate+'/'+SLOT_LABELS[toSlot]);
       }
-    } else {
-      /* Pindahkan ke hari lain */
-      fromArr.splice(fromIdx,1);
-      toArr.push(emp);
-      showDragNotice('Pindah '+emp+': '+fromDate+'/'+SLOT_LABELS[fromSlot]+' → '+toDate+'/'+SLOT_LABELS[toSlot]);
     }
 
+    /* ── Kasus 2: Drag dari Bebas Tugas ke slot penugasan ── */
+    else if(fromSlot==='free'&&isAssignSlot(toSlot)){
+      /* Pastikan emp benar-benar di freeList hari sumber */
+      const fl=wdFrom.freeList||computeFreeListRaw(wdFrom,sEmps);
+      if(!fl.includes(emp))return;
+      /* Pastikan emp belum ada di slot tujuan */
+      const toArr=wdTo.assignments[toSlot];
+      if(!toArr||toArr.includes(emp))return;
+
+      if(fromDate===toDate){
+        /* Masukkan ke slot — emp keluar dari free otomatis saat freeList direcompute */
+        toArr.push(emp);
+        showDragNotice(emp+' masuk '+SLOT_LABELS[toSlot]+' dari Bebas Tugas ('+fromDate+')');
+      } else {
+        /* Pindah ke hari lain: tambahkan ke slot tujuan, tidak perlu hapus dari freeList (freeList direcompute) */
+        toArr.push(emp);
+        showDragNotice(emp+' dari Bebas Tugas '+fromDate+' → '+SLOT_LABELS[toSlot]+' '+toDate);
+      }
+    }
+
+    /* ── Kasus 3: Drag dari slot penugasan ke Bebas Tugas ── */
+    else if(isAssignSlot(fromSlot)&&toSlot==='free'){
+      /* Hanya boleh jika hari yang sama — lepaskan dari slot, masuk bebas tugas */
+      if(fromDate!==toDate)return; /* tidak bisa "pindah" bebas tugas ke hari lain */
+      const fromArr=wdFrom.assignments[fromSlot];
+      if(!fromArr)return;
+      const fromIdx=fromArr.indexOf(emp);
+      if(fromIdx===-1)return;
+      fromArr.splice(fromIdx,1);
+      showDragNotice(emp+' dilepas dari '+SLOT_LABELS[fromSlot]+' → Bebas Tugas ('+fromDate+')');
+    }
+
+    /* ── Kasus 4: Free → Free (hari berbeda, tidak ada operasi meaningful) ── */
+    else { return; }
+
     /* Perbarui wfhList Jumat jika terdampak */
-    [wdFrom,wdTo].forEach(wd=>{
+    const affected=fromDate===toDate?[wdFrom]:[wdFrom,wdTo];
+    affected.forEach(wd=>{
       if(wd.isFriday){
         const wfoSet=new Set([...wd.assignments.tpt_p,...wd.assignments.tpt_s]);
-        const sLeaves=schedule.leaves||leaves;
-        const sEmps=schedule.employees||employees;
         const avail=sEmps.filter(e=>!(sLeaves||[]).some(l=>l.emp===e&&wd.date>=l.from&&wd.date<=l.to));
         wd.wfhList=avail.filter(e=>!wfoSet.has(e));
       }
     });
 
-    /* Recompute freeList untuk hari yang terdampak */
-    const sEmps=schedule.employees||employees;
+    /* Recompute freeList */
     wdFrom.freeList=computeFreeListRaw(wdFrom,sEmps);
     if(fromDate!==toDate)wdTo.freeList=computeFreeListRaw(wdTo,sEmps);
 
