@@ -14,12 +14,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-btn{padding:6px 14px;font-size:13px;border:1px solid transparent;border-radius:8px;cursor:pointer;background:transparent;color:#666;transition:all 0.15s}
 .nav-btn.active{background:#e6f1fb;color:#185FA5;border-color:#b5d4f4}
 .nav-btn:hover:not(.active){background:#f0f0ec}
-.content{flex:1;padding:16px;max-width:1400px;margin:0 auto;width:100%}
+.content{flex:1;padding:8px 10px;max-width:1400px;margin:0 auto;width:100%}
 .panel{display:none}.panel.active{display:block}
-.card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:16px 20px;margin-bottom:16px}
+.card{background:#fff;border:1px solid #e8e8e4;border-radius:10px;padding:10px 14px;margin-bottom:10px}
 .card-title{font-size:13px;font-weight:500;margin-bottom:12px;color:#666}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 label{font-size:12px;color:#666;display:block;margin-bottom:4px}
 input,select{width:100%;font-size:13px;font-family:inherit;padding:7px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a18;outline:none;transition:border-color 0.15s}
 input:focus,select:focus{border-color:#185FA5}
@@ -51,19 +51,18 @@ input:focus,select:focus{border-color:#185FA5}
 .holiday-list{max-height:200px;overflow-y:auto}
 .holiday-item{display:flex;align-items:center;padding:5px 8px;border-radius:8px;font-size:12px;gap:8px}
 .holiday-item:hover{background:#f5f5f3}
-.notice{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.notice{padding:7px 12px;border-radius:8px;font-size:12px;margin-bottom:8px}
 .notice-success{background:#eaf3de;color:#3b6d11}
 .notice-warn{background:#faeeda;color:#633806}
 .notice-info{background:#e6f1fb;color:#185FA5}
-.section-title{font-size:16px;font-weight:600;margin-bottom:16px}
-.flex-end{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap}
+.flex-end{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;flex-wrap:wrap}
 .rule-box{border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:12px}
 .rule-wfh{background:#e1f5ee;border:1px solid #9fe1cb;color:#085041}
 .rule-spmkp{background:#fdf5e0;border:1px solid #e9c87a;color:#7a4f00}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
-.metric-card{background:#f5f5f3;border-radius:8px;padding:12px 16px}
-.metric-label{font-size:12px;color:#666;margin-bottom:4px}
-.metric-value{font-size:22px;font-weight:600}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:8px;margin-bottom:10px}
+.metric-card{background:#f5f5f3;border-radius:8px;padding:8px 12px}
+.metric-label{font-size:11px;color:#666;margin-bottom:2px}
+.metric-value{font-size:20px;font-weight:600}
 .emp-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0ec}
 .emp-row:last-child{border-bottom:none}
 .avatar{width:32px;height:32px;border-radius:50%;background:#e6f1fb;color:#185FA5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
@@ -73,16 +72,16 @@ input:focus,select:focus{border-color:#185FA5}
 .bar-fill{height:100%;border-radius:4px}
 .bar-label{font-size:11px;color:#666;min-width:28px;text-align:right}
 /* Schedule table */
-.sched-wrap{overflow-x:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #e8e8e4;border-radius:12px;max-height:72vh}
+.sched-wrap{overflow-x:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #e8e8e4;border-radius:10px;max-height:76vh}
 .sched-table{width:100%;border-collapse:collapse;font-size:12px;min-width:820px}
 .sched-table thead{position:sticky;top:0;z-index:4}
-.sched-table th{padding:8px 10px;text-align:left;border-bottom:2px solid #e8e8e4;color:#555;font-weight:600;font-size:11px;background:#f0f0ec;white-space:nowrap}
-.sched-table th:first-child{position:sticky;left:0;z-index:5;background:#f0f0ec;min-width:100px}
-.sched-table th:nth-child(2){min-width:80px}
+.sched-table th{padding:6px 8px;text-align:left;border-bottom:2px solid #e8e8e4;color:#555;font-weight:600;font-size:11px;background:#f0f0ec;white-space:nowrap}
+.sched-table th:first-child{position:sticky;left:0;z-index:5;background:#f0f0ec;min-width:90px}
+.sched-table th:nth-child(2){min-width:70px}
 /* Bebas Tugas column header */
 .th-free{background:#f0f0ec!important;color:#555}
-.sched-table td{padding:6px 10px;border-bottom:1px solid #f0f0ec;vertical-align:middle;line-height:1.5}
-.sched-table td:first-child{position:sticky;left:0;z-index:1;background:inherit;border-right:1px solid #e8e8e4;min-width:100px}
+.sched-table td{padding:4px 8px;border-bottom:1px solid #f0f0ec;vertical-align:middle;line-height:1.4}
+.sched-table td:first-child{position:sticky;left:0;z-index:1;background:inherit;border-right:1px solid #e8e8e4;min-width:90px}
 .sched-table tr:last-child td{border-bottom:none}
 .row-weekend td{background:#fff5f5!important}.row-weekend td:first-child{border-left:3px solid #f09595}
 .row-holiday td{background:#f5f0ff!important}.row-holiday td:first-child{border-left:3px solid #AFA9EC}
@@ -95,7 +94,8 @@ input:focus,select:focus{border-color:#185FA5}
 .td-free{background:rgba(0,0,0,0.015)!important}
 .cell-badges{display:flex;flex-wrap:wrap;gap:3px}
 .ket-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:500}
-.legend-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;align-items:center;font-size:12px;color:#555;padding:8px 12px;background:#fff;border:1px solid #e8e8e4;border-radius:8px}
+.section-title{font-size:15px;font-weight:600;margin-bottom:10px}
+.legend-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;align-items:center;font-size:11px;color:#555;padding:5px 10px;background:#fff;border:1px solid #e8e8e4;border-radius:8px}
 .legend-item{display:inline-flex;align-items:center;gap:5px}
 .legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;border:1px solid rgba(0,0,0,0.1)}
 .lock-btn{background:none;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px 6px;font-size:11px;color:#999;transition:all 0.15s}
@@ -182,7 +182,18 @@ input:focus,select:focus{border-color:#185FA5}
 .rekap-card-sub{font-size:11px;color:#aaa;margin-top:2px}
 /* Free highlight in detail table */
 .td-free-count{background:#f7f7f5;color:#555}
-/* Drag-and-drop in table */
+/* Conflict detection */
+.badge-conflict{background:#ffe4e4;color:#a32d2d;border:1px solid #f7c1c1;font-weight:700}
+.conflict-panel{background:#fff0f0;border:1px solid #f7c1c1;border-radius:8px;padding:8px 12px;margin-bottom:8px;display:none}
+.conflict-panel.has-conflict{display:block}
+.conflict-panel-title{font-size:12px;font-weight:600;color:#a32d2d;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.conflict-row{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px solid #fce0e0;font-size:11px;flex-wrap:wrap}
+.conflict-row:last-child{border-bottom:none}
+.conflict-emp{font-weight:600;color:#a32d2d;min-width:90px}
+.conflict-detail{color:#633806;flex:1}
+.conflict-jump{background:none;border:1px solid #f7c1c1;border-radius:4px;cursor:pointer;font-size:10px;color:#a32d2d;padding:1px 6px;white-space:nowrap}
+.conflict-jump:hover{background:#ffe4e4}
+
 .badge-draggable{cursor:grab;transition:opacity 0.15s,box-shadow 0.15s;display:inline-block;margin:2px}
 .badge-draggable:active{cursor:grabbing}
 .badge-draggable.dragging{opacity:0.4;box-shadow:0 0 0 2px #185FA5}
@@ -375,6 +386,10 @@ input:focus,select:focus{border-color:#185FA5}
     &#128274; Klik tombol kunci di setiap baris untuk mengunci tanggal. Gunakan <strong>Kunci Semua</strong> untuk mengunci seluruh bulan. Baris terkunci tidak dapat digeser (drag-drop). Dashboard otomatis terupdate saat status kunci berubah.
   </div>
   <div id="sched-notice" class="notice notice-success" style="display:none"></div>
+  <div id="conflict-panel" class="conflict-panel">
+    <div class="conflict-panel-title">⚠️ Bentrok Penugasan — Pegawai mendapat lebih dari 1 slot dalam 1 hari</div>
+    <div id="conflict-list"></div>
+  </div>
   <div id="sched-container"><div style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada jadwal. Generate dari tab Pengaturan.</div></div>
 </div>
 
@@ -1008,6 +1023,9 @@ function renderSchedule(){
   const getSchedLeave=(ds)=>sEmps.filter(e=>(sLeaves||[]).some(l=>l.emp===e&&ds>=l.from&&ds<=l.to));
   const today=todayStr();
 
+  /* Deteksi konflik sebelum render */
+  const {conflictMap}=detectConflicts();
+
   const legend='<div class="legend-bar">'
     +'<div class="legend-item"><div class="legend-dot" style="background:#fff5f5;border-color:#f09595"></div>Weekend</div>'
     +'<div class="legend-item"><div class="legend-dot" style="background:#f5f0ff;border-color:#AFA9EC"></div>Libur</div>'
@@ -1040,7 +1058,7 @@ function renderSchedule(){
 
     const dateColor=isWknd?'color:#a32d2d':isHol?'color:#3c3289':isFri?'color:#0f6e56':'color:#1a1a18';
     tbl+='<tr class="'+rowClass+'">';
-    tbl+='<td style="'+dateColor+'">'
+    tbl+='<td style="'+dateColor+'" data-date="'+ds+'">'
       +'<div style="display:flex;align-items:center;gap:4px">'
       +(wd?'<button class="lock-btn'+(isLocked?' locked':'')+'" data-date="'+ds+'" title="'+(isLocked?'Buka kunci':'Kunci baris ini')+'">'+(isLocked?'&#128274;':'&#128275;')+'</button>':'')
       +'<div style="display:flex;align-items:baseline;gap:3px">'
@@ -1067,10 +1085,12 @@ function renderSchedule(){
       tbl+='<td>'+ketLbl+lockedLbl+blockedInfo+cutiInfo+'</td>';
 
       const sCur=schedule.spmkpList||[];
+      const conflEmp=conflictMap[ds]||new Set();
       const bgs=(arr,cls,wfhNote,slotKey)=>arr.length
         ?'<div class="cell-badges cell-drop-target" data-date="'+ds+'" data-slot="'+slotKey+'">'+arr.map(e=>{
             const isSp=sCur.includes(e);
-            return '<span class="badge '+cls+' badge-draggable" draggable="true" data-emp="'+e+'" data-date="'+ds+'" data-slot="'+slotKey+'">'+(isSp?'&#127970;':'')+e+(wfhNote?' &#127968;':'')+'</span>';
+            const isConfl=conflEmp.has(e);
+            return '<span class="badge '+cls+' badge-draggable'+(isConfl?' badge-conflict':'')+'" draggable="true" data-emp="'+e+'" data-date="'+ds+'" data-slot="'+slotKey+'">'+(isSp?'&#127970;':'')+(isConfl?'⚠️':'')+e+(wfhNote?' &#127968;':'')+'</span>';
           }).join('')+'</div>'
         :'<div class="cell-badges cell-drop-target" data-date="'+ds+'" data-slot="'+slotKey+'"><span style="color:#ccc;font-size:11px">\u2014</span></div>';
 
@@ -1117,6 +1137,7 @@ function renderSchedule(){
   document.querySelectorAll('.lock-btn[data-date]').forEach(btn=>{
     btn.addEventListener('click',()=>toggleLock(btn.dataset.date));
   });
+  renderConflictPanel();
   initTableDragDrop();
 }
 
@@ -1308,6 +1329,71 @@ function showDragNotice(msg){
   n.style.display='block';n.textContent=msg;
   setTimeout(()=>n.style.display='none',4000);
 }
+
+/* ── Deteksi bentrok: pegawai dapat ≥2 slot dalam 1 hari ── */
+function detectConflicts(){
+  if(!schedule)return{conflicts:[],conflictMap:{}};
+  const conflicts=[];
+  const conflictMap={}; /* date→Set(emp) */
+  schedule.workdays.forEach(wd=>{
+    const tally={};
+    const allSlots={
+      'TPT Pagi':wd.assignments.tpt_p||[],
+      'TPT Siang':wd.assignments.tpt_s||[],
+      'Aplikasi':wd.assignments.app||[],
+      'WA Pagi':wd.assignments.wa_p||[],
+      'WA Siang':wd.assignments.wa_s||[]
+    };
+    Object.entries(allSlots).forEach(([slot,emps])=>{
+      emps.forEach(e=>{
+        if(!tally[e])tally[e]=[];
+        tally[e].push(slot);
+      });
+    });
+    Object.entries(tally).forEach(([e,slots])=>{
+      if(slots.length>1){
+        conflicts.push({date:wd.date,emp:e,slots});
+        if(!conflictMap[wd.date])conflictMap[wd.date]=new Set();
+        conflictMap[wd.date].add(e);
+      }
+    });
+  });
+  return{conflicts,conflictMap};
+}
+
+function renderConflictPanel(){
+  const panel=document.getElementById('conflict-panel');
+  const list=document.getElementById('conflict-list');
+  if(!panel||!list)return;
+  const {conflicts}=detectConflicts();
+  if(!conflicts.length){
+    panel.classList.remove('has-conflict');
+    return;
+  }
+  panel.classList.add('has-conflict');
+  list.innerHTML=conflicts.map(c=>{
+    const d=new Date(c.date+'T00:00:00');
+    const label=String(d.getDate()).padStart(2,'0')+' '+MONTHS[d.getMonth()+1]+' ('+DAY_SHORT[d.getDay()]+')';
+    return '<div class="conflict-row">'
+      +'<span class="conflict-emp">'+c.emp+'</span>'
+      +'<span class="conflict-detail">'+label+' — dapat '+c.slots.length+' slot: <strong>'+c.slots.join(', ')+'</strong></span>'
+      +'<button class="conflict-jump" onclick="jumpToDate(\''+c.date+'\')">Lihat baris &#8594;</button>'
+      +'</div>';
+  }).join('');
+}
+
+function jumpToDate(ds){
+  /* Scroll ke baris tabel dengan tanggal tersebut */
+  const cell=document.querySelector('.sched-table [data-date="'+ds+'"]');
+  if(!cell){
+    /* fallback: cari badge di baris itu */
+    const badge=document.querySelector('.badge-draggable[data-date="'+ds+'"]');
+    if(badge){badge.closest('tr')?.scrollIntoView({behavior:'smooth',block:'center'});}
+    return;
+  }
+  cell.closest('tr')?.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
 
 /* ── Render dashboard ── */
 function renderDashboard(){
