@@ -823,14 +823,33 @@ function generateSchedule(partialMode, lockedMode){
     });
   }
 
-  /* TPT quota (SPMKP = 50% of normal) */
-  const totalTptSlots=workdays.length*4;
+  /* ── TPT quota ──
+     Non-SPMKP saling merata dalam pool sendiri.
+     SPMKP saling merata sesama SPMKP dalam pool TERPISAH (target SPMKP = 50% dari rata-rata non-SPMKP).
+     Total slot TPT/hari = 4 (tpt_p 2 + tpt_s 2 secara default, tapi ambil dari config bila ada). */
+  const cfgTptP=parseInt(document.getElementById('cfg-tpt-p').value)||2;
+  const cfgTptS=parseInt(document.getElementById('cfg-tpt-s').value)||2;
+  const slotsPerDay=cfgTptP+cfgTptS;
+  const totalTptSlots=workdays.length*slotsPerDay;
   const nonSpmkp=employees.filter(e=>!curSpmkp.includes(e));
-  const effectiveHead=nonSpmkp.length+(employees.filter(e=>curSpmkp.includes(e)).length*0.5)||employees.length;
-  const tptNorm=totalTptSlots/effectiveHead;
-  const tptSpmkp=tptNorm*0.5;
+  const spmkpEmps=employees.filter(e=>curSpmkp.includes(e));
+  /* effectiveHead: setiap SPMKP dihitung 0.5 "kepala" terhadap total kapasitas,
+     supaya total slot tetap terbagi proporsional, tapi target dihitung per-grup */
+  const effectiveHead=nonSpmkp.length+(spmkpEmps.length*0.5)||employees.length;
+  const tptNorm=totalTptSlots/effectiveHead;          // target per pegawai non-SPMKP
+  const tptSpmkpTarget=tptNorm*0.5;                    // target per pegawai SPMKP (rata sesama SPMKP)
   const tptTotal=e=>counters[e].tpt_p+counters[e].tpt_s;
   const wfhPct=getWfhPercent();
+
+  /* Helper: rata-rata WFH seluruh pegawai sejauh proses generate berjalan.
+     Dipakai untuk menentukan siapa yang "di bawah rata-rata" agar App/WA-nya dikurangi. */
+  const wfhAvgSoFar=()=>{
+    const total=employees.reduce((s,e)=>s+counters[e].wfh,0);
+    return employees.length?total/employees.length:0;
+  };
+  /* Bobot penalti — nilai kecil (bukan integer penuh) supaya hanya menggeser urutan
+     prioritas, bukan menghilangkan giliran App/WA sama sekali. */
+  const WFH_COMP_WEIGHT=0.6;
 
   const result=[];
 
@@ -845,17 +864,41 @@ function generateSchedule(partialMode, lockedMode){
     const isFri=day.isFriday;
     const assigned=new Set();
 
-    const pick=(key,count,isTpt=false)=>{
+    const pick=(key,count,isTpt=false,wfhComp=false)=>{
       const pool=avail.filter(e=>!assigned.has(e));
       const pref=[],defer=[];
       pool.forEach(e=>{
         if(isTpt){
-          const cap=curSpmkp.includes(e)?tptSpmkp:tptNorm;
+          const cap=curSpmkp.includes(e)?tptSpmkpTarget:tptNorm;
           if(tptTotal(e)>=cap){defer.push(e);return;}
         }
         pref.push(e);
       });
-      const sort=(a,b)=>{const ka=isTpt?tptTotal(a):counters[a][key],kb=isTpt?tptTotal(b):counters[b][key];return ka!==kb?ka-kb:counters[a].total-counters[b].total;};
+      /* Sorting: untuk TPT, SPMKP dibandingkan relatif terhadap target SPMKP-nya sendiri,
+         non-SPMKP dibandingkan relatif terhadap target non-SPMKP — supaya kedua grup
+         masing-masing merata secara internal, terlepas dari skala targetnya berbeda. */
+      const sort=(a,b)=>{
+        if(isTpt){
+          const targetA=curSpmkp.includes(a)?tptSpmkpTarget:tptNorm;
+          const targetB=curSpmkp.includes(b)?tptSpmkpTarget:tptNorm;
+          const ratioA=targetA>0?tptTotal(a)/targetA:0;
+          const ratioB=targetB>0?tptTotal(b)/targetB:0;
+          const d=ratioA-ratioB;
+          return d!==0?d:counters[a].total-counters[b].total;
+        }
+        let ka=counters[a][key],kb=counters[b][key];
+        if(wfhComp){
+          /* Kompensasi: pegawai dengan WFH DI BAWAH rata-rata sejauh ini diberi penalti
+             sebanding dengan selisihnya, agar lebih JARANG terpilih duluan untuk App/WA —
+             supaya total beban kerja (TPT+App+WA) mereka tidak menumpuk dibanding rekan
+             yang sudah sering kebagian WFH. */
+          const avgWfhSoFar=wfhAvgSoFar();
+          const penaltyA=Math.max(0,avgWfhSoFar-counters[a].wfh)*WFH_COMP_WEIGHT;
+          const penaltyB=Math.max(0,avgWfhSoFar-counters[b].wfh)*WFH_COMP_WEIGHT;
+          ka+=penaltyA;kb+=penaltyB;
+        }
+        return ka!==kb?ka-kb:counters[a].total-counters[b].total;
+      };
       const ordered=[...shuffle(pref).sort(sort),...shuffle(defer).sort(sort)];
       const res=[];
       for(let i=0;i<Math.min(count,ordered.length);i++){res.push(ordered[i]);assigned.add(ordered[i]);counters[ordered[i]][key]++;counters[ordered[i]].total++;}
@@ -864,25 +907,49 @@ function generateSchedule(partialMode, lockedMode){
 
     const tpt_p=pick('tpt_p',2,true);
     const tpt_s=pick('tpt_s',2,true);
-    const app=pick('app',1);
-    const wa_p=pick('wa_p',1);
-    const wa_s=pick('wa_s',1);
+    const app=pick('app',1,false,true);
+    const wa_p=pick('wa_p',1,false,true);
+    const wa_s=pick('wa_s',1,false,true);
 
     /* ── Free list (available, not assigned any slot) ── */
     const assignedSet=new Set([...tpt_p,...tpt_s,...app,...wa_p,...wa_s]);
     const freeList=avail.filter(e=>!assignedSet.has(e));
 
-    /* ── WFH: Jumat only, drawn from freeList, capped at quota, evenly distributed ── */
+    /* ── WFH: Jumat only, drawn from freeList, capped at quota, evenly distributed ──
+       Kuota WFH dibagi proporsional antara grup non-SPMKP dan SPMKP (berdasarkan
+       ukuran masing-masing grup yang sedang Bebas Tugas), lalu di tiap grup dipilih
+       yang counter WFH-nya paling rendah dulu — supaya rata di dalam grup maupun
+       antar grup, dan satu grup tidak "menyedot" jatah WFH grup lain. */
     let wfhList=[];
     if(isFri){
       const quota=Math.round(employees.length*(wfhPct/100));
       if(quota>0&&freeList.length){
-        /* Pilih dari freeList yang counter wfh-nya paling rendah dulu agar rata sepanjang bulan */
-        const ordered=shuffle(freeList).sort((a,b)=>{
+        const freeNonSpmkp=freeList.filter(e=>!curSpmkp.includes(e));
+        const freeSpmkp=freeList.filter(e=>curSpmkp.includes(e));
+        const rankByFairness=grp=>shuffle(grp).sort((a,b)=>{
           const d=counters[a].wfh-counters[b].wfh;
           return d!==0?d:counters[a].total-counters[b].total;
         });
-        wfhList=ordered.slice(0,Math.min(quota,ordered.length));
+        const orderedNon=rankByFairness(freeNonSpmkp);
+        const orderedSp=rankByFairness(freeSpmkp);
+
+        /* Bagi kuota proporsional berdasarkan ukuran grup di freeList hari ini */
+        let quotaNon,quotaSp;
+        if(freeNonSpmkp.length===0){quotaNon=0;quotaSp=Math.min(quota,orderedSp.length);}
+        else if(freeSpmkp.length===0){quotaSp=0;quotaNon=Math.min(quota,orderedNon.length);}
+        else{
+          const rawNon=quota*(freeNonSpmkp.length/freeList.length);
+          quotaNon=Math.min(orderedNon.length,Math.round(rawNon));
+          quotaSp=Math.min(orderedSp.length,quota-quotaNon);
+          /* Jika masih ada sisa kuota (pembulatan), isi dari grup yang masih punya stok */
+          let remaining=quota-quotaNon-quotaSp;
+          while(remaining>0&&(quotaNon<orderedNon.length||quotaSp<orderedSp.length)){
+            if(quotaNon<orderedNon.length){quotaNon++;remaining--;}
+            else if(quotaSp<orderedSp.length){quotaSp++;remaining--;}
+            else break;
+          }
+        }
+        wfhList=[...orderedNon.slice(0,quotaNon),...orderedSp.slice(0,quotaSp)];
         wfhList.forEach(e=>{counters[e].wfh++;});
       }
     }
