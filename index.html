@@ -841,6 +841,62 @@ function generateSchedule(partialMode, lockedMode){
   const tptTotal=e=>counters[e].tpt_p+counters[e].tpt_s;
   const wfhPct=getWfhPercent();
 
+  /* ── WFH quota baru (per permintaan) ──
+     N = total seluruh pegawai (termasuk SPMKP).
+     raw = N × persen × jumlah Jumat kerja dalam bulan ini.
+     totalSlotWFH = round(raw) — ini TOTAL slot WFH (nama berbeda dihitung per kemunculan)
+     yang akan dibagi rata ke semua pegawai sepanjang bulan.
+     Rentang min/maks per orang ditentukan dari tier kelipatan N:
+       raw < N        → maks 1
+       N..2N          → maks 2, min 1
+       2N..3N         → maks 3, min 2
+       dst (k×N..(k+1)×N → maks k+1, min k)
+     SPMKP diperlakukan SAMA seperti pegawai lain untuk WFH (tidak dipisah grup). */
+  const N=employees.length;
+  const fridayCount=workdays.filter(d=>d.isFriday).length;
+  const rawWfh=N*(wfhPct/100)*fridayCount;
+  const totalSlotWfh=Math.round(rawWfh);
+  /* Tier: k = floor(raw / N), dengan raw==0 dianggap tier 0.
+     raw < N         → k=0 → maks 1, min 0 (anggap "maks 1 tiap orang")
+     N <= raw < 2N    → k=1 → maks 2, min 1
+     2N <= raw < 3N   → k=2 → maks 3, min 2
+     dst. */
+  const wfhTier=N>0?Math.floor(rawWfh/N):0;
+  const wfhMaxPerEmp=wfhTier+1;
+  const wfhMinPerEmp=wfhTier; /* untuk tier 0, min efektif 0 (tidak dipaksa semua dapat WFH) */
+
+  /* Alokasi target WFH per pegawai: bagi totalSlotWfh serata mungkin dalam batas [min,max].
+     Jika ada baris terkunci, WFH yang sudah ter-assign di sana dihitung sebagai bagian
+     dari target (supaya total tetap konsisten dengan totalSlotWfh hasil rumus).
+     Mulai dari wfhMinPerEmp untuk semua (tidak boleh kurang dari WFH yang sudah ada di
+     baris terkunci), lalu tambahkan sisa 1-per-1 secara round-robin. */
+  const wfhTarget={};
+  employees.forEach(e=>{wfhTarget[e]=Math.max(wfhMinPerEmp,counters[e].wfh);});
+  let remaining=totalSlotWfh-employees.reduce((s,e)=>s+wfhTarget[e],0);
+  if(remaining>0){
+    const order=shuffle(employees);
+    let pass=0;
+    while(remaining>0&&pass<wfhMaxPerEmp+1){
+      for(let i=0;i<order.length&&remaining>0;i++){
+        const e=order[i];
+        if(wfhTarget[e]<wfhMaxPerEmp){wfhTarget[e]++;remaining--;}
+      }
+      pass++;
+    }
+  } else if(remaining<0){
+    /* totalSlotWfh lebih kecil dari jumlah minimum (kasus pembulatan) — kurangi merata,
+       tapi tidak boleh di bawah WFH yang sudah terpakai di baris terkunci. */
+    const order=shuffle(employees);
+    let pass=0;
+    while(remaining<0&&pass<wfhMinPerEmp+1){
+      for(let i=0;i<order.length&&remaining<0;i++){
+        const e=order[i];
+        if(wfhTarget[e]>counters[e].wfh){wfhTarget[e]--;remaining++;}
+      }
+      pass++;
+    }
+  }
+
   /* Helper: rata-rata WFH seluruh pegawai sejauh proses generate berjalan.
      Dipakai untuk menentukan siapa yang "di bawah rata-rata" agar App/WA-nya dikurangi. */
   const wfhAvgSoFar=()=>{
@@ -915,43 +971,21 @@ function generateSchedule(partialMode, lockedMode){
     const assignedSet=new Set([...tpt_p,...tpt_s,...app,...wa_p,...wa_s]);
     const freeList=avail.filter(e=>!assignedSet.has(e));
 
-    /* ── WFH: Jumat only, drawn from freeList, capped at quota, evenly distributed ──
-       Kuota WFH dibagi proporsional antara grup non-SPMKP dan SPMKP (berdasarkan
-       ukuran masing-masing grup yang sedang Bebas Tugas), lalu di tiap grup dipilih
-       yang counter WFH-nya paling rendah dulu — supaya rata di dalam grup maupun
-       antar grup, dan satu grup tidak "menyedot" jatah WFH grup lain. */
+    /* ── WFH: Jumat only, drawn from freeList ──
+       Kuota harian FLEKSIBEL: ambil sebanyak mungkin pegawai dari freeList yang
+       masih punya sisa target (wfhTarget[e] - counters[e].wfh > 0), supaya target
+       bulanan total tetap bisa tercapai meski freeList di hari tertentu kecil.
+       Prioritas: gap (sisa target) terbesar dulu. SPMKP tidak dipisah grup. */
     let wfhList=[];
-    if(isFri){
-      const quota=Math.round(employees.length*(wfhPct/100));
-      if(quota>0&&freeList.length){
-        const freeNonSpmkp=freeList.filter(e=>!curSpmkp.includes(e));
-        const freeSpmkp=freeList.filter(e=>curSpmkp.includes(e));
-        const rankByFairness=grp=>shuffle(grp).sort((a,b)=>{
-          const d=counters[a].wfh-counters[b].wfh;
-          return d!==0?d:counters[a].total-counters[b].total;
-        });
-        const orderedNon=rankByFairness(freeNonSpmkp);
-        const orderedSp=rankByFairness(freeSpmkp);
-
-        /* Bagi kuota proporsional berdasarkan ukuran grup di freeList hari ini */
-        let quotaNon,quotaSp;
-        if(freeNonSpmkp.length===0){quotaNon=0;quotaSp=Math.min(quota,orderedSp.length);}
-        else if(freeSpmkp.length===0){quotaSp=0;quotaNon=Math.min(quota,orderedNon.length);}
-        else{
-          const rawNon=quota*(freeNonSpmkp.length/freeList.length);
-          quotaNon=Math.min(orderedNon.length,Math.round(rawNon));
-          quotaSp=Math.min(orderedSp.length,quota-quotaNon);
-          /* Jika masih ada sisa kuota (pembulatan), isi dari grup yang masih punya stok */
-          let remaining=quota-quotaNon-quotaSp;
-          while(remaining>0&&(quotaNon<orderedNon.length||quotaSp<orderedSp.length)){
-            if(quotaNon<orderedNon.length){quotaNon++;remaining--;}
-            else if(quotaSp<orderedSp.length){quotaSp++;remaining--;}
-            else break;
-          }
-        }
-        wfhList=[...orderedNon.slice(0,quotaNon),...orderedSp.slice(0,quotaSp)];
-        wfhList.forEach(e=>{counters[e].wfh++;});
-      }
+    if(isFri&&freeList.length){
+      const ranked=shuffle(freeList).sort((a,b)=>{
+        const gapA=wfhTarget[a]-counters[a].wfh;
+        const gapB=wfhTarget[b]-counters[b].wfh;
+        if(gapB!==gapA)return gapB-gapA; /* gap terbesar dulu */
+        return counters[a].total-counters[b].total;
+      }).filter(e=>wfhTarget[e]-counters[e].wfh>0); /* hanya yang masih punya sisa target */
+      wfhList=ranked; /* ambil semua yang masih butuh, dibatasi ukuran freeList itu sendiri */
+      wfhList.forEach(e=>{counters[e].wfh++;});
     }
 
     /* Free counter (everyone in freeList counts as bebas, regardless of WFH) */
@@ -1171,16 +1205,11 @@ function recalcWfh(wd){
   const avail=emps.filter(e=>!isOnLeave(e,wd.date,sLeaves));
   const freeList=computeFreeList(wd,emps);
   const freeSet=new Set(freeList);
-  const quota=Math.round(emps.length*(getWfhPercent()/100));
-  /* Keep existing WFH picks that are still valid (still in free pool) */
-  const prevWfh=(wd.wfhList||[]).filter(e=>freeSet.has(e)&&avail.includes(e));
-  if(prevWfh.length>=quota){
-    wd.wfhList=prevWfh.slice(0,quota);
-  } else {
-    const remaining=freeList.filter(e=>!prevWfh.includes(e));
-    const need=quota-prevWfh.length;
-    wd.wfhList=[...prevWfh,...shuffle(remaining).slice(0,Math.max(0,need))];
-  }
+  /* Pasca drag-drop: pertahankan pegawai yang sebelumnya WFH dan masih ada di free pool.
+     Tidak ada kuota harian kaku — kalau ada anggota free pool baru yang masuk (mis. hasil
+     drag dari slot ke Bebas Tugas), mereka tidak otomatis jadi WFH; harus di-drag manual
+     atau menunggu regenerate. Ini menjaga agar perubahan manual user tidak ditimpa otomatis. */
+  wd.wfhList=(wd.wfhList||[]).filter(e=>freeSet.has(e)&&avail.includes(e));
 }
 
 function commitDrag(msg){
