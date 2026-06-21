@@ -160,6 +160,8 @@ input:focus,select:focus{border-color:#185FA5}
 
 @media(max-width:640px){.grid-2{grid-template-columns:1fr}.row{flex-direction:column}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -333,6 +335,9 @@ input:focus,select:focus{border-color:#185FA5}
           <div style="height:1px;background:#f0f0ec;margin:4px 0"></div>
           <button class="dropdown-item" onclick="exportJadwal(false);toggleDropdown('dd-export')">&#128462; Export JSON Semua</button>
           <button class="dropdown-item" onclick="exportJadwal(true);toggleDropdown('dd-export')">&#128274; Export JSON Terkunci</button>
+          <div style="height:1px;background:#f0f0ec;margin:4px 0"></div>
+          <button class="dropdown-item" onclick="downloadAsPDF('sched-container','Jadwal');toggleDropdown('dd-export')">&#128196; Download PDF</button>
+          <button class="dropdown-item" onclick="downloadAsImage('sched-container','Jadwal');toggleDropdown('dd-export')">&#128247; Download Gambar (PNG)</button>
         </div>
       </div>
       <label class="btn btn-sm" style="cursor:pointer;margin:0">&#8593; Import Jadwal<input type="file" accept=".json" onchange="importJadwal(event)" style="display:none"/></label>
@@ -348,7 +353,13 @@ input:focus,select:focus{border-color:#185FA5}
 
 <!-- ═══ DASHBOARD ═══ -->
 <div class="panel" id="panel-dashboard">
-  <div class="section-title">Dashboard Statistik</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div class="section-title" style="margin-bottom:0">Dashboard Statistik</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="downloadAsPDF('dash-content','Dashboard')">&#128196; Download PDF</button>
+      <button class="btn btn-sm" onclick="downloadAsImage('dash-content','Dashboard')">&#128247; Download Gambar (PNG)</button>
+    </div>
+  </div>
   <div id="dash-empty" style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada data. Generate jadwal terlebih dahulu.</div>
   <div id="dash-content" style="display:none">
     <div id="dash-mode-banner"></div>
@@ -377,7 +388,13 @@ input:focus,select:focus{border-color:#185FA5}
 
 <!-- ═══ REKAP ═══ -->
 <div class="panel" id="panel-rekap">
-  <div class="section-title">Rekap Jadwal</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div class="section-title" style="margin-bottom:0">Rekap Jadwal</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="downloadAsPDF('rekap-content','Rekap')">&#128196; Download PDF</button>
+      <button class="btn btn-sm" onclick="downloadAsImage('rekap-content','Rekap')">&#128247; Download Gambar (PNG)</button>
+    </div>
+  </div>
   <div id="rekap-empty" style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada data. Generate jadwal terlebih dahulu.</div>
   <div id="rekap-content" style="display:none">
     <div id="rekap-summary-cards" class="rekap-summary"></div>
@@ -522,6 +539,154 @@ function dl(content,type,filename){
 }
 function readJson(file,cb){
   const r=new FileReader();r.onload=e=>{try{cb(JSON.parse(e.target.result));}catch(err){alert('Gagal membaca file: '+err.message);}};r.readAsText(file);
+}
+
+/* ════════════════════════════════════════════════════════
+   DOWNLOAD SEBAGAI PDF / GAMBAR (PNG)
+   Menggunakan html2canvas + jsPDF (dimuat via CDN).
+   Elemen dengan scroll (mis. tabel jadwal) di-capture penuh
+   dengan mengubah sementara max-height/overflow agar semua
+   baris ikut tercetak, lalu dikembalikan ke kondisi semula.
+   ════════════════════════════════════════════════════════ */
+function getDownloadLabel(){
+  if(!schedule)return 'Jadwal';
+  return MONTHS[schedule.month]+'_'+schedule.year;
+}
+
+function showCaptureOverlay(msg){
+  let ov=document.getElementById('capture-overlay');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='capture-overlay';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(255,255,255,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;font-size:14px;color:#185FA5;font-weight:600;backdrop-filter:blur(1px)';
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML='<div style="background:#fff;border:1px solid #e8e8e4;border-radius:10px;padding:16px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px"><span style="display:inline-block;width:16px;height:16px;border:2px solid #b5d4f4;border-top-color:#185FA5;border-radius:50%;animation:dlspin 0.7s linear infinite"></span>'+msg+'</div>';
+  ov.style.display='flex';
+  if(!document.getElementById('dlspin-style')){
+    const st=document.createElement('style');st.id='dlspin-style';
+    st.textContent='@keyframes dlspin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(st);
+  }
+}
+function hideCaptureOverlay(){
+  const ov=document.getElementById('capture-overlay');
+  if(ov)ov.style.display='none';
+}
+
+/* Temporarily expand scrollable containers inside `el` so the full content is captured */
+function expandForCapture(el){
+  const restores=[];
+  const scrollers=el.querySelectorAll('.sched-wrap, .holiday-list');
+  scrollers.forEach(s=>{
+    restores.push({el:s,maxHeight:s.style.maxHeight,overflow:s.style.overflow,overflowY:s.style.overflowY});
+    s.style.maxHeight='none';
+    s.style.overflow='visible';
+    s.style.overflowY='visible';
+  });
+  /* Also handle the element itself if it scrolls */
+  restores.push({el:el,maxHeight:el.style.maxHeight,overflow:el.style.overflow,overflowY:el.style.overflowY});
+  el.style.maxHeight='none';
+  el.style.overflowY='visible';
+  return ()=>restores.forEach(r=>{r.el.style.maxHeight=r.maxHeight;r.el.style.overflow=r.overflow;r.el.style.overflowY=r.overflowY;});
+}
+
+async function captureElement(elId){
+  const el=document.getElementById(elId);
+  if(!el){alert('Elemen tidak ditemukan.');return null;}
+  if(typeof html2canvas==='undefined'){alert('Pustaka html2canvas gagal dimuat. Periksa koneksi internet lalu coba lagi.');return null;}
+  const restore=expandForCapture(el);
+  /* Give layout a tick to settle before measuring */
+  await new Promise(r=>setTimeout(r,60));
+  let canvas;
+  try{
+    canvas=await html2canvas(el,{
+      backgroundColor:'#ffffff',
+      scale:Math.min(2,window.devicePixelRatio||2),
+      useCORS:true,
+      windowWidth:el.scrollWidth,
+      windowHeight:el.scrollHeight
+    });
+  } finally {
+    restore();
+  }
+  return canvas;
+}
+
+async function downloadAsImage(elId,labelPrefix){
+  if(!schedule&&(elId==='sched-container'||elId==='dash-content'||elId==='rekap-content')){alert('Generate jadwal dulu sebelum download.');return;}
+  showCaptureOverlay('Menyiapkan gambar...');
+  try{
+    const canvas=await captureElement(elId);
+    if(!canvas)return;
+    canvas.toBlob(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download=(labelPrefix||'Export')+'_'+getDownloadLabel()+'.png';
+      a.click();URL.revokeObjectURL(url);
+      showToast('✓ Gambar PNG berhasil diunduh');
+    },'image/png');
+  }catch(err){
+    alert('Gagal membuat gambar: '+err.message);
+  }finally{
+    hideCaptureOverlay();
+  }
+}
+
+async function downloadAsPDF(elId,labelPrefix){
+  if(!schedule&&(elId==='sched-container'||elId==='dash-content'||elId==='rekap-content')){alert('Generate jadwal dulu sebelum download.');return;}
+  if(typeof window.jspdf==='undefined'){alert('Pustaka jsPDF gagal dimuat. Periksa koneksi internet lalu coba lagi.');return;}
+  showCaptureOverlay('Menyiapkan PDF...');
+  try{
+    const canvas=await captureElement(elId);
+    if(!canvas)return;
+    const {jsPDF}=window.jspdf;
+    const imgData=canvas.toDataURL('image/png');
+    /* Pick orientation based on aspect ratio; A4 in mm */
+    const isLandscape=canvas.width>canvas.height;
+    const pdf=new jsPDF({orientation:isLandscape?'l':'p',unit:'mm',format:'a4'});
+    const pageW=pdf.internal.pageSize.getWidth();
+    const pageH=pdf.internal.pageSize.getHeight();
+    const margin=8;
+    const usableW=pageW-margin*2;
+    const usableH=pageH-margin*2;
+    const ratio=canvas.width/canvas.height;
+    let imgW=usableW;
+    let imgH=imgW/ratio;
+
+    if(imgH<=usableH){
+      /* Fits on one page */
+      const y=margin+(usableH-imgH)/2;
+      pdf.addImage(imgData,'PNG',margin,y,imgW,imgH);
+    } else {
+      /* Multi-page: slice the tall canvas into page-height chunks */
+      const pxPerMm=canvas.width/usableW;
+      const pageHeightPx=usableH*pxPerMm;
+      let renderedPx=0;
+      let pageNum=0;
+      while(renderedPx<canvas.height){
+        const sliceHeightPx=Math.min(pageHeightPx,canvas.height-renderedPx);
+        const sliceCanvas=document.createElement('canvas');
+        sliceCanvas.width=canvas.width;
+        sliceCanvas.height=sliceHeightPx;
+        const ctx=sliceCanvas.getContext('2d');
+        ctx.fillStyle='#ffffff';ctx.fillRect(0,0,sliceCanvas.width,sliceCanvas.height);
+        ctx.drawImage(canvas,0,renderedPx,canvas.width,sliceHeightPx,0,0,canvas.width,sliceHeightPx);
+        const sliceData=sliceCanvas.toDataURL('image/png');
+        const sliceImgH=sliceHeightPx/pxPerMm;
+        if(pageNum>0)pdf.addPage();
+        pdf.addImage(sliceData,'PNG',margin,margin,usableW,sliceImgH);
+        renderedPx+=sliceHeightPx;
+        pageNum++;
+      }
+    }
+    pdf.save((labelPrefix||'Export')+'_'+getDownloadLabel()+'.pdf');
+    showToast('✓ PDF berhasil diunduh');
+  }catch(err){
+    alert('Gagal membuat PDF: '+err.message);
+  }finally{
+    hideCaptureOverlay();
+  }
 }
 
 /* ── Panel nav ── */
