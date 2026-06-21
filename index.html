@@ -243,9 +243,9 @@ input:focus,select:focus{border-color:#185FA5}
           </div>
         </div>
         <div class="rule-box rule-wfh" style="margin-bottom:0">
-          WFH hanya berlaku di hari <strong>Jumat</strong>, diambil dari pegawai yang <strong>Bebas Tugas</strong> hari itu.
-          Kuota = <strong>round(jumlah pegawai &times; persentase)</strong>. Jika Bebas Tugas lebih sedikit dari kuota, WFH = semua yang Bebas Tugas.
-          Jatah WFH diratakan ke semua pegawai sepanjang bulan. Tidak ada WFH pengganti di hari Senin.
+          <strong>Maks per Jumat</strong> = round(jumlah pegawai &times; persentase) orang — batas ini <strong>mutlak</strong>, diambil dari pegawai yang <strong>Bebas Tugas</strong> hari itu.<br/>
+          <strong>Target sebulan</strong> = round(jumlah pegawai &times; persentase &times; jumlah Jumat kerja), dibagi rata ke semua pegawai (termasuk SPMKP, tanpa pembedaan grup) sesuai rentang otomatis berdasar kelipatan jumlah pegawai. Jika kapasitas harian tidak cukup untuk memenuhi target sebulan, target menyesuaikan ke bawah (batas harian tidak pernah dilanggar).<br/>
+          Tidak ada WFH pengganti di hari Senin.
         </div>
       </div>
     </div>
@@ -972,20 +972,26 @@ function generateSchedule(partialMode, lockedMode){
     const freeList=avail.filter(e=>!assignedSet.has(e));
 
     /* ── WFH: Jumat only, drawn from freeList ──
-       Kuota harian FLEKSIBEL: ambil sebanyak mungkin pegawai dari freeList yang
-       masih punya sisa target (wfhTarget[e] - counters[e].wfh > 0), supaya target
-       bulanan total tetap bisa tercapai meski freeList di hari tertentu kecil.
-       Prioritas: gap (sisa target) terbesar dulu. SPMKP tidak dipisah grup. */
+       Kuota harian KERAS (hard cap) = round(N × persen) — JUMLAH MAKSIMAL pegawai
+       yang boleh WFH pada satu Jumat, TIDAK BOLEH dilanggar apapun kondisinya.
+       Target bulanan (wfhTarget) hanya dipakai untuk menentukan PRIORITAS siapa yang
+       dipilih lebih dulu (gap terbesar ke target diutamakan) — bukan untuk melonggarkan
+       batas harian. Jika kapasitas harian tidak cukup untuk capai target bulanan dalam
+       jumlah Jumat yang tersedia, target bulanan otomatis menyesuaikan (tidak tercapai
+       penuh), karena batas per-Jumat adalah aturan mutlak. */
     let wfhList=[];
     if(isFri&&freeList.length){
-      const ranked=shuffle(freeList).sort((a,b)=>{
-        const gapA=wfhTarget[a]-counters[a].wfh;
-        const gapB=wfhTarget[b]-counters[b].wfh;
-        if(gapB!==gapA)return gapB-gapA; /* gap terbesar dulu */
-        return counters[a].total-counters[b].total;
-      }).filter(e=>wfhTarget[e]-counters[e].wfh>0); /* hanya yang masih punya sisa target */
-      wfhList=ranked; /* ambil semua yang masih butuh, dibatasi ukuran freeList itu sendiri */
-      wfhList.forEach(e=>{counters[e].wfh++;});
+      const dailyCap=Math.round(employees.length*(wfhPct/100));
+      if(dailyCap>0){
+        const ranked=shuffle(freeList).sort((a,b)=>{
+          const gapA=wfhTarget[a]-counters[a].wfh;
+          const gapB=wfhTarget[b]-counters[b].wfh;
+          if(gapB!==gapA)return gapB-gapA; /* gap terbesar dulu */
+          return counters[a].total-counters[b].total;
+        });
+        wfhList=ranked.slice(0,Math.min(dailyCap,ranked.length));
+        wfhList.forEach(e=>{counters[e].wfh++;});
+      }
     }
 
     /* Free counter (everyone in freeList counts as bebas, regardless of WFH) */
