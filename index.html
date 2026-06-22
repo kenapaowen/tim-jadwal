@@ -1063,8 +1063,8 @@ function initDragDrop(){
   /* Drag start — on badges */
   table.addEventListener('dragstart',e=>{
     const badge=e.target.closest('[data-drag]');if(!badge)return;
-    const {date,slot,emp,fromfree}=badge.dataset;
-    dragState={date,slot,emp,fromFree:fromfree==='1'};
+    const {date,slot,emp,fromfree,fromwfh}=badge.dataset;
+    dragState={date,slot,emp,fromFree:fromfree==='1',fromwfh};
     badge.classList.add('dragging');
     e.dataTransfer.effectAllowed='move';
     e.dataTransfer.setData('text/plain',emp);
@@ -1082,22 +1082,29 @@ function initDragDrop(){
   });
 
   table.addEventListener('dragover',e=>{
-    const zone=e.target.closest('[data-dropzone],[data-dropfree]');if(!zone||!dragState)return;
+    const zone=e.target.closest('[data-dropzone],[data-dropfree],[data-dropwfh]');if(!zone||!dragState)return;
     /* Prevent drop on same slot same day */
     const dzDate=zone.dataset.date,dzSlot=zone.dataset.slot;
-    if(dzDate===dragState.date&&dzSlot===dragState.slot&&!dragState.fromFree&&!zone.dataset.dropfree)return;
+    if(dzDate===dragState.date&&dzSlot===dragState.slot&&!dragState.fromFree&&!zone.dataset.dropfree&&!zone.dataset.dropwfh)return;
+    /* WFH zone hanya terima drop di hari Jumat */
+    if(zone.dataset.dropwfh){
+      const wd=schedule&&schedule.workdays.find(w=>w.date===zone.dataset.date);
+      if(!wd||!wd.isFriday)return;
+      /* Hanya badge dari Bebas Tugas yang bisa masuk WFH */
+      if(!dragState.fromFree&&dragState.slot!=='wfh')return;
+    }
     e.preventDefault();e.dataTransfer.dropEffect='move';
     table.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
     zone.classList.add('drag-over');
   });
 
   table.addEventListener('dragleave',e=>{
-    const zone=e.target.closest('[data-dropzone],[data-dropfree]');if(zone)zone.classList.remove('drag-over');
+    const zone=e.target.closest('[data-dropzone],[data-dropfree],[data-dropwfh]');if(zone)zone.classList.remove('drag-over');
   });
 
   table.addEventListener('drop',e=>{
     e.preventDefault();
-    const zone=e.target.closest('[data-dropzone],[data-dropfree]');
+    const zone=e.target.closest('[data-dropzone],[data-dropfree],[data-dropwfh]');
     if(!zone||!dragState)return;
     zone.classList.remove('drag-over');
     applyDragDrop(zone);
@@ -1107,99 +1114,127 @@ function initDragDrop(){
 function applyDragDrop(zone){
   if(!dragState||!schedule)return;
   const {date:srcDate,slot:srcSlot,emp,fromFree}=dragState;
+  const isFromWfh=dragState.fromwfh==='1'||srcSlot==='wfh';
+  const sLeaves=schedule.leaves||leaves;
+  const emps=schedule.employees||employees;
 
-  /* ── Drop onto FREE POOL (remove from slot) ── */
+  /* ════ DROP ONTO WFH ZONE ════ */
+  if(zone.dataset.dropwfh){
+    const tgtDate=zone.dataset.date;
+    const tgtWd=schedule.workdays.find(w=>w.date===tgtDate);
+    if(!tgtWd||!tgtWd.isFriday){showToast('⚠ WFH hanya bisa di hari Jumat');return;}
+    if(isOnLeave(emp,tgtDate,sLeaves)){showToast('⚠ '+emp+' sedang cuti di '+tgtDate);return;}
+    const dailyCap=Math.round(emps.length*(getWfhPercent()/100));
+    const curWfhCount=(tgtWd.wfhList||[]).length;
+    if(isFromWfh&&srcDate===tgtDate){showToast('⚠ Sudah di WFH hari yang sama');return;}
+    if((tgtWd.wfhList||[]).includes(emp)){showToast('⚠ '+emp+' sudah WFH di '+tgtDate);return;}
+    /* Emp must not be assigned a slot on target day */
+    const tgtFreeList=computeFreeList(tgtWd,emps);
+    if(!tgtFreeList.includes(emp)){showToast('⚠ '+emp+' sedang bertugas di slot lain pada '+tgtDate);return;}
+    if(isFromWfh){
+      /* Move WFH across Fridays */
+      const srcWd=schedule.workdays.find(w=>w.date===srcDate);
+      if(!srcWd)return;
+      if(curWfhCount<dailyCap){
+        srcWd.wfhList=(srcWd.wfhList||[]).filter(e=>e!==emp);
+        tgtWd.wfhList=[...(tgtWd.wfhList||[]),emp];
+        srcWd.freeList=computeFreeList(srcWd,emps);
+        tgtWd.freeList=computeFreeList(tgtWd,emps);
+        commitDrag(emp+' WFH dipindah: '+srcDate+' → '+tgtDate);
+      } else {
+        /* Swap with someone in target WFH who is free on srcDate */
+        const srcFreeList=computeFreeList(srcWd,emps);
+        const swapCand=(tgtWd.wfhList||[]).find(e=>srcFreeList.includes(e)&&!isOnLeave(e,srcDate,sLeaves));
+        if(!swapCand){showToast('⚠ WFH '+tgtDate+' sudah penuh ('+dailyCap+'), tidak ada kandidat tukar');return;}
+        srcWd.wfhList=(srcWd.wfhList||[]).filter(e=>e!==emp);srcWd.wfhList.push(swapCand);
+        tgtWd.wfhList=(tgtWd.wfhList||[]).filter(e=>e!==swapCand);tgtWd.wfhList.push(emp);
+        srcWd.freeList=computeFreeList(srcWd,emps);tgtWd.freeList=computeFreeList(tgtWd,emps);
+        commitDrag('Tukar WFH: '+emp+' ('+tgtDate+') ↔ '+swapCand+' ('+srcDate+')');
+      }
+      return;
+    }
+    /* Bebas Tugas → WFH (same day only) */
+    if(srcDate!==tgtDate){showToast('⚠ Tambah WFH hanya untuk hari Jumat yang sama');return;}
+    if(curWfhCount>=dailyCap){showToast('⚠ WFH '+tgtDate+' sudah penuh (maks '+dailyCap+' orang)');return;}
+    tgtWd.wfhList=[...(tgtWd.wfhList||[]),emp];
+    tgtWd.freeList=computeFreeList(tgtWd,emps);
+    commitDrag(emp+' masuk WFH di '+tgtDate);
+    return;
+  }
+
+  /* ════ DROP ONTO FREE POOL ════ */
   if(zone.dataset.dropfree){
     const tgtDate=zone.dataset.date;
     if(tgtDate!==srcDate){showToast('⚠ Lepas tugas hanya untuk hari yang sama');return;}
     const srcWd=schedule.workdays.find(w=>w.date===srcDate);if(!srcWd)return;
-    if(fromFree)return; /* already free */
+    if(isFromWfh){
+      srcWd.wfhList=(srcWd.wfhList||[]).filter(e=>e!==emp);
+      srcWd.freeList=computeFreeList(srcWd,emps);
+      commitDrag(emp+' keluar dari WFH → Bebas Tugas ('+srcDate+')');
+      return;
+    }
+    if(fromFree)return;
     const arr=srcWd.assignments[srcSlot];
     const idx=arr.indexOf(emp);if(idx===-1)return;
     arr.splice(idx,1);
-    /* Recalc WFH for Friday */
     if(srcWd.isFriday)recalcWfh(srcWd);
-    srcWd.freeList=computeFreeList(srcWd,schedule.employees);
-    commitDrag(`${emp} dilepas dari ${SLOT_LABELS[srcSlot]} (${srcDate})`);
+    srcWd.freeList=computeFreeList(srcWd,emps);
+    commitDrag(emp+' dilepas dari '+SLOT_LABELS[srcSlot]+' ('+srcDate+')');
     return;
   }
 
-  /* ── Drop onto a slot cell ── */
+  /* ════ DROP ONTO SLOT CELL ════ */
   const tgtDate=zone.dataset.date,tgtSlot=zone.dataset.slot;
   if(!tgtDate||!tgtSlot)return;
-
-  /* Same slot same day = no-op */
-  if(tgtDate===srcDate&&tgtSlot===srcSlot&&!fromFree)return;
-
+  if(tgtDate===srcDate&&tgtSlot===srcSlot&&!fromFree&&!isFromWfh)return;
   const srcWd=schedule.workdays.find(w=>w.date===srcDate);
   const tgtWd=schedule.workdays.find(w=>w.date===tgtDate);
   if(!srcWd||!tgtWd)return;
-
-  /* Check target date leave */
-  const sLeaves=schedule.leaves||leaves;
   if(isOnLeave(emp,tgtDate,sLeaves)){showToast('⚠ '+emp+' sedang cuti di '+tgtDate);return;}
-
   const tgtArr=tgtWd.assignments[tgtSlot];
-
-  /* If the target slot has a badge we can swap with (same day) or just move */
+  if(isFromWfh){
+    if(tgtDate!==srcDate){showToast('⚠ Pindah dari WFH ke slot hanya untuk hari yang sama');return;}
+    if(tgtArr.includes(emp)){showToast('⚠ '+emp+' sudah ada di slot ini');return;}
+    srcWd.wfhList=(srcWd.wfhList||[]).filter(e=>e!==emp);
+    tgtArr.push(emp);
+    srcWd.freeList=computeFreeList(srcWd,emps);
+    commitDrag(emp+': WFH → '+SLOT_LABELS[tgtSlot]+' ('+srcDate+')');
+    return;
+  }
   if(tgtDate===srcDate){
-    /* Same day: attempt swap between slots */
     if(fromFree){
-      /* From free → slot: just assign if slot not full (we allow +1) */
-      if(!fromFree)return;
-      /* Actually: free → target slot: add emp to tgtSlot, remove from freeList */
       if(tgtArr.includes(emp)){showToast('⚠ '+emp+' sudah ada di slot ini');return;}
-      tgtArr.push(emp);
-      recalcWfh(tgtWd);
-      tgtWd.freeList=computeFreeList(tgtWd,schedule.employees);
-      commitDrag(`${emp} dipindah ke ${SLOT_LABELS[tgtSlot]} (${tgtDate})`);
-      return;
+      tgtArr.push(emp);recalcWfh(tgtWd);
+      tgtWd.freeList=computeFreeList(tgtWd,emps);
+      commitDrag(emp+' dipindah ke '+SLOT_LABELS[tgtSlot]+' ('+tgtDate+')');return;
     }
-    /* slot → different slot same day */
-    const srcArr=srcWd.assignments[srcSlot];
-    const srcIdx=srcArr.indexOf(emp);if(srcIdx===-1)return;
+    const srcArr=srcWd.assignments[srcSlot];const srcIdx=srcArr.indexOf(emp);if(srcIdx===-1)return;
     if(tgtArr.length>0&&tgtArr.length<=srcArr.length){
-      /* Swap with first person in target slot */
       const swapEmp=tgtArr[0];
-      if(!isOnLeave(swapEmp,srcDate,sLeaves)){
-        tgtArr[0]=emp;srcArr[srcIdx]=swapEmp;
-      } else {
-        srcArr.splice(srcIdx,1);tgtArr.push(emp);
-      }
-    } else {
-      srcArr.splice(srcIdx,1);tgtArr.push(emp);
-    }
-    recalcWfh(srcWd);
-    srcWd.freeList=computeFreeList(srcWd,schedule.employees);
-    commitDrag(`${emp} pindah: ${SLOT_LABELS[srcSlot]} → ${SLOT_LABELS[tgtSlot]} (${srcDate})`);
+      if(!isOnLeave(swapEmp,srcDate,sLeaves)){tgtArr[0]=emp;srcArr[srcIdx]=swapEmp;}
+      else{srcArr.splice(srcIdx,1);tgtArr.push(emp);}
+    } else {srcArr.splice(srcIdx,1);tgtArr.push(emp);}
+    recalcWfh(srcWd);srcWd.freeList=computeFreeList(srcWd,emps);
+    commitDrag(emp+' pindah: '+SLOT_LABELS[srcSlot]+' → '+SLOT_LABELS[tgtSlot]+' ('+srcDate+')');
   } else {
-    /* Different day: move emp from srcSlot to tgtSlot on different days */
-    /* Find someone in tgtSlot tgtDate to swap back (optional — just move) */
-    const srcArr=srcWd.assignments[srcSlot];
-    const srcIdx=srcArr.indexOf(emp);if(srcIdx===-1&&!fromFree)return;
-
+    const srcArr=srcWd.assignments[srcSlot];const srcIdx=srcArr.indexOf(emp);
+    if(srcIdx===-1&&!fromFree)return;
     if(tgtArr.includes(emp)){showToast('⚠ '+emp+' sudah ada di '+SLOT_LABELS[tgtSlot]+' di '+tgtDate);return;}
-
-    /* Check if target has someone we can swap back */
     const swapCandidates=tgtArr.filter(e=>e!==emp&&!isOnLeave(e,srcDate,sLeaves));
     if(swapCandidates.length>0&&!fromFree){
-      /* Swap: move swapCand to srcSlot srcDate, move emp to tgtSlot tgtDate */
       const swapEmp=swapCandidates[0];
       tgtArr.splice(tgtArr.indexOf(swapEmp),1);tgtArr.push(emp);
       if(!fromFree){srcArr.splice(srcIdx,1);srcArr.push(swapEmp);}
       recalcWfh(srcWd);recalcWfh(tgtWd);
-      srcWd.freeList=computeFreeList(srcWd,schedule.employees);
-      tgtWd.freeList=computeFreeList(tgtWd,schedule.employees);
-      commitDrag(`Tukar: ${emp} (${tgtDate}) ↔ ${swapEmp} (${srcDate}) di ${SLOT_LABELS[tgtSlot]}`);
+      srcWd.freeList=computeFreeList(srcWd,emps);tgtWd.freeList=computeFreeList(tgtWd,emps);
+      commitDrag('Tukar: '+emp+' ('+tgtDate+') ↔ '+swapEmp+' ('+srcDate+') di '+SLOT_LABELS[tgtSlot]);
     } else {
-      /* Simple move: just add emp to tgtSlot, remove from src */
       if(tgtArr.length>=4){showToast('⚠ Slot '+SLOT_LABELS[tgtSlot]+' sudah penuh');return;}
       tgtArr.push(emp);
       if(!fromFree&&srcIdx!==-1)srcArr.splice(srcIdx,1);
       recalcWfh(srcWd);recalcWfh(tgtWd);
-      srcWd.freeList=computeFreeList(srcWd,schedule.employees);
-      tgtWd.freeList=computeFreeList(tgtWd,schedule.employees);
-      commitDrag(`${emp} pindah dari ${srcDate} (${SLOT_LABELS[srcSlot]}) → ${tgtDate} (${SLOT_LABELS[tgtSlot]})`);
+      srcWd.freeList=computeFreeList(srcWd,emps);tgtWd.freeList=computeFreeList(tgtWd,emps);
+      commitDrag(emp+' pindah dari '+srcDate+' ('+SLOT_LABELS[srcSlot]+') → '+tgtDate+' ('+SLOT_LABELS[tgtSlot]+')');
     }
   }
 }
@@ -1310,11 +1345,20 @@ function renderSchedule(){
       tbl+='<td>'+renderSlot('wa_p')+'</td>';
       tbl+='<td>'+renderSlot('wa_s')+'</td>';
 
-      /* WFH column (Jumat only) — drawn from Bebas Tugas pool */
-      const wfhBadges=(wd.wfhList||[]).length
-        ?'<div class="cell-badges">'+wd.wfhList.map(e=>'<span class="badge badge-wfh">&#127968; '+e+'</span>').join('')+'</div>'
-        :'<span style="color:#ccc;font-size:11px">\u2014</span>';
-      tbl+='<td>'+wfhBadges+'</td>';
+      /* WFH column (Jumat only) — drawn from Bebas Tugas pool, drag-drop enabled */
+      const wfhLocked=locked||!isFri; /* non-Jumat tidak bisa drag WFH */
+      let wfhHtml='<div class="free-pool" data-dropwfh="1" data-date="'+ds+'" style="min-height:24px">';
+      if((wd.wfhList||[]).length){
+        wfhHtml+=(wd.wfhList||[]).map(e=>
+          '<span class="badge badge-wfh"'
+          +(!wfhLocked?' draggable="true" data-drag="1" data-date="'+ds+'" data-slot="wfh" data-fromwfh="1" data-emp="'+e+'" title="Seret untuk pindah/tukar WFH"':'')
+          +'>&#127968; '+e+'</span>'
+        ).join('');
+      } else {
+        wfhHtml+='<span style="color:#ccc;font-size:11px">'+(isFri?'\u2014':'WFO')+'</span>';
+      }
+      wfhHtml+='</div>';
+      tbl+='<td>'+wfhHtml+'</td>';
 
       /* Cuti */
       tbl+='<td>'+((wd.onLeave||[]).length?'<div class="cell-badges">'+(wd.onLeave||[]).map(e=>'<span class="badge badge-cuti">'+e+'</span>').join('')+'</div>':'<span style="color:#ccc;font-size:11px">\u2014</span>')+'</td>';
