@@ -798,6 +798,7 @@ function generateSchedule(partialMode, lockedMode){
     lockedDates=prev;return;
   }
   if(employees.length<4){showNotice('gen-notice','warn','Minimal 4 pegawai diperlukan.');return;}
+  try{
   const month=parseInt(document.getElementById('sel-month').value);
   const year=parseInt(document.getElementById('inp-year').value);
   const curHols=[...holidays],curLeaves=[...leaves],curSpmkp=[...spmkpList];
@@ -1006,6 +1007,10 @@ function generateSchedule(partialMode, lockedMode){
   const msg=partialMode?'Regenerate selesai! '+lockedDates.size+' hari terkunci dipertahankan.':'Jadwal berhasil digenerate!';
   showNotice('gen-notice','success',msg);
   setTimeout(()=>showPanel('schedule'),500);
+  }catch(err){
+    showNotice('gen-notice','warn','Error saat generate: '+err.message+' ('+err.stack.split('\n')[0]+')');
+    console.error('generateSchedule error:',err);
+  }
 }
 
 function generateRangeSchedule(){
