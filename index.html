@@ -1331,12 +1331,12 @@ function renderSchedule(){
       /* Render slot cell with drag support */
       const renderSlot=(key)=>{
         const arr=wd.assignments[key]||[];
-        const locked=lockedDates.has(ds);
+        const slotLocked=lockedDates.has(ds);
         let html='<div class="cell-badges drop-zone" data-dropzone="1" data-date="'+ds+'" data-slot="'+key+'">';
         if(!arr.length){html+='<span style="color:#ccc;font-size:11px">\u2014</span>';}
         else arr.forEach(e=>{
           const isSp=(sSpmkp||[]).includes(e);
-          const draggable=!locked;
+          const draggable=!slotLocked;
           html+='<span class="badge '+SLOT_COLORS[key]+'"'
             +(draggable?' draggable="true" data-drag="1" data-date="'+ds+'" data-slot="'+key+'" data-emp="'+e+'"':'')
             +'>'+(isSp?'&#127970;':'')+e+'</span>';
