@@ -826,7 +826,11 @@ function generateSchedule(partialMode, lockedMode){
       ['tpt_p','tpt_s','app','wa_p','wa_s'].forEach(key=>{
         (w.assignments[key]||[]).forEach(e=>{if(counters[e])counters[e].lastDow[key]=wDow;});
       });
-      if(w.isFriday)computeFreeList(w,employees).forEach(e=>{if(counters[e])counters[e].fridayFree++;});
+      if(w.isFriday){
+        const fl=computeFreeList(w,employees);
+        fl.forEach(e=>{if(counters[e])counters[e].fridayFree++;});
+        lastFriWasFreeSet=new Set(fl);
+      }
     });
   }
 
@@ -860,6 +864,10 @@ function generateSchedule(partialMode, lockedMode){
   const WFH_COMP_WEIGHT=0.6;
 
   const result=[];
+  /* Set berisi pegawai yang bebas tugas di Jumat sebelumnya.
+     Dipakai agar mereka diprioritaskan dapat slot di Jumat berikutnya
+     sehingga orang yang bebas Jumat berganti-ganti setiap minggu. */
+  let lastFriWasFreeSet=new Set();
 
   workdays.forEach(day=>{
     /* Keep locked rows as-is */
@@ -889,25 +897,25 @@ function generateSchedule(partialMode, lockedMode){
          Penalti = 0.5 jika lastDow sama dengan dayDow hari ini (berlaku semua slot).
          Nilai kecil supaya tidak mengalahkan pemerataan beban. */
       const DOW_PENALTY=0.5;
+      /* Bonus rotasi Jumat: pegawai yang bebas Jumat lalu diprioritaskan dapat slot
+         Jumat ini (nilai negatif = lebih kecil = dipilih duluan dalam sort ascending).
+         Berlaku hanya di hari Jumat. Efek: mereka tidak bebas Jumat ini → orang lain
+         yang bebas → rotasi alami siapa yang bebas di setiap Jumat. */
+      const FRI_ROT=isFri?-1.5:0;
       const sort=(a,b)=>{
         if(isTpt){
           const targetA=curSpmkp.includes(a)?tptSpmkpTarget:tptNorm;
           const targetB=curSpmkp.includes(b)?tptSpmkpTarget:tptNorm;
           const ratioA=targetA>0?tptTotal(a)/targetA:0;
           const ratioB=targetB>0?tptTotal(b)/targetB:0;
-          let d=ratioA-ratioB;
-          /* Anti-monoton: same dow as last time this slot → slight penalty */
-          if(d===0){
-            const penA=counters[a].lastDow[key]===dayDow?DOW_PENALTY:0;
-            const penB=counters[b].lastDow[key]===dayDow?DOW_PENALTY:0;
-            d=(ratioA+penA)-(ratioB+penB);
-          }
+          const penA=(counters[a].lastDow[key]===dayDow?DOW_PENALTY:0)+(lastFriWasFreeSet.has(a)?FRI_ROT:0);
+          const penB=(counters[b].lastDow[key]===dayDow?DOW_PENALTY:0)+(lastFriWasFreeSet.has(b)?FRI_ROT:0);
+          const d=(ratioA+penA)-(ratioB+penB);
           return d!==0?d:counters[a].total-counters[b].total;
         }
         let ka=counters[a][key],kb=counters[b][key];
-        /* Anti-monoton penalty for non-TPT slots too */
-        if(counters[a].lastDow[key]===dayDow)ka+=DOW_PENALTY;
-        if(counters[b].lastDow[key]===dayDow)kb+=DOW_PENALTY;
+        ka+=(counters[a].lastDow[key]===dayDow?DOW_PENALTY:0)+(lastFriWasFreeSet.has(a)?FRI_ROT:0);
+        kb+=(counters[b].lastDow[key]===dayDow?DOW_PENALTY:0)+(lastFriWasFreeSet.has(b)?FRI_ROT:0);
         if(wfhComp){
           const avgWfhSoFar=wfhAvgSoFar();
           const penaltyA=Math.max(0,avgWfhSoFar-counters[a].wfh)*WFH_COMP_WEIGHT;
@@ -967,6 +975,8 @@ function generateSchedule(partialMode, lockedMode){
 
     /* Free counter (semua yang bebas tugas, terlepas WFH atau tidak) */
     freeList.forEach(e=>{counters[e].free++;});
+    /* Simpan siapa yang bebas hari Jumat ini → jadi prioritas dapat slot Jumat depan */
+    if(isFri){lastFriWasFreeSet=new Set(freeList);}
 
     result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,freeList});
   });
@@ -1295,22 +1305,21 @@ function renderSchedule(){
         +'<td colspan="8" style="color:#9080c0;font-size:11px;font-style:italic">'+hol.name+'</td>';
     } else if(wd){
       const fr=wd.isFriday;
+      const locked=lockedDates.has(ds);
       const ketLbl=fr?'<span class="ket-tag" style="background:#e1f5ee;color:#0f6e56">Jum WFH</span>':'<span class="ket-tag" style="background:#e8f4ff;color:#185FA5">Kerja</span>';
-      const lockLbl=isLocked?'<span class="ket-tag" style="background:#fdf5e0;color:#7a4f00;margin-left:2px">&#128274;</span>':'';
+      const lockLbl=locked?'<span class="ket-tag" style="background:#fdf5e0;color:#7a4f00;margin-left:2px">&#128274;</span>':'';
       const cutiInfo=(wd.onLeave||[]).length?'<div style="font-size:10px;color:#712b13;margin-top:2px">'+(wd.onLeave||[]).length+' cuti</div>':'';
       tbl+='<td>'+ketLbl+lockLbl+cutiInfo+'</td>';
 
       /* Render slot cell with drag support */
       const renderSlot=(key)=>{
         const arr=wd.assignments[key]||[];
-        const slotLocked=lockedDates.has(ds);
         let html='<div class="cell-badges drop-zone" data-dropzone="1" data-date="'+ds+'" data-slot="'+key+'">';
         if(!arr.length){html+='<span style="color:#ccc;font-size:11px">\u2014</span>';}
         else arr.forEach(e=>{
           const isSp=(sSpmkp||[]).includes(e);
-          const draggable=!slotLocked;
           html+='<span class="badge '+SLOT_COLORS[key]+'"'
-            +(draggable?' draggable="true" data-drag="1" data-date="'+ds+'" data-slot="'+key+'" data-emp="'+e+'"':'')
+            +(!locked?' draggable="true" data-drag="1" data-date="'+ds+'" data-slot="'+key+'" data-emp="'+e+'"':'')
             +'>'+(isSp?'&#127970;':'')+e+'</span>';
         });
         html+='</div>';return html;
@@ -1343,7 +1352,6 @@ function renderSchedule(){
       /* Bebas Tugas — drag source + drop target. WFH picks shown dimmed/tagged since they're already "used" for WFH */
       const fl=wd.freeList||computeFreeList(wd,sEmps);
       const wfhSet=new Set(wd.wfhList||[]);
-      const locked=lockedDates.has(ds);
       let freeHtml='<div class="free-pool" data-dropfree="1" data-date="'+ds+'">';
       if(!fl.length){freeHtml+='<span style="color:#ccc;font-size:11px">\u2014</span>';}
       else fl.forEach(e=>{
