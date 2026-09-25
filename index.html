@@ -104,6 +104,10 @@ input:focus,select:focus{border-color:#185FA5}
 /* Free pool drop zone */
 .free-pool{min-height:26px;padding:3px 5px;border-radius:6px;background:#f5f5f3;border:1.5px dashed #ccc;display:flex;flex-wrap:wrap;gap:3px;transition:background 0.12s,border-color 0.12s}
 .free-pool.drag-over{background:#e6f1fb!important;border-color:#185FA5!important}
+[data-dropwfh].drag-over{background:#e1f5ee!important;outline:2px dashed #0f6e56;outline-offset:2px;border-radius:6px}
+/* WFH badge draggable style */
+.badge-wfh[draggable="true"]{cursor:grab}
+.badge-wfh[draggable="true"]:hover{transform:scale(1.06);box-shadow:0 2px 6px rgba(15,110,86,0.25)}
 .free-pool .badge{cursor:grab;background:#fff;border:1px solid #d8d8d8;color:#444}
 .free-pool .badge:hover{border-color:#185FA5;color:#185FA5}
 /* Drag ghost hint */
@@ -180,7 +184,7 @@ input:focus,select:focus{border-color:#185FA5}
 <div class="panel active" id="panel-setup">
   <div class="section-title">Pengaturan Tim &amp; Jadwal</div>
   <div class="rule-box rule-wfh">
-    <strong>Aturan WFO Jumat:</strong> Semua pegawai bertugas (TPT, Aplikasi, WA Pagi, WA Siang) tetap <strong>WFO</strong>. WFH hanya untuk sebagian pegawai <strong>Bebas Tugas</strong>, maksimal sesuai persentase WFH yang diatur (lihat kartu Pengaturan WFH). Tidak ada kompensasi WFH di Senin.
+    <strong>Aturan WFO Jumat:</strong> Semua pegawai bertugas (TPT, Koordinator Harian, WA Pagi, WA Siang) tetap <strong>WFO</strong>. WFH hanya untuk sebagian pegawai <strong>Bebas Tugas</strong>, maksimal sesuai persentase WFH yang diatur (lihat kartu Pengaturan WFH). Tidak ada kompensasi WFH di Senin.
   </div>
   <div class="rule-box rule-spmkp">
     <strong>Aturan SPMKP:</strong> Pegawai SPMKP mendapat maksimal <strong>50% slot TPT</strong> dibanding pegawai lain. SPMKP tidak dihitung dalam grafik beban utama.
@@ -226,7 +230,7 @@ input:focus,select:focus{border-color:#185FA5}
         <div class="slot-config-grid">
           <div class="slot-config-item"><label>TPT Pagi (WFO)</label><input type="number" id="cfg-tpt-p" value="2" min="1" max="6" onchange="autoSave()"/></div>
           <div class="slot-config-item"><label>TPT Siang (WFO)</label><input type="number" id="cfg-tpt-s" value="2" min="1" max="6" onchange="autoSave()"/></div>
-          <div class="slot-config-item"><label>Aplikasi</label><input type="number" id="cfg-app" value="1" min="0" max="4" onchange="autoSave()"/></div>
+          <div class="slot-config-item"><label>Koordinator Harian</label><input type="number" id="cfg-app" value="1" min="0" max="4" onchange="autoSave()"/></div>
           <div class="slot-config-item"><label>WA Pagi</label><input type="number" id="cfg-wa-p" value="1" min="0" max="4" onchange="autoSave()"/></div>
           <div class="slot-config-item"><label>WA Siang</label><input type="number" id="cfg-wa-s" value="1" min="0" max="4" onchange="autoSave()"/></div>
         </div>
@@ -345,7 +349,7 @@ input:focus,select:focus{border-color:#185FA5}
     </div>
   </div>
   <div class="notice notice-info" style="font-size:12px;margin-bottom:10px">
-    &#9776; <strong>Drag &amp; drop</strong> badge nama pegawai langsung di tabel untuk menukar jadwal antar slot atau hari. Seret ke kolom <strong>Bebas Tugas</strong> untuk mencopot penugasan. &#128274; Klik ikon kunci untuk mengunci/membuka baris.
+    &#9776; <strong>Drag &amp; drop</strong> badge nama pegawai untuk menukar jadwal antar slot, hari, atau WFH. Seret badge <strong>Bebas Tugas → WFH</strong> untuk tambah WFH, atau seret badge <strong>WFH → Bebas Tugas</strong> untuk lepas. &#128274; Klik ikon kunci untuk mengunci/membuka baris.
   </div>
   <div id="sched-notice" class="notice notice-success" style="display:none"></div>
   <div id="sched-container"><div style="text-align:center;padding:40px;color:#999;font-size:14px">Belum ada jadwal. Generate dari tab Pengaturan.</div></div>
@@ -377,7 +381,7 @@ input:focus,select:focus{border-color:#185FA5}
       <div class="card-title">Rincian Penugasan per Pegawai</div>
       <div style="overflow-x:auto">
         <table class="detail-table">
-          <thead><tr><th>Pegawai</th><th>SPMKP</th><th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Bebas Tugas</th><th>Total</th></tr></thead>
+          <thead><tr><th>Pegawai</th><th>SPMKP</th><th>TPT Pagi</th><th>TPT Siang</th><th>Koord. Harian</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Bebas Tugas</th><th>Total</th></tr></thead>
           <tbody id="dash-detail-body"></tbody>
         </table>
         <div id="dash-detail-note" style="margin-top:8px;font-size:11px;color:#999"></div>
@@ -432,7 +436,7 @@ input:focus,select:focus{border-color:#185FA5}
 const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAY_SHORT=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 const DAY_LONG=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-const SLOT_LABELS={tpt_p:'TPT Pagi',tpt_s:'TPT Siang',app:'Aplikasi',wa_p:'WA Pagi',wa_s:'WA Siang'};
+const SLOT_LABELS={tpt_p:'TPT Pagi',tpt_s:'TPT Siang',app:'Koordinator Harian',wa_p:'WA Pagi',wa_s:'WA Siang'};
 const SLOT_COLORS={tpt_p:'badge-tpt-p',tpt_s:'badge-tpt-s',app:'badge-app',wa_p:'badge-wa-p',wa_s:'badge-wa-s'};
 const LS_SETTINGS='timjadwal_settings_v3';
 const LS_SCHEDULE='timjadwal_schedule_v3';
@@ -1070,15 +1074,16 @@ function initDragDrop(){
 
   table.addEventListener('dragover',e=>{
     const zone=e.target.closest('[data-dropzone],[data-dropfree],[data-dropwfh]');if(!zone||!dragState)return;
-    /* Prevent drop on same slot same day */
     const dzDate=zone.dataset.date,dzSlot=zone.dataset.slot;
-    if(dzDate===dragState.date&&dzSlot===dragState.slot&&!dragState.fromFree&&!zone.dataset.dropfree&&!zone.dataset.dropwfh)return;
-    /* WFH zone hanya terima drop di hari Jumat */
+    /* No-op: same slot same day */
+    if(dzDate===dragState.date&&dzSlot===dragState.slot&&!dragState.fromFree&&!dragState.fromwfh&&!zone.dataset.dropfree&&!zone.dataset.dropwfh)return;
+    /* WFH zone: terima dari Bebas Tugas ATAU dari WFH hari lain */
     if(zone.dataset.dropwfh){
       const wd=schedule&&schedule.workdays.find(w=>w.date===zone.dataset.date);
-      if(!wd||!wd.isFriday)return;
-      /* Hanya badge dari Bebas Tugas yang bisa masuk WFH */
-      if(!dragState.fromFree&&dragState.slot!=='wfh')return;
+      if(!wd||!wd.isFriday)return; /* hanya Jumat */
+      const isFromWfh=dragState.fromwfh==='1'||dragState.slot==='wfh';
+      const isFromFree=dragState.fromFree||dragState.slot==='free';
+      if(!isFromWfh&&!isFromFree)return; /* hanya dari WFH atau Bebas Tugas */
     }
     e.preventDefault();e.dataTransfer.dropEffect='move';
     table.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
@@ -1275,7 +1280,7 @@ function renderSchedule(){
 
   let tbl='<div class="sched-wrap"><table class="sched-table"><thead><tr>'
     +'<th>Tanggal</th><th>Ket.</th><th>TPT Pagi &#10070;WFO</th><th>TPT Siang &#10070;WFO</th>'
-    +'<th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Cuti</th>'
+    +'<th>Koord. Harian</th><th>WA Pagi</th><th>WA Siang</th><th>WFH</th><th>Cuti</th>'
     +'<th style="background:#f5f5f3;color:#666">&#128100; Bebas Tugas</th>'
     +'</tr></thead><tbody>';
 
@@ -1504,7 +1509,7 @@ function buildRekapTable(){
 
   document.getElementById('rekap-thead').innerHTML='<tr>'
     +'<th style="text-align:left">Pegawai</th><th>SPMKP</th>'
-    +'<th>TPT Pagi</th><th>TPT Siang</th><th>Aplikasi</th><th>WA Pagi</th><th>WA Siang</th>'
+    +'<th>TPT Pagi</th><th>TPT Siang</th><th>Koord. Harian</th><th>WA Pagi</th><th>WA Siang</th>'
     +'<th>WFH</th><th class="col-free">Bebas Tugas</th><th>Cuti</th><th>Total</th></tr>';
 
   let html='',tot={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,leave_days:0,total:0};
@@ -1559,7 +1564,7 @@ function exportCSV(lockedOnly){
   const {workdays,month,year}=schedule;
   const sHols=schedule.holidays||holidays;
   const wdMap={};workdays.forEach(w=>{wdMap[w.date]=w;});
-  let csv='\uFEFFTanggal,Hari,Keterangan,Terkunci,TPT Pagi,TPT Siang,Aplikasi,WA Pagi,WA Siang,WFH,Cuti,Bebas Tugas\n';
+  let csv='\uFEFFTanggal,Hari,Keterangan,Terkunci,TPT Pagi,TPT Siang,Koord. Harian,WA Pagi,WA Siang,WFH,Cuti,Bebas Tugas\n';
   allDaysInMonth(year,month).forEach(({dt,ds,dow})=>{
     const isWknd=dow===0||dow===6,hol=getHoliday(ds,sHols),wd=wdMap[ds],isLocked=lockedDates.has(ds);
     if(lockedOnly&&wd&&!isLocked)return;
@@ -1576,7 +1581,7 @@ function exportRekapCSV(){
   if(!schedule)return;
   const data=window._rekapCounters;if(!data)return;
   const {c,allEmps,sSpmkp}=data;
-  let csv='\uFEFFPegawai,SPMKP,TPT Pagi,TPT Siang,Aplikasi,WA Pagi,WA Siang,WFH,Bebas Tugas,Cuti,Total\n';
+  let csv='\uFEFFPegawai,SPMKP,TPT Pagi,TPT Siang,Koord. Harian,WA Pagi,WA Siang,WFH,Bebas Tugas,Cuti,Total\n';
   (allEmps||[]).forEach(e=>{const cv=c[e]||{};csv+='"'+e+'",'+(sSpmkp||[]).includes(e)?'Ya':'Tidak';csv+=','+(cv.tpt_p||0)+','+(cv.tpt_s||0)+','+(cv.app||0)+','+(cv.wa_p||0)+','+(cv.wa_s||0)+','+(cv.wfh||0)+','+(cv.free||0)+','+(cv.leave_days||0)+','+(cv.total||0)+'\n';});
   /* Free detail */
   csv+='\nDetail Hari Bebas Tugas\nTanggal,Hari,Pegawai Bebas\n';
