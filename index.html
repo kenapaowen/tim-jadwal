@@ -42,6 +42,7 @@ input:focus,select:focus{border-color:#185FA5}
 .badge-free{background:#f0f0ec;color:#666;border:1px solid #ddd}
 .emp-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:#f5f5f3;border:1px solid #e8e8e4;border-radius:8px;font-size:12px;margin:3px}
 .emp-tag.spmkp-tag{background:#fdf5e0;border-color:#e9c87a}
+.emp-tag.cpns-tag{background:#e8f4fd;border-color:#9cc9ee}
 .emp-tag button{background:none;border:none;cursor:pointer;color:#999;font-size:14px;line-height:1;padding:0}
 .emp-tag button:hover{color:#a32d2d}
 .tag-wrap{display:flex;flex-wrap:wrap;min-height:36px;padding:4px;border:1px solid #ddd;border-radius:8px;background:#fff}
@@ -57,6 +58,8 @@ input:focus,select:focus{border-color:#185FA5}
 .rule-box{border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:12px}
 .rule-wfh{background:#e1f5ee;border:1px solid #9fe1cb;color:#085041}
 .rule-spmkp{background:#fdf5e0;border:1px solid #e9c87a;color:#7a4f00}
+.rule-cpns{background:#e8f4fd;border:1px solid #9cc9ee;color:#0c447c}
+.cpns-note{font-size:10px;color:#0c447c;background:#e1eefa;border-radius:3px;padding:1px 4px;display:inline-block}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
 .metric-card{background:#f5f5f3;border-radius:8px;padding:12px 16px}
 .metric-label{font-size:12px;color:#666;margin-bottom:4px}
@@ -189,6 +192,9 @@ input:focus,select:focus{border-color:#185FA5}
   <div class="rule-box rule-spmkp">
     <strong>Aturan SPMKP:</strong> Pegawai SPMKP mendapat maksimal <strong>50% slot TPT</strong> dibanding pegawai lain. SPMKP tidak dihitung dalam grafik beban utama.
   </div>
+  <div class="rule-box rule-cpns">
+    <strong>Aturan CPNS:</strong> Pegawai berstatus CPNS <strong>hanya dapat ditugaskan di TPT</strong> (Pagi/Siang). Tidak akan mendapat Koordinator Harian, WA Pagi, maupun WA Siang, baik saat generate otomatis maupun drag &amp; drop manual.
+  </div>
   <div class="grid-2">
     <div>
       <div class="card">
@@ -224,6 +230,14 @@ input:focus,select:focus{border-color:#185FA5}
           <div style="flex:0"><button class="btn btn-warn" onclick="addSpmkp()">+ Tambah SPMKP</button></div>
         </div>
         <div class="tag-wrap" id="spmkp-tags" style="min-height:36px"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#127891; Pegawai CPNS <span style="font-size:11px;color:#0c447c;font-weight:400">(hanya penugasan TPT)</span></div>
+        <div class="row">
+          <div><label>Pilih Pegawai</label><select id="sel-cpns-emp"><option value="">-- Pilih --</option></select></div>
+          <div style="flex:0"><button class="btn btn-primary" onclick="addCpns()">+ Tambah CPNS</button></div>
+        </div>
+        <div class="tag-wrap" id="cpns-tags" style="min-height:36px"></div>
       </div>
       <div class="card">
         <div class="card-title">&#9881; Konfigurasi Slot per Hari</div>
@@ -441,7 +455,7 @@ const SLOT_COLORS={tpt_p:'badge-tpt-p',tpt_s:'badge-tpt-s',app:'badge-app',wa_p:
 const LS_SETTINGS='timjadwal_settings_v3';
 const LS_SCHEDULE='timjadwal_schedule_v3';
 
-let employees=[],holidays=[],leaves=[],spmkpList=[],schedule=null;
+let employees=[],holidays=[],leaves=[],spmkpList=[],cpnsList=[],schedule=null;
 let lockedDates=new Set();
 let autoSaveTimer=null;
 
@@ -457,6 +471,9 @@ function getWorkdays(year,month,hols){
 }
 function isHoliday(ds,hols){return !!(hols||holidays).find(h=>h.date===ds);}
 function getHoliday(ds,hols){return (hols||holidays).find(h=>h.date===ds)||null;}
+/* CPNS hanya boleh TPT: true jika emp CPNS dan slot BUKAN tpt_p/tpt_s */
+function isCpns(e){return ((schedule&&schedule.cpnsList)||cpnsList).includes(e);}
+function cpnsBlocked(e,slot){return isCpns(e)&&slot!=='tpt_p'&&slot!=='tpt_s';}
 function isOnLeave(emp,ds,lv){return (lv||leaves).some(l=>l.emp===emp&&ds>=l.from&&ds<=l.to);}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmtDate(s){return fromDS(s).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});}
@@ -473,7 +490,7 @@ function computeFreeList(wd,emps){
 function autoSave(){
   clearTimeout(autoSaveTimer);
   autoSaveTimer=setTimeout(()=>{
-    try{localStorage.setItem(LS_SETTINGS,JSON.stringify({employees,holidays,leaves,spmkpList,month:document.getElementById('sel-month').value,year:document.getElementById('inp-year').value,
+    try{localStorage.setItem(LS_SETTINGS,JSON.stringify({employees,holidays,leaves,spmkpList,cpnsList,month:document.getElementById('sel-month').value,year:document.getElementById('inp-year').value,
       cfgTptP:document.getElementById('cfg-tpt-p').value,cfgTptS:document.getElementById('cfg-tpt-s').value,
       cfgApp:document.getElementById('cfg-app').value,cfgWaP:document.getElementById('cfg-wa-p').value,cfgWaS:document.getElementById('cfg-wa-s').value,
       cfgWfhPct:document.getElementById('cfg-wfh-pct').value}));
@@ -490,7 +507,7 @@ function getWfhPercent(){
 }
 function restoreSettings(){
   try{const raw=localStorage.getItem(LS_SETTINGS);if(!raw)return false;
-    const s=JSON.parse(raw);employees=s.employees||[];holidays=s.holidays||[];leaves=s.leaves||[];spmkpList=s.spmkpList||[];
+    const s=JSON.parse(raw);employees=s.employees||[];holidays=s.holidays||[];leaves=s.leaves||[];spmkpList=s.spmkpList||[];cpnsList=s.cpnsList||[];
     if(s.month!=null)document.getElementById('sel-month').value=s.month;
     if(s.year)document.getElementById('inp-year').value=s.year;
     if(s.cfgTptP!=null)document.getElementById('cfg-tpt-p').value=s.cfgTptP;
@@ -499,7 +516,7 @@ function restoreSettings(){
     if(s.cfgWaP!=null)document.getElementById('cfg-wa-p').value=s.cfgWaP;
     if(s.cfgWaS!=null)document.getElementById('cfg-wa-s').value=s.cfgWaS;
     if(s.cfgWfhPct!=null)document.getElementById('cfg-wfh-pct').value=s.cfgWfhPct;
-    renderEmpTags();renderHolidays();renderLeaves();renderSpmkpTags();return true;
+    renderEmpTags();renderHolidays();renderLeaves();renderSpmkpTags();renderCpnsTags();return true;
   }catch(e){return false;}
 }
 function restoreSchedule(){
@@ -508,13 +525,14 @@ function restoreSchedule(){
     if(!holidays.length&&schedule.holidays)holidays=schedule.holidays;
     if(!leaves.length&&schedule.leaves)leaves=schedule.leaves;
     if(!spmkpList.length&&schedule.spmkpList)spmkpList=schedule.spmkpList;
+    if(!cpnsList.length&&schedule.cpnsList)cpnsList=schedule.cpnsList;
     renderSchedule();renderDashboard();renderRekap();
   }catch(e){}
 }
 
 /* ── Settings export/import ── */
 function exportSettings(){
-  const data={_version:3,employees,holidays,leaves,spmkpList,month:document.getElementById('sel-month').value,year:document.getElementById('inp-year').value,
+  const data={_version:4,employees,holidays,leaves,spmkpList,cpnsList,month:document.getElementById('sel-month').value,year:document.getElementById('inp-year').value,
     cfgTptP:document.getElementById('cfg-tpt-p').value,cfgTptS:document.getElementById('cfg-tpt-s').value,
     cfgApp:document.getElementById('cfg-app').value,cfgWaP:document.getElementById('cfg-wa-p').value,cfgWaS:document.getElementById('cfg-wa-s').value,
     cfgWfhPct:document.getElementById('cfg-wfh-pct').value,exportedAt:new Date().toISOString()};
@@ -524,7 +542,7 @@ function importSettings(evt){
   const file=evt.target.files[0];if(!file)return;
   readJson(file,data=>{
     if(!data.employees){alert('File tidak valid.');return;}
-    employees=data.employees||[];holidays=data.holidays||[];leaves=data.leaves||[];spmkpList=data.spmkpList||[];
+    employees=data.employees||[];holidays=data.holidays||[];leaves=data.leaves||[];spmkpList=data.spmkpList||[];cpnsList=data.cpnsList||[];
     if(data.month!=null)document.getElementById('sel-month').value=data.month;
     if(data.year)document.getElementById('inp-year').value=data.year;
     if(data.cfgTptP!=null)document.getElementById('cfg-tpt-p').value=data.cfgTptP;
@@ -533,7 +551,7 @@ function importSettings(evt){
     if(data.cfgWaP!=null)document.getElementById('cfg-wa-p').value=data.cfgWaP;
     if(data.cfgWaS!=null)document.getElementById('cfg-wa-s').value=data.cfgWaS;
     if(data.cfgWfhPct!=null)document.getElementById('cfg-wfh-pct').value=data.cfgWfhPct;
-    renderEmpTags();renderHolidays();renderLeaves();renderSpmkpTags();autoSave();
+    renderEmpTags();renderHolidays();renderLeaves();renderSpmkpTags();renderCpnsTags();autoSave();
     showNotice('gen-notice','success','Pengaturan berhasil dimuat!');
   });evt.target.value='';
 }
@@ -707,19 +725,32 @@ function showPanel(name){
 function renderEmpTags(){
   const w=document.getElementById('emp-tags');w.innerHTML='';
   employees.forEach((e,i)=>{
-    const sp=spmkpList.includes(e);
-    const t=document.createElement('span');t.className='emp-tag'+(sp?' spmkp-tag':'');
-    t.innerHTML=(sp?'&#127970; ':'')+e+'<button onclick="removeEmp('+i+')">×</button>';w.appendChild(t);
+    const sp=spmkpList.includes(e),cp=cpnsList.includes(e);
+    const t=document.createElement('span');t.className='emp-tag'+(sp?' spmkp-tag':'')+(cp?' cpns-tag':'');
+    t.innerHTML=(sp?'&#127970; ':'')+(cp?'&#127891; ':'')+e+'<button onclick="removeEmp('+i+')">×</button>';w.appendChild(t);
   });
   document.getElementById('emp-count').textContent=employees.length;
   ['sel-leave-emp'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='<option value="">-- Pilih --</option>';employees.forEach(e=>s.innerHTML+='<option value="'+e+'">'+e+'</option>');});
   const ss=document.getElementById('sel-spmkp-emp');ss.innerHTML='<option value="">-- Pilih --</option>';
-  employees.filter(e=>!spmkpList.includes(e)).forEach(e=>ss.innerHTML+='<option value="'+e+'">'+e+'</option>');
+  employees.filter(e=>!spmkpList.includes(e)&&!cpnsList.includes(e)).forEach(e=>ss.innerHTML+='<option value="'+e+'">'+e+'</option>');
+  const sc=document.getElementById('sel-cpns-emp');sc.innerHTML='<option value="">-- Pilih --</option>';
+  employees.filter(e=>!cpnsList.includes(e)&&!spmkpList.includes(e)).forEach(e=>sc.innerHTML+='<option value="'+e+'">'+e+'</option>');
 }
 function addEmp(){const v=document.getElementById('inp-emp').value.trim();if(!v)return;if(employees.length>=25){alert('Maks 25');return;}if(employees.includes(v)){alert('Nama sudah ada');return;}employees.push(v);document.getElementById('inp-emp').value='';renderEmpTags();autoSave();}
-function removeEmp(i){const n=employees[i];employees.splice(i,1);spmkpList=spmkpList.filter(e=>e!==n);renderEmpTags();renderSpmkpTags();autoSave();}
-function clearEmps(){if(confirm('Hapus semua pegawai?')){employees=[];spmkpList=[];renderEmpTags();renderSpmkpTags();autoSave();}}
-function loadDefaults(){employees=['MBA LIA','MBA RARA','MBA AGNES','KAK NISA','KAK SILVI','OWEN','MAS IRVAN','LULU','MAS FARRIS','IZZA','EKA','WINDY'];spmkpList=[];document.getElementById('sel-month').value=4;document.getElementById('inp-year').value=2026;renderEmpTags();renderSpmkpTags();autoSave();}
+function removeEmp(i){const n=employees[i];employees.splice(i,1);spmkpList=spmkpList.filter(e=>e!==n);cpnsList=cpnsList.filter(e=>e!==n);renderEmpTags();renderSpmkpTags();renderCpnsTags();autoSave();}
+function clearEmps(){if(confirm('Hapus semua pegawai?')){employees=[];spmkpList=[];cpnsList=[];renderEmpTags();renderSpmkpTags();renderCpnsTags();autoSave();}}
+function loadDefaults(){employees=['MBA LIA','MBA RARA','MBA AGNES','KAK NISA','KAK SILVI','OWEN','MAS IRVAN','LULU','MAS FARRIS','IZZA','EKA','WINDY'];spmkpList=[];cpnsList=[];document.getElementById('sel-month').value=4;document.getElementById('inp-year').value=2026;renderEmpTags();renderSpmkpTags();renderCpnsTags();autoSave();}
+
+/* ── CPNS (hanya TPT) ── */
+function addCpns(){const v=document.getElementById('sel-cpns-emp').value;if(!v)return;if(cpnsList.includes(v))return;cpnsList.push(v);renderCpnsTags();renderEmpTags();autoSave();
+  if(schedule){const bad=schedule.workdays.filter(w=>['app','wa_p','wa_s'].some(k=>(w.assignments[k]||[]).includes(v))).length;
+    if(bad)showToast('⚠ '+v+' masih punya penugasan non-TPT di '+bad+' hari pada jadwal yang ada. Generate ulang atau pindahkan manual.',5000);}}
+function removeCpns(i){cpnsList.splice(i,1);renderCpnsTags();renderEmpTags();autoSave();}
+function renderCpnsTags(){
+  const w=document.getElementById('cpns-tags');w.innerHTML='';
+  if(!cpnsList.length){w.innerHTML='<span style="font-size:12px;color:#999;padding:4px">Belum ada.</span>';return;}
+  cpnsList.forEach((e,i)=>{const t=document.createElement('span');t.className='emp-tag cpns-tag';t.innerHTML='&#127891; '+e+'<button onclick="removeCpns('+i+')">×</button>';w.appendChild(t);});
+}
 
 /* ── SPMKP ── */
 function addSpmkp(){const v=document.getElementById('sel-spmkp-emp').value;if(!v)return;if(spmkpList.includes(v))return;spmkpList.push(v);renderSpmkpTags();renderEmpTags();autoSave();}
@@ -805,7 +836,7 @@ function generateSchedule(partialMode, lockedMode){
   try{
   const month=parseInt(document.getElementById('sel-month').value);
   const year=parseInt(document.getElementById('inp-year').value);
-  const curHols=[...holidays],curLeaves=[...leaves],curSpmkp=[...spmkpList];
+  const curHols=[...holidays],curLeaves=[...leaves],curSpmkp=[...spmkpList],curCpns=[...cpnsList];
   const workdays=getWorkdays(year,month,curHols);
   if(!workdays.length){showNotice('gen-notice','warn','Tidak ada hari kerja di periode ini.');return;}
 
@@ -886,7 +917,8 @@ function generateSchedule(partialMode, lockedMode){
     const dayDow=fromDS(day.date).getDay(); /* 1=Mon..5=Fri */
 
     const pick=(key,count,isTpt=false,wfhComp=false)=>{
-      const pool=avail.filter(e=>!assigned.has(e));
+      /* CPNS: hanya boleh TPT -> dikeluarkan dari pool slot non-TPT (hard constraint) */
+      const pool=avail.filter(e=>!assigned.has(e)&&(isTpt||!curCpns.includes(e)));
       const pref=[],defer=[];
       pool.forEach(e=>{
         if(isTpt){
@@ -985,7 +1017,7 @@ function generateSchedule(partialMode, lockedMode){
     result.push({date:day.date,isFriday:isFri,assignments:{tpt_p,tpt_s,app,wa_p,wa_s},wfhList,onLeave,freeList});
   });
 
-  schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...curHols],leaves:[...curLeaves],spmkpList:[...curSpmkp]};
+  schedule={month,year,workdays:result,counters,employees:[...employees],holidays:[...curHols],leaves:[...curLeaves],spmkpList:[...curSpmkp],cpnsList:[...curCpns]};
   saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
 
   const msg=partialMode?'Regenerate selesai! '+lockedDates.size+' hari terkunci dipertahankan.':'Jadwal berhasil digenerate!';
@@ -1183,6 +1215,7 @@ function applyDragDrop(zone){
   const tgtWd=schedule.workdays.find(w=>w.date===tgtDate);
   if(!srcWd||!tgtWd)return;
   if(isOnLeave(emp,tgtDate,sLeaves)){showToast('⚠ '+emp+' sedang cuti di '+tgtDate);return;}
+  if(cpnsBlocked(emp,tgtSlot)){showToast('⚠ '+emp+' berstatus CPNS, hanya boleh penugasan TPT');return;}
   const tgtArr=tgtWd.assignments[tgtSlot];
   if(isFromWfh){
     if(tgtDate!==srcDate){showToast('⚠ Pindah dari WFH ke slot hanya untuk hari yang sama');return;}
@@ -1203,7 +1236,7 @@ function applyDragDrop(zone){
     const srcArr=srcWd.assignments[srcSlot];const srcIdx=srcArr.indexOf(emp);if(srcIdx===-1)return;
     if(tgtArr.length>0&&tgtArr.length<=srcArr.length){
       const swapEmp=tgtArr[0];
-      if(!isOnLeave(swapEmp,srcDate,sLeaves)){tgtArr[0]=emp;srcArr[srcIdx]=swapEmp;}
+      if(!isOnLeave(swapEmp,srcDate,sLeaves)&&!cpnsBlocked(swapEmp,srcSlot)){tgtArr[0]=emp;srcArr[srcIdx]=swapEmp;}
       else{srcArr.splice(srcIdx,1);tgtArr.push(emp);}
     } else {srcArr.splice(srcIdx,1);tgtArr.push(emp);}
     recalcWfh(srcWd);srcWd.freeList=computeFreeList(srcWd,emps);
@@ -1212,7 +1245,7 @@ function applyDragDrop(zone){
     const srcArr=srcWd.assignments[srcSlot];const srcIdx=srcArr.indexOf(emp);
     if(srcIdx===-1&&!fromFree)return;
     if(tgtArr.includes(emp)){showToast('⚠ '+emp+' sudah ada di '+SLOT_LABELS[tgtSlot]+' di '+tgtDate);return;}
-    const swapCandidates=tgtArr.filter(e=>e!==emp&&!isOnLeave(e,srcDate,sLeaves));
+    const swapCandidates=tgtArr.filter(e=>e!==emp&&!isOnLeave(e,srcDate,sLeaves)&&!cpnsBlocked(e,srcSlot));
     if(swapCandidates.length>0&&!fromFree){
       const swapEmp=swapCandidates[0];
       tgtArr.splice(tgtArr.indexOf(swapEmp),1);tgtArr.push(emp);
@@ -1325,7 +1358,7 @@ function renderSchedule(){
           const isSp=(sSpmkp||[]).includes(e);
           html+='<span class="badge '+SLOT_COLORS[key]+'"'
             +(!locked?' draggable="true" data-drag="1" data-date="'+ds+'" data-slot="'+key+'" data-emp="'+e+'"':'')
-            +'>'+(isSp?'&#127970;':'')+e+'</span>';
+            +'>'+(isSp?'&#127970;':'')+((schedule.cpnsList||[]).includes(e)?'&#127891;':'')+e+'</span>';
         });
         html+='</div>';return html;
       };
@@ -1448,7 +1481,7 @@ function renderDashboard(){
     const cv=c[e]||{tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,total:0};
     const isSp=(sSpmkp||[]).includes(e);
     return '<tr'+(isSp?' style="background:#fdf5e0"':'')+'>'
-      +'<td>'+e+(isSp?' <span class="spmkp-note">&#127970;</span>':'')+'</td>'
+      +'<td>'+e+(isSp?' <span class="spmkp-note">&#127970;</span>':'')+((schedule.cpnsList||[]).includes(e)?' <span class="cpns-note">CPNS</span>':'')+'</td>'
       +'<td>'+(isSp?'&#9989;':'\u2014')+'</td>'
       +'<td>'+cv.tpt_p+'</td><td>'+cv.tpt_s+'</td><td>'+cv.app+'</td>'
       +'<td>'+cv.wa_p+'</td><td>'+cv.wa_s+'</td>'
@@ -1517,7 +1550,7 @@ function buildRekapTable(){
     const cv=c[e]||{};const isSp=(sSpmkp||[]).includes(e);
     Object.keys(tot).forEach(k=>{if(cv[k]!==undefined)tot[k]+=cv[k];});
     html+='<tr'+(isSp?' style="background:#fdf9f0"':'')+'>'
-      +'<td>'+e+(isSp?' <span class="spmkp-note">&#127970;</span>':'')+'</td>'
+      +'<td>'+e+(isSp?' <span class="spmkp-note">&#127970;</span>':'')+((schedule.cpnsList||[]).includes(e)?' <span class="cpns-note">CPNS</span>':'')+'</td>'
       +'<td>'+(isSp?'&#9989;':'\u2014')+'</td>'
       +'<td>'+(cv.tpt_p||0)+'</td><td>'+(cv.tpt_s||0)+'</td><td>'+(cv.app||0)+'</td>'
       +'<td>'+(cv.wa_p||0)+'</td><td>'+(cv.wa_s||0)+'</td>'
@@ -1594,7 +1627,7 @@ function exportJadwal(lockedOnly){
   if(!schedule)return;
   const wds=lockedOnly?schedule.workdays.filter(w=>lockedDates.has(w.date)):schedule.workdays;
   if(!wds.length){alert('Tidak ada hari yang tersedia');return;}
-  const data={_type:'jadwal',_version:3,month:schedule.month,year:schedule.year,employees:schedule.employees,holidays:schedule.holidays,leaves:schedule.leaves,spmkpList:schedule.spmkpList||[],workdays:wds,exportedAt:new Date().toISOString()};
+  const data={_type:'jadwal',_version:3,month:schedule.month,year:schedule.year,employees:schedule.employees,holidays:schedule.holidays,leaves:schedule.leaves,spmkpList:schedule.spmkpList||[],cpnsList:schedule.cpnsList||[],workdays:wds,exportedAt:new Date().toISOString()};
   dl(JSON.stringify(data,null,2),'application/json','Jadwal_'+MONTHS[schedule.month]+'_'+schedule.year+(lockedOnly?'_terkunci':'_semua')+'.json');
 }
 function importJadwal(evt){
@@ -1613,12 +1646,12 @@ function importJadwal(evt){
       (w.wfhList||[]).forEach(e=>{if(newC[e])newC[e].wfh++;});
       (w.freeList||[]).forEach(e=>{if(newC[e])newC[e].free++;});
     });
-    schedule={month,year,workdays:data.workdays,counters:newC,employees:mergedEmps,holidays:data.holidays||holidays,leaves:data.leaves||leaves,spmkpList:data.spmkpList||spmkpList};
+    schedule={month,year,workdays:data.workdays,counters:newC,employees:mergedEmps,holidays:data.holidays||holidays,leaves:data.leaves||leaves,spmkpList:data.spmkpList||spmkpList,cpnsList:data.cpnsList||cpnsList};
     data.workdays.forEach(w=>lockedDates.add(w.date));
     saveScheduleToLS();renderSchedule();renderDashboard();renderRekap();
-    employees=mergedEmps;holidays=data.holidays||holidays;leaves=data.leaves||leaves;spmkpList=data.spmkpList||spmkpList;
+    employees=mergedEmps;holidays=data.holidays||holidays;leaves=data.leaves||leaves;spmkpList=data.spmkpList||spmkpList;cpnsList=data.cpnsList||cpnsList;
     document.getElementById('sel-month').value=month;document.getElementById('inp-year').value=year;
-    renderEmpTags();renderHolidays();renderLeaves();renderSpmkpTags();autoSave();
+    renderEmpTags();renderHolidays();renderLeaves();renderSpmkpTags();renderCpnsTags();autoSave();
     showPanel('schedule');
     const n=document.getElementById('sched-notice');n.style.display='block';n.textContent='Import selesai. '+data.workdays.length+' hari otomatis terkunci.';setTimeout(()=>n.style.display='none',5000);
   });evt.target.value='';
