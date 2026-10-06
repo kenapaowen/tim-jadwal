@@ -847,6 +847,10 @@ function generateSchedule(partialMode, lockedMode){
   const counters={};
   employees.forEach(e=>{counters[e]={tpt_p:0,tpt_s:0,app:0,wa_p:0,wa_s:0,wfh:0,free:0,fridayFree:0,total:0,lastDow:{tpt_p:-1,tpt_s:-1,app:-1,wa_p:-1,wa_s:-1}};});
 
+  /* Set pegawai yang bebas tugas di Jumat sebelumnya (prioritas rotasi Jumat berikutnya).
+     Harus dideklarasikan SEBELUM blok seed di bawah, yang ikut mengisinya. */
+  let lastFriWasFreeSet=new Set();
+
   /* Seed counters from locked rows */
   if(partialMode&&schedule){
     schedule.workdays.forEach(w=>{
@@ -899,10 +903,6 @@ function generateSchedule(partialMode, lockedMode){
   const WFH_COMP_WEIGHT=0.6;
 
   const result=[];
-  /* Set berisi pegawai yang bebas tugas di Jumat sebelumnya.
-     Dipakai agar mereka diprioritaskan dapat slot di Jumat berikutnya
-     sehingga orang yang bebas Jumat berganti-ganti setiap minggu. */
-  let lastFriWasFreeSet=new Set();
 
   workdays.forEach(day=>{
     /* Keep locked rows as-is */
